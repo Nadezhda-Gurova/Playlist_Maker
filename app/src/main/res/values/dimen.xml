@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <dimen name="margin_between_buttom">16dp</dimen>dimen>
+    <dimen name="radius">16dp</dimen>dimen>
+    <dimen name="icon_padding">10dp</dimen>dimen>
+    <dimen name="button_height">61dp</dimen>dimen>
+    <dimen name="text_size">16sp</dimen>dimen>
+    <dimen name="gap_between_bottom">16dp</dimen>dimen>
+</resources>
