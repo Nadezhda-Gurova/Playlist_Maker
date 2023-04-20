@@ -13,23 +13,25 @@ class MainActivity : AppCompatActivity() {
         val search = findViewById<Button>(R.id.search_button)
 
         search.setOnClickListener {
-            val intent = Intent(this, SearchActivity::class.java)
-            startActivity(intent)
+            navigateTo(SearchActivity::class.java)
         }
 
         val settings = findViewById<Button>(R.id.settings_button)
 
         settings.setOnClickListener {
-            val intent = Intent(this, SettingsActivity::class.java)
-            startActivity(intent)
+            navigateTo(SettingsActivity::class.java)
         }
 
         val media = findViewById<Button>(R.id.media_button)
 
         media.setOnClickListener {
-            val intent = Intent(this, MediaActivity::class.java)
-            startActivity(intent)
+            navigateTo(MediaActivity::class.java)
         }
 
+    }
+
+    private fun navigateTo(clazz: Class<out AppCompatActivity>) {
+        val intent = Intent(this, clazz)
+        startActivity(intent)
     }
 }

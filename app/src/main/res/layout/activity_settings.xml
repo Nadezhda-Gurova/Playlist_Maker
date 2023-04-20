@@ -1,117 +1,131 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/white"
     android:orientation="vertical"
-    android:padding="20dp"
-    android:paddingTop="20dp">
+    android:paddingStart="@dimen/left_indent"
+    android:paddingTop="16dp">
+
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
-
 
         <ImageView
             android:id="@+id/back_button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center_vertical"
-            android:layout_marginEnd="28dp"
             android:src="@drawable/arrow_back"
-            tools:ignore="ContentDescription"/>
+            tools:ignore="ContentDescription" />
 
         <TextView
+
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center_vertical"
-            android:layout_marginStart="28dp"
+            android:layout_marginStart="24dp"
             android:text="@string/settings_title"
             android:textColor="@color/black"
-            android:textSize="22sp" />
+            android:textSize="@dimen/header_text" />
 
     </LinearLayout>
 
-    <FrameLayout
+    <Switch
+        android:id="@+id/black_theme"
         android:layout_width="match_parent"
+        android:layout_height="wrap_content"
         android:layout_marginTop="40dp"
-        android:layout_height="61dp">
+        android:paddingVertical="@dimen/padding_inside_container"
+        android:text="@string/black_theme"
+        android:textSize="@dimen/text_size"
+        tools:ignore="UseSwitchCompatOrMaterialXml" />
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingVertical="@dimen/padding_inside_container">
 
         <TextView
-            android:layout_width="match_parent"
+            android:id="@+id/share_text"
+            android:layout_width="0dp"
             android:layout_height="match_parent"
-            android:gravity="center_vertical"
-            android:text="@string/black_theme"
+            android:ellipsize="end"
+            android:maxLines="1"
+            android:text="@string/share_app"
+            android:textAlignment="textStart"
             android:textColor="@color/black"
-            android:textSize="16sp" />
+            android:textSize="@dimen/text_size"
+            app:layout_constraintEnd_toStartOf="@+id/share_ic"
+            app:layout_constraintStart_toStartOf="parent" />
 
-        <Switch
-            android:id="@+id/black_theme"
+        <ImageView
+            android:id="@+id/share_ic"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_gravity="center_vertical|end"
-            tools:ignore="UseSwitchCompatOrMaterialXml" />
-    </FrameLayout>
-    <FrameLayout
-        android:layout_width="match_parent"
-        android:layout_height="61dp">
-
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:gravity="center_vertical"
-            android:text="@string/share_app"
-            android:textColor="@color/black"
-            android:textSize="16sp" />
-
-        <ImageView
-            android:id="@+id/share_app"
-            android:layout_width="32dp"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center_vertical|end"
+            android:layout_marginEnd="@dimen/icon_indent"
             android:src="@drawable/share"
-            tools:ignore="ContentDescription" />
-    </FrameLayout>
-    <FrameLayout
+            app:layout_constraintEnd_toEndOf="parent"
+            tools:ignore="ContentDescription,MissingConstraints" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
-        android:layout_height="61dp">
+        android:layout_height="wrap_content"
+        android:paddingVertical="@dimen/padding_inside_container">
 
         <TextView
-            android:layout_width="match_parent"
+            android:id="@+id/write_to_support"
+            android:layout_width="0dp"
             android:layout_height="match_parent"
-            android:gravity="center_vertical"
+            android:ellipsize="end"
+            android:maxLines="1"
             android:text="@string/write_to_support"
+            android:textAlignment="textStart"
             android:textColor="@color/black"
-            android:textSize="16sp" />
+            android:textSize="@dimen/text_size"
+            app:layout_constraintEnd_toStartOf="@+id/write_to_support_ic"
+            app:layout_constraintStart_toStartOf="parent" />
 
         <ImageView
-            android:id="@+id/write_to_support"
-            android:layout_width="32dp"
+            android:id="@+id/write_to_support_ic"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_gravity="center_vertical|end"
+            android:layout_marginEnd="@dimen/icon_indent"
             android:src="@drawable/support"
-            tools:ignore="ContentDescription"
-            />
-    </FrameLayout>
-    <FrameLayout
+            app:layout_constraintEnd_toEndOf="parent"
+            tools:ignore="ContentDescription,MissingConstraints" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
-        android:layout_height="61dp">
+        android:layout_height="wrap_content"
+        android:paddingVertical="@dimen/padding_inside_container">
+
 
         <TextView
-            android:layout_width="match_parent"
+            android:id="@+id/terms_of_use"
+            android:layout_width="0dp"
             android:layout_height="match_parent"
-            android:gravity="center_vertical"
+            android:ellipsize="end"
+            android:maxLines="1"
             android:text="@string/terms_of_use"
             android:textColor="@color/black"
-            android:textSize="16sp" />
+            android:textSize="@dimen/text_size"
+            app:layout_constraintEnd_toStartOf="@+id/terms_of_use_ic"
+            app:layout_constraintStart_toStartOf="parent" />
 
         <ImageView
-            android:id="@+id/terms_of_use"
-            android:layout_width="32dp"
+            android:id="@+id/terms_of_use_ic"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_gravity="center_vertical|end"
+            android:layout_marginEnd="@dimen/icon_indent"
             android:src="@drawable/arrow_forward"
-            tools:ignore="ContentDescription"/>
-    </FrameLayout>
+            app:layout_constraintEnd_toEndOf="parent"
+            tools:ignore="ContentDescription,MissingConstraints" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
 </LinearLayout>

@@ -2,8 +2,13 @@
 <resources>
     <dimen name="margin_between_buttom">16dp</dimen>dimen>
     <dimen name="radius">16dp</dimen>dimen>
-    <dimen name="icon_padding">10dp</dimen>dimen>
-    <dimen name="button_height">61dp</dimen>dimen>
-    <dimen name="text_size">16sp</dimen>dimen>
+    <dimen name="text_icon_padding">8dp</dimen>dimen>
     <dimen name="gap_between_bottom">16dp</dimen>dimen>
+    <dimen name="header_text">22sp</dimen>dimen>
+    <dimen name="text_inside_buttom">22sp</dimen>dimen>
+    <dimen name="left_indent">16dp</dimen>dimen>
+    <dimen name="right_indent">16dp</dimen>dimen>
+    <dimen name="text_size">16sp</dimen>dimen>
+    <dimen name="padding_inside_container">21dp</dimen>dimen>
+    <dimen name="icon_indent">12dp</dimen>dimen>
 </resources>
