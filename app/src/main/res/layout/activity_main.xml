@@ -36,13 +36,13 @@
             android:backgroundTint="@color/white"
             android:text="@string/search"
             android:textAllCaps="false"
-            android:textColor="@color/black"
+            android:textColor="@color/black_light"
             android:textSize="@dimen/text_inside_buttom"
             app:cornerRadius="@dimen/radius"
             app:icon="@drawable/search"
             app:iconGravity="textStart"
             app:iconPadding="@dimen/text_icon_padding"
-            app:iconTint="@color/black" />
+            app:iconTint="@color/black_light" />
 
         <Button
             android:id="@+id/media_button"
@@ -53,13 +53,13 @@
             android:backgroundTint="@color/white"
             android:text="@string/media"
             android:textAllCaps="false"
-            android:textColor="@color/black"
+            android:textColor="@color/black_light"
             android:textSize="@dimen/text_inside_buttom"
             app:cornerRadius="@dimen/radius"
             app:icon="@drawable/media"
             app:iconGravity="textStart"
             app:iconPadding="@dimen/text_icon_padding"
-            app:iconTint="@color/black" />
+            app:iconTint="@color/black_light" />
 
         <Button
             android:id="@+id/settings_button"
@@ -70,13 +70,13 @@
             android:backgroundTint="@color/white"
             android:text="@string/settings"
             android:textAllCaps="false"
-            android:textColor="@color/black"
+            android:textColor="@color/black_light"
             android:textSize="@dimen/text_inside_buttom"
             app:cornerRadius="@dimen/radius"
             app:icon="@drawable/settings"
             app:iconGravity="textStart"
             app:iconPadding="@dimen/text_icon_padding"
-            app:iconTint="@color/black" />
+            app:iconTint="@color/black_light" />
 
     </LinearLayout>
 </LinearLayout>
