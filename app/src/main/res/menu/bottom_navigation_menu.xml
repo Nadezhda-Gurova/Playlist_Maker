@@ -1,4 +1,5 @@
-<menu xmlns:android="http://schemas.android.com/apk/res/android">
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
     <item
         android:id="@+id/page_1"
         android:enabled="true"
@@ -9,6 +10,7 @@
         android:id="@+id/page_2"
         android:enabled="true"
         android:icon="@drawable/media_buttom_toolbar"
+        app:itemIconTint="@color/black"
         android:title="@string/media" />
 
     <item
