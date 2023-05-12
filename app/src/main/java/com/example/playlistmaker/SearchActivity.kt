@@ -2,30 +2,22 @@ package com.example.playlistmaker
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
-import android.util.Log
 import android.view.View
 import android.widget.EditText
 import android.widget.ImageView
 import androidx.appcompat.app.AppCompatActivity
 
-const val log = "# SearchActivity"
 class SearchActivity : AppCompatActivity() {
     companion object {
         const val SEARCH_INPUT = "SEARCH_INPUT"
-    }
-
-    init {
-        Log.d(log, "constructor")
     }
 
     private lateinit var inputEditText: EditText
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        Log.d(log, "onCreate")
         setContentView(R.layout.activity_search)
 
-//        val linearLayout = findViewById<ConstraintLayout>(R.id.container)
         val clearButton = findViewById<ImageView>(R.id.clearIcon)
         inputEditText = findViewById(R.id.inputEditText)
 
@@ -64,39 +56,12 @@ class SearchActivity : AppCompatActivity() {
 
     override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
-        Log.d(log, "onSaveInstanceState")
         outState.putString(SEARCH_INPUT, inputEditText.text.toString())
     }
 
     override fun onRestoreInstanceState(savedInstanceState: Bundle) {
         super.onRestoreInstanceState(savedInstanceState)
-        Log.d(log, "onRestoreInstanceState")
         inputEditText.setText(savedInstanceState.getString(SEARCH_INPUT, ""))
-    }
-
-    override fun onResume() {
-        super.onResume()
-        Log.d(log, "onResume")
-    }
-
-    override fun onPause() {
-        super.onPause()
-        Log.d(log, "onPause")
-    }
-
-    override fun onStart() {
-        super.onStart()
-        Log.d(log, "onStart")
-    }
-
-    override fun onStop() {
-        super.onStop()
-        Log.d(log, "onStop")
-    }
-
-    override fun onDestroy() {
-        super.onDestroy()
-        Log.d(log, "onDestroy")
     }
 
 }
