@@ -18,7 +18,7 @@
         <ImageView
             android:id="@+id/back_button"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_height="27dp"
             android:layout_gravity="center_vertical"
             android:src="@drawable/arrow_back"
             tools:ignore="ContentDescription" />
@@ -35,7 +35,7 @@
 
     </LinearLayout>
 
-    <Switch
+    <androidx.appcompat.widget.SwitchCompat
         android:id="@+id/black_theme"
         android:layout_width="395dp"
         android:layout_height="wrap_content"
@@ -49,6 +49,7 @@
         tools:ignore="UseSwitchCompatOrMaterialXml" />
 
     <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/share_text_panel"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:paddingVertical="@dimen/padding_inside_container">
@@ -69,6 +70,7 @@
     </androidx.constraintlayout.widget.ConstraintLayout>
 
     <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/write_to_support_panel"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:paddingVertical="@dimen/padding_inside_container">
@@ -86,12 +88,11 @@
             android:layout_width="20dp"
             android:layout_height="21dp"
             android:src="@drawable/support"
-            tools:ignore="ContentDescription,MissingConstraints"
-            tools:layout_editor_absoluteX="359dp"
-            tools:layout_editor_absoluteY="20dp" />
+            tools:ignore="ContentDescription,MissingConstraints" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 
     <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/terms_of_use_panel"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:paddingVertical="@dimen/padding_inside_container">
