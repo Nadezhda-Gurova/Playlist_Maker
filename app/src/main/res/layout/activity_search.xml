@@ -16,7 +16,7 @@
         android:src="@drawable/arrow_back_search"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        tools:ignore="ContentDescription,MissingConstraints" />
+        tools:ignore="ContentDescription" />
 
     <TextView
         android:id="@+id/title_search_page"
@@ -91,7 +91,6 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="24dp"
         app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
-        app:layout_constraintTop_toBottomOf="@+id/container"
-        tools:ignore="MissingConstraints" />
+        app:layout_constraintTop_toBottomOf="@+id/container" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
