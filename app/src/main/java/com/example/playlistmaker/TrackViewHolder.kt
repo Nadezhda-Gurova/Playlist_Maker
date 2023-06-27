@@ -23,7 +23,7 @@ class TrackViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
             .into(albumImage)
         songText.text = model.trackName
         authorText.text = model.artistName
-        timeText.text = model.trackTime
+        timeText.text = model.trackTime.toString()
 
     }
 

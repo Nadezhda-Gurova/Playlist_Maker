@@ -5,11 +5,21 @@ import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
 import android.view.View
+import android.view.View.OnClickListener
+import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.InputMethodManager
 import android.widget.EditText
 import android.widget.ImageView
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.RecyclerView
+import retrofit2.Call
+import retrofit2.Callback
+import retrofit2.Response
+import retrofit2.Retrofit
+import retrofit2.converter.gson.GsonConverterFactory
+import retrofit2.http.GET
+import retrofit2.http.Query
 
 class SearchActivity : AppCompatActivity() {
     companion object {
@@ -18,37 +28,10 @@ class SearchActivity : AppCompatActivity() {
 
     private var inputEditText: EditText? = null
 
-    private val tracks = TrackAdapter(
-        listOf(
-            Track(
-                "Smells Like Teen Spirit",
-                "Nirvana",
-                "5:01",
-                "https://is5-ssl.mzstatic.com/image/thumb/Music115/v4/7b/58/c2/7b58c21a-2b51-2bb2-e59a-9bb9b96ad8c3/00602567924166.rgb.jpg/100x100bb.jpg"
-            ),
+    private val tracks = arrayListOf<Track>()
 
-            Track(
-                "Billie Jean",
-                "Michael Jackson",
-                "4:35",
-                "https://is5-ssl.mzstatic.com/image/thumb/Music125/v4/3d/9d/38/3d9d3811-71f0-3a0e-1ada-3004e56ff852/827969428726.jpg/100x100bb.jpg"
-            ),
+    private val trackAdapter = TrackAdapter(tracks)
 
-            Track(
-                "Stayin' Alive",
-                "Bee Gees",
-                "4:10",
-                "https://is4-ssl.mzstatic.com/image/thumb/Music115/v4/1f/80/1f/1f801fc1-8c0f-ea3e-d3e5-387c6619619e/16UMGIM86640.rgb.jpg/100x100bb.jpg"
-            ),
-
-            Track(
-                "Whole Lotta Love",
-                "Led Zeppelin",
-                "5:33",
-                "https://is2-ssl.mzstatic.com/image/thumb/Music62/v4/7e/17/e3/7e17e33f-2efa-2a36-e916-7f808576cf6b/mzm.fyigqcbs.jpg/100x100bb.jpg"
-            ),
-        )
-    )
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -64,10 +47,8 @@ class SearchActivity : AppCompatActivity() {
         inputEditText = findViewById(R.id.inputEditText)
 
         clearButton.setOnClickListener {
-            Thread {
-                inputEditText?.setText("")
-            }.start()
             inputEditText?.setText("")
+            tracks.clear()
             clearButton.hideKeyboard()
         }
 
@@ -93,7 +74,76 @@ class SearchActivity : AppCompatActivity() {
         inputEditText?.addTextChangedListener(simpleTextWatcher)
 
         val rvTrack = findViewById<RecyclerView>(R.id.recyclerView)
-        rvTrack.adapter = tracks
+        rvTrack.adapter = trackAdapter
+
+
+        val iTunesBaseUrl = "https://itunes.apple.com"
+
+        val retrofit = Retrofit.Builder()
+            .baseUrl(iTunesBaseUrl)
+            .addConverterFactory(GsonConverterFactory.create())
+            .build()
+
+        val iTunesService = retrofit.create(IMDbApi::class.java)
+
+
+        fun showMessage(string: String, s: String) {
+            Toast.makeText(applicationContext, "ГАВ", Toast.LENGTH_LONG).show()
+        }
+//        {
+//            if (inputEditText?.text.toString().isNotEmpty()) {
+//                placeholderMessage.visibility = View.VISIBLE
+//                tracks.clear()
+//                rvTrack.adapter?.notifyDataSetChanged()
+//                placeholderMessage.text = text
+//                if (additionalMessage.isNotEmpty()) {
+//                    Toast.makeText(applicationContext, additionalMessage, Toast.LENGTH_LONG)
+//                        .show()
+//                }
+//            } else {
+//                placeholderMessage.visibility = View.GONE
+//            }
+//        }
+
+
+        inputEditText?.setOnEditorActionListener { _, actionId, _ ->
+            if (actionId == EditorInfo.IME_ACTION_DONE) {
+                iTunesService.search(inputEditText?.text.toString()).enqueue(
+                    object : Callback<ITunesResponse> {
+                        override fun onResponse(
+                            call: Call<ITunesResponse>,
+                            response: Response<ITunesResponse>
+                        ) {
+                            if (response.code() == 200) {
+                                tracks.clear()
+                                if (response.body()?.results?.isNotEmpty() == true) {
+                                    tracks.addAll(response.body()?.results!!)
+                                    rvTrack.adapter?.notifyDataSetChanged()
+                                }
+                                if (tracks.isEmpty()) {
+                                    showMessage(getString(R.string.nothing_found), "")
+                                } else {
+                                    showMessage("", "")
+                                }
+                            } else {
+                                showMessage(
+                                    getString(R.string.something_went_wrong),
+                                    response.code().toString()
+                                )
+                            }
+                        }
+
+                        override fun onFailure(call: Call<ITunesResponse>, t: Throwable) {
+                            showMessage(
+                                getString(R.string.something_went_wrong),
+                                t.message.toString()
+                            )
+                        }
+
+                    })
+                true
+            } else false
+        }
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
@@ -112,6 +162,18 @@ class SearchActivity : AppCompatActivity() {
     }
 
 }
+
+
+interface IMDbApi {
+    @GET("/search?entity=song ")
+    fun search(@Query("term") text: String): Call<ITunesResponse>
+}
+
+
+class ITunesResponse(
+    val resultCount: Int,
+    val results: List<Track>,
+)
 
 fun View.hideKeyboard() {
     val inputMethodManager =

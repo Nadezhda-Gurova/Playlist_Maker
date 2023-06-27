@@ -16,4 +16,6 @@
     <string name="public_offer">https://yandex.ru/legal/practicum_offer/</string>
     <string name="mail">nyud91@gmail.com</string>
     <string name="title">Choose Application</string>
+    <string name="nothing_found">ничего не найдено\n</string>
+    <string name="something_went_wrong">что-то пошло не так\n</string>
 </resources>
