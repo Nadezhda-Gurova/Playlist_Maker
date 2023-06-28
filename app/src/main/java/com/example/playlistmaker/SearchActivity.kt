@@ -4,15 +4,17 @@ import android.content.Context
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
+import android.util.Log
 import android.view.View
-import android.view.View.OnClickListener
 import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.InputMethodManager
+import android.widget.Button
 import android.widget.EditText
 import android.widget.ImageView
-import android.widget.Toast
+import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.RecyclerView
+import com.google.gson.GsonBuilder
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
@@ -31,6 +33,12 @@ class SearchActivity : AppCompatActivity() {
     private val tracks = arrayListOf<Track>()
 
     private val trackAdapter = TrackAdapter(tracks)
+    private var nothingFoundImg: ImageView? = null
+    private var nothingFoundText: TextView? = null
+    private var badConnectionImg: ImageView? = null
+    private var badConnectionText: TextView? = null
+    private var badConnectionButton: Button? = null
+    private var rvTrack: RecyclerView? = null
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -45,6 +53,12 @@ class SearchActivity : AppCompatActivity() {
 
         val clearButton = findViewById<ImageView>(R.id.clearIcon)
         inputEditText = findViewById(R.id.inputEditText)
+        nothingFoundImg = findViewById(R.id.nothing_found)
+        nothingFoundText = findViewById(R.id.nothing_found_text)
+        badConnectionImg = findViewById(R.id.bad_connection)
+        badConnectionText = findViewById(R.id.bad_connection_text)
+        badConnectionButton = findViewById(R.id.bad_connection_button)
+
 
         clearButton.setOnClickListener {
             inputEditText?.setText("")
@@ -73,77 +87,102 @@ class SearchActivity : AppCompatActivity() {
         }
         inputEditText?.addTextChangedListener(simpleTextWatcher)
 
-        val rvTrack = findViewById<RecyclerView>(R.id.recyclerView)
-        rvTrack.adapter = trackAdapter
+        rvTrack = findViewById(R.id.recyclerView)
+        rvTrack?.adapter = trackAdapter
 
 
         val iTunesBaseUrl = "https://itunes.apple.com"
 
         val retrofit = Retrofit.Builder()
             .baseUrl(iTunesBaseUrl)
-            .addConverterFactory(GsonConverterFactory.create())
+            .addConverterFactory(
+                GsonConverterFactory.create(
+                    GsonBuilder()
+                        .registerTypeAdapter(TrackTime::class.java, CustomTypeAdapter())
+                        .create()
+                )
+            )
             .build()
+
 
         val iTunesService = retrofit.create(IMDbApi::class.java)
 
-
-        fun showMessage(string: String, s: String) {
-            Toast.makeText(applicationContext, "ГАВ", Toast.LENGTH_LONG).show()
+        badConnectionButton?.setOnClickListener {
+            inputEditText!!.hideKeyboard()
+            searchSong(iTunesService, rvTrack!!)
         }
-//        {
-//            if (inputEditText?.text.toString().isNotEmpty()) {
-//                placeholderMessage.visibility = View.VISIBLE
-//                tracks.clear()
-//                rvTrack.adapter?.notifyDataSetChanged()
-//                placeholderMessage.text = text
-//                if (additionalMessage.isNotEmpty()) {
-//                    Toast.makeText(applicationContext, additionalMessage, Toast.LENGTH_LONG)
-//                        .show()
-//                }
-//            } else {
-//                placeholderMessage.visibility = View.GONE
-//            }
-//        }
-
 
         inputEditText?.setOnEditorActionListener { _, actionId, _ ->
             if (actionId == EditorInfo.IME_ACTION_DONE) {
-                iTunesService.search(inputEditText?.text.toString()).enqueue(
-                    object : Callback<ITunesResponse> {
-                        override fun onResponse(
-                            call: Call<ITunesResponse>,
-                            response: Response<ITunesResponse>
-                        ) {
-                            if (response.code() == 200) {
-                                tracks.clear()
-                                if (response.body()?.results?.isNotEmpty() == true) {
-                                    tracks.addAll(response.body()?.results!!)
-                                    rvTrack.adapter?.notifyDataSetChanged()
-                                }
-                                if (tracks.isEmpty()) {
-                                    showMessage(getString(R.string.nothing_found), "")
-                                } else {
-                                    showMessage("", "")
-                                }
-                            } else {
-                                showMessage(
-                                    getString(R.string.something_went_wrong),
-                                    response.code().toString()
-                                )
-                            }
-                        }
-
-                        override fun onFailure(call: Call<ITunesResponse>, t: Throwable) {
-                            showMessage(
-                                getString(R.string.something_went_wrong),
-                                t.message.toString()
-                            )
-                        }
-
-                    })
+                searchSong(iTunesService, rvTrack!!)
                 true
             } else false
         }
+    }
+
+    private fun showNothingFound(text: String, view: EditText?) {
+        if (text.isNotEmpty()) {
+            view?.hideKeyboard()
+            nothingFoundImg?.visibility = View.VISIBLE
+            nothingFoundText?.visibility = View.VISIBLE
+            tracks.clear()
+            rvTrack?.adapter?.notifyDataSetChanged()
+        } else {
+            view?.hideKeyboard()
+            nothingFoundImg?.visibility = View.GONE
+            nothingFoundText?.visibility = View.GONE
+        }
+    }
+
+    private fun showBadConnection(view: EditText) {
+        view.hideKeyboard()
+        badConnectionImg?.visibility = View.VISIBLE
+        badConnectionText?.visibility = View.VISIBLE
+        badConnectionButton?.visibility = View.VISIBLE
+        tracks.clear()
+        rvTrack?.adapter?.notifyDataSetChanged()
+    }
+
+    private fun searchSong(
+        iTunesService: IMDbApi,
+        rvTrack: RecyclerView
+    ) {
+        iTunesService.search(inputEditText?.text.toString()).enqueue(
+            object : Callback<ITunesResponse> {
+                override fun onResponse(
+                    call: Call<ITunesResponse>,
+                    response: Response<ITunesResponse>
+                ) {
+                    if (response.code() == 200) {
+                        hideNothingFound()
+                        tracks.clear()
+                        if (response.body()?.results?.isNotEmpty() == true) {
+                            tracks.addAll(response.body()?.results!!)
+                            rvTrack.adapter?.notifyDataSetChanged()
+                        } else {
+                            showNothingFound(
+                                inputEditText?.text.toString(),
+                                inputEditText
+                            )
+                        }
+                    }
+                }
+
+                override fun onFailure(call: Call<ITunesResponse>, t: Throwable) {
+                    Log.e("onFailure", t.message, t)
+                    hideNothingFound()
+                    showBadConnection(inputEditText!!)
+                }
+
+            })
+    }
+
+    private fun hideNothingFound() {
+        nothingFoundImg?.visibility = View.GONE
+        nothingFoundText?.visibility = View.GONE
+        badConnectionImg?.visibility = View.GONE
+        badConnectionText?.visibility = View.GONE
+        badConnectionButton?.visibility = View.GONE
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
