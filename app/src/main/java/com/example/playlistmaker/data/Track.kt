@@ -1,4 +1,4 @@
-package com.example.playlistmaker
+package com.example.playlistmaker.data
 
 import com.google.gson.annotations.SerializedName
 
@@ -10,4 +10,3 @@ data class Track(
     val artworkUrl100: String // Ссылка на изображение обложки
 )
 
-data class TrackTime(val time: String)
