@@ -16,20 +16,19 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.playlistmaker.OnTrackClickListener
 import com.example.playlistmaker.recyclerview.CustomTypeAdapter
 import com.example.playlistmaker.R
-import com.example.playlistmaker.SearchHistory
 import com.example.playlistmaker.data.Track
 import com.example.playlistmaker.recyclerview.TrackAdapter
 import com.example.playlistmaker.data.TrackTime
 import com.example.playlistmaker.extentions.hideKeyboard
 import com.example.playlistmaker.network.IMDbApi
 import com.example.playlistmaker.network.ITunesResponse
+import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
-import kotlin.reflect.KFunction0
 
 class SearchActivity : AppCompatActivity() {
 
@@ -50,17 +49,6 @@ class SearchActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_search)
-        val sharedPrefs = getSharedPreferences(VIEWED_TRACK, MODE_PRIVATE)
-        val searchHistory = SearchHistory(sharedPrefs)
-
-        val onTrackClickListener = object : OnTrackClickListener {
-
-            override fun onTrackClick(track: Track) {
-                searchHistory.writeTrack(track)
-            }
-        }
-
-
 
         val back = findViewById<ImageView>(R.id.back_in_search)
         back.setOnClickListener {
@@ -77,43 +65,66 @@ class SearchActivity : AppCompatActivity() {
         cleanHistoryButton = findViewById(R.id.clean_history_button)
         rvTrack = findViewById(R.id.recyclerView)
 
-        trackAdapter = TrackAdapter(tracks, onTrackClickListener)
-        rvTrack.adapter = trackAdapter
-
-        fun loadHistory () {
-            tracks.clear()
-            val historyTracks = searchHistory.readTracks()
-            tracks.addAll(historyTracks)
-            rvTrack.adapter?.notifyDataSetChanged()
-        }
 
         val clearButton = findViewById<ImageView>(R.id.clearIcon)
         clearButton.setOnClickListener {
             inputEditText.setText("")
-            loadHistory()
+            tracks.clear()
             clearButton.hideKeyboard()
+        }
+
+        val sharedPrefs = getSharedPreferences(VIEWED_TRACK, MODE_PRIVATE)
+
+
+        val onTrackClickListener = object : OnTrackClickListener {
+
+            override fun onTrackClick(track: Track) {
+                var tracksJson = sharedPrefs?.getString(VIEWED_TRACK_KEY, null)
+
+                tracksJson = tracksJson ?: "[]"
+                var tracks = createTracksFromJson(tracksJson)
+
+                var index = -1
+                for (i in tracks.indices) {
+                    if (tracks[i].trackId == track.trackId) {
+                        index = i
+                    }
+                }
+                if (index != -1) {
+                    tracks.drop(index)
+                    tracks += track
+                } else {
+                    tracks += track
+                }
+                sharedPrefs.edit().putString(
+                    VIEWED_TRACK_KEY, createJsonFromTracks(
+                        tracks
+                    )
+                )
+                    .apply()
+
+            }
         }
 
 
 
         listener = SharedPreferences.OnSharedPreferenceChangeListener { sharedPreferences, key ->
-            if (key == VIEWED_TRACK) {
-                val track = searchHistory.readTrack()
-                if (track != null) {
-                    searchHistory.writeTracks(track)
+            if (key == VIEWED_TRACK_KEY) {
+                val curTrack = sharedPreferences?.getString(VIEWED_TRACK_KEY, null)
+                if (curTrack != null) {
+//                    HistoryAdapter().data.add(0, createTracksFromJson(curTrack))
+                    trackAdapter.notifyItemInserted(0)
                 }
             }
         }
 
         sharedPrefs.registerOnSharedPreferenceChangeListener(listener)
 
-        val historyTracks = searchHistory.readTracks()
 
-        if (historyTracks.isNotEmpty()) {
-            tracks.addAll(historyTracks)
-        }
+        trackAdapter = TrackAdapter(tracks, onTrackClickListener)
+        rvTrack.adapter = trackAdapter
 
-        val simpleTextWatcher = getSimpleTextWatcher(clearButton, ::loadHistory)
+        val simpleTextWatcher = getSimpleTextWatcher(clearButton)
         inputEditText.addTextChangedListener(simpleTextWatcher)
 
         inputEditText.setOnFocusChangeListener { view, hasFocus ->
@@ -123,6 +134,15 @@ class SearchActivity : AppCompatActivity() {
         }
 
         setUpRecyclerWithRetrofit()
+    }
+
+    private fun createJsonFromTracks(tracks: Array<Track>): String {
+        return Gson().toJson(tracks)
+    }
+
+    private fun createTracksFromJson(json: String): Array<Track> {
+        Log.d("Я ТУТ", json)
+        return Gson().fromJson(json, Array<Track>::class.java)
     }
 
 
@@ -154,7 +174,7 @@ class SearchActivity : AppCompatActivity() {
         }
     }
 
-    private fun getSimpleTextWatcher(clearButton: ImageView, loadHistory: KFunction0<Unit>) = object : TextWatcher {
+    private fun getSimpleTextWatcher(clearButton: ImageView) = object : TextWatcher {
         override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
         }
 
@@ -165,10 +185,6 @@ class SearchActivity : AppCompatActivity() {
             cleanHistoryButton.visibility = isTextEntered
 
             clearButton.visibility = clearButtonVisibility(s)
-
-            if (isTextEntered == View.VISIBLE) {
-                loadHistory()
-            }
         }
 
         private fun clearButtonVisibility(s: CharSequence?): Int {
@@ -259,7 +275,7 @@ class SearchActivity : AppCompatActivity() {
 
     companion object {
         const val VIEWED_TRACK = "VIEWED_TRACK"
-        const val VIEWED_TRACKS = "key_for_viewed_tracks"
+        const val VIEWED_TRACK_KEY = "key_for_viewed_track"
         private const val SEARCH_INPUT = "SEARCH_INPUT"
         private const val ITUNES_BASE_URL = "https://itunes.apple.com"
     }
