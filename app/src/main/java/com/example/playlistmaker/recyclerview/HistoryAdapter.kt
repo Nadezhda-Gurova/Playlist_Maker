@@ -2,13 +2,12 @@ package com.example.playlistmaker.recyclerview
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
-
 import androidx.recyclerview.widget.RecyclerView
 import com.example.playlistmaker.OnTrackClickListener
 import com.example.playlistmaker.R
 import com.example.playlistmaker.data.Track
 
-class TrackAdapter(
+class HistoryAdapter(
     private val data: List<Track>,
     private val onTrackClickListener: OnTrackClickListener
 ) : RecyclerView.Adapter<TrackViewHolder>() {
