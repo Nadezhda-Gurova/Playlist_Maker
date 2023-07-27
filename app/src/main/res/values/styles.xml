@@ -62,6 +62,7 @@
     </style>
 
     <style name="UpdateButton" parent="Widget.MaterialComponents.Button.UnelevatedButton">
+        <item name="android:layout_marginTop">24dp</item>
         <item name="android:backgroundTint">@color/black</item>
         <item name="android:textAllCaps">false</item>
         <item name="android:textColor">@color/background_color</item>
