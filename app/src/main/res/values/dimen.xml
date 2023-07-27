@@ -12,4 +12,5 @@
     <dimen name="padding_inside_container">21dp</dimen>
     <dimen name="icon_indent">12dp</dimen>
     <dimen name="text_icon_indent_settings">8dp</dimen>
+    <dimen name="search_field">8dp</dimen>
 </resources>
