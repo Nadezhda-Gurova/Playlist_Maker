@@ -81,6 +81,7 @@ class SearchActivity : AppCompatActivity() {
         rvTrack.adapter = trackAdapter
 
         fun loadHistory () {
+            hideNothingFound()
             tracks.clear()
             val historyTracks = searchHistory.readTracks()
             tracks.addAll(historyTracks)
@@ -94,6 +95,11 @@ class SearchActivity : AppCompatActivity() {
             clearButton.hideKeyboard()
         }
 
+        cleanHistoryButton.setOnClickListener{
+            tracks.clear()
+            sharedPrefs.edit().clear().apply()
+            rvTrack.adapter?.notifyDataSetChanged()
+        }
 
 
         listener = SharedPreferences.OnSharedPreferenceChangeListener { sharedPreferences, key ->
