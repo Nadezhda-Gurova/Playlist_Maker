@@ -46,7 +46,7 @@
 
             <TextView
                 android:id="@+id/author"
-                android:layout_width="0dp"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_horizontal"
                 android:layout_marginTop="1dp"
@@ -60,8 +60,8 @@
 
             <ImageView
                 android:id="@+id/dot"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+                android:layout_width="13dp"
+                android:layout_height="13dp"
                 android:layout_gravity="center_vertical"
                 android:src="@drawable/dot"
                 tools:ignore="ContentDescription" />
@@ -76,7 +76,7 @@
                 android:lines="1"
                 android:textColor="@color/text_author"
                 android:textSize="16sp"
-                tools:text="2:55" />
+                tools:text="02:55" />
 
         </LinearLayout>
 
