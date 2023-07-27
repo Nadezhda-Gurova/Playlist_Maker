@@ -58,14 +58,20 @@
             android:id="@+id/share_text"
             style="@style/TextInSettings"
             android:text="@string/share_app"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintEnd_toStartOf="@+id/share_ic"
-            tools:ignore="MissingConstraints" />
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
 
         <ImageView
             android:id="@+id/share_ic"
             style="@style/IconStyle"
             android:src="@drawable/share"
-            tools:ignore="ContentDescription,MissingConstraints" />
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:ignore="ContentDescription" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 
@@ -79,8 +85,11 @@
             android:id="@+id/write_to_support"
             style="@style/TextInSettings"
             android:text="@string/write_to_support"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintEnd_toStartOf="@+id/write_to_support_ic"
-            tools:ignore="MissingConstraints" />
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
 
         <ImageView
             android:id="@+id/write_to_support_ic"
@@ -88,7 +97,10 @@
             android:layout_width="20dp"
             android:layout_height="21dp"
             android:src="@drawable/support"
-            tools:ignore="ContentDescription,MissingConstraints" />
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:ignore="ContentDescription" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -102,14 +114,20 @@
             android:id="@+id/terms_of_use"
             style="@style/TextInSettings"
             android:text="@string/terms_of_use"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintEnd_toStartOf="@+id/terms_of_use_ic"
-            tools:ignore="MissingConstraints" />
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
 
         <ImageView
             android:id="@+id/terms_of_use_ic"
             style="@style/IconStyle"
             android:layout_marginEnd="@dimen/icon_indent"
             android:src="@drawable/arrow_forward"
-            tools:ignore="ContentDescription,MissingConstraints" />
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:ignore="ContentDescription" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 </LinearLayout>

@@ -17,6 +17,7 @@
     <color name="icon_on_main_page_color">#1A1B22</color>
     <color name="light_gray">#E6E8EB</color>
     <color name="search">#AEAFB4</color>
+    <color name="text_author">#AEAFB4</color>
     <color name="wight">#FFFFFF</color>
     <color name="blue">#3772E7</color>
     <color name="text_in_search">#1A1B22</color>
