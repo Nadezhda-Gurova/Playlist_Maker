@@ -1,65 +1,57 @@
 package com.example.playlistmaker
 
 import android.content.SharedPreferences
-import com.example.playlistmaker.activity.SearchActivity.Companion.VIEWED_TRACK
 import com.example.playlistmaker.activity.SearchActivity.Companion.VIEWED_TRACKS
 import com.example.playlistmaker.data.Track
 import com.google.gson.Gson
+import com.google.gson.reflect.TypeToken
 
-class SearchHistory (private val sharedPreferences: SharedPreferences) {
-    private val history = arrayListOf<Track>()
-    fun readTrack(): Track? {
-        val json = sharedPreferences.getString(VIEWED_TRACK, null) ?: return null
-        return Gson().fromJson(json, Track::class.java)
-    }
+interface SearchTrackHistory {
 
-    fun readTracks(): Array<Track> {
-        val json = sharedPreferences.getString(VIEWED_TRACKS, null) ?: return arrayOf<Track>()
-        return Gson().fromJson(json, Array<Track>::class.java)
-    }
+    fun addTrack(track: Track)
 
-    fun writeTrack(track: Track) {
-        val json = Gson().toJson(track)
+    fun getTracks(): List<Track>
 
-        sharedPreferences.edit()
-                .putString(VIEWED_TRACK, json)
-                .apply()
-    }
-
-    fun writeTracks(track: Track?) {
-        if(track != null) {
-            var tracksJson = sharedPreferences.getString(VIEWED_TRACKS, null)
-
-            tracksJson = tracksJson ?: "[]"
-            val tracks = createTracksFromJson(tracksJson)
-
-            history.addAll(tracks)
-
-            val index = history.indexOf(track)
-
-            if (history.size <= 10) {
-                if (index != -1) {
-                    history.remove(track)
-                    history.add(0, track)
-                } else {
-                    history.add(track)
+    class Impl(
+        private val sharedPreferences: SharedPreferences
+    ) : SearchTrackHistory {
+        override fun addTrack(track: Track) {
+            val tracks = getTracks().toMutableList()
+            var indexOfElement = -1
+            for (i in tracks.indices) {
+                if (tracks[i].trackId == track.trackId) {
+                    indexOfElement = i
                 }
             }
 
-            sharedPreferences.edit().putString(
-                VIEWED_TRACKS, createJsonFromTracks(
-                    history
-                )
-            ).apply()
-            history.clear()
+            if (indexOfElement != -1) {
+                tracks.removeAt(indexOfElement)
+            }
+
+            tracks.add(0, track)
+            if (tracks.size > 10) {
+                tracks.subList(0, 10)
+            }
+
+            sharedPreferences.edit().putString(VIEWED_TRACKS, createJsonFromTracks(tracks)).apply()
         }
+
+        override fun getTracks(): List<Track> {
+            return createTracksFromJson(sharedPreferences.getString(VIEWED_TRACKS, null))
+        }
+
+        private fun createJsonFromTracks(tracks: List<Track>): String {
+            return Gson().toJson(tracks)
+        }
+
+        private fun createTracksFromJson(json: String?): List<Track> {
+            if (json == null) {
+                return emptyList()
+            }
+            val item = object : TypeToken<List<Track>>() {}.type
+            return Gson().fromJson(json, item)
+        }
+
     }
 
-    private fun createJsonFromTracks(tracks: ArrayList<Track>): String {
-        return Gson().toJson(tracks)
-    }
-
-    private fun createTracksFromJson(json: String): Array<Track> {
-        return Gson().fromJson(json, Array<Track>::class.java)
-    }
 }

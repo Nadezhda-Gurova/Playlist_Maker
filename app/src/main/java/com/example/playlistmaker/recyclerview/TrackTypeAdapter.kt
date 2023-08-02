@@ -7,7 +7,7 @@ import com.google.gson.stream.JsonWriter
 import java.text.SimpleDateFormat
 import java.util.Locale
 
-class CustomTypeAdapter : TypeAdapter<TrackTime>() {
+class TrackTypeAdapter : TypeAdapter<TrackTime>() {
 
     private val formatter = SimpleDateFormat("mm:ss", Locale.getDefault())
 

@@ -1,6 +1,5 @@
 package com.example.playlistmaker.activity
 
-import android.content.SharedPreferences
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
@@ -14,15 +13,15 @@ import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.RecyclerView
 import com.example.playlistmaker.OnTrackClickListener
-import com.example.playlistmaker.recyclerview.CustomTypeAdapter
 import com.example.playlistmaker.R
-import com.example.playlistmaker.SearchHistory
+import com.example.playlistmaker.SearchTrackHistory
 import com.example.playlistmaker.data.Track
-import com.example.playlistmaker.recyclerview.TrackAdapter
 import com.example.playlistmaker.data.TrackTime
 import com.example.playlistmaker.extentions.hideKeyboard
 import com.example.playlistmaker.network.IMDbApi
 import com.example.playlistmaker.network.ITunesResponse
+import com.example.playlistmaker.recyclerview.TrackAdapter
+import com.example.playlistmaker.recyclerview.TrackTypeAdapter
 import com.google.gson.GsonBuilder
 import retrofit2.Call
 import retrofit2.Callback
@@ -45,21 +44,19 @@ class SearchActivity : AppCompatActivity() {
     private lateinit var rvTrack: RecyclerView
     private lateinit var hintMessage: TextView
     private lateinit var cleanHistoryButton: Button
-    private lateinit var listener: SharedPreferences.OnSharedPreferenceChangeListener
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_search)
         val sharedPrefs = getSharedPreferences(VIEWED_TRACK, MODE_PRIVATE)
-        val searchHistory = SearchHistory(sharedPrefs)
+        val searchHistory = SearchTrackHistory.Impl(sharedPrefs)
 
         val onTrackClickListener = object : OnTrackClickListener {
 
             override fun onTrackClick(track: Track) {
-                searchHistory.writeTrack(track)
+                searchHistory.addTrack(track)
             }
         }
-
 
 
         val back = findViewById<ImageView>(R.id.back_in_search)
@@ -80,10 +77,10 @@ class SearchActivity : AppCompatActivity() {
         trackAdapter = TrackAdapter(tracks, onTrackClickListener)
         rvTrack.adapter = trackAdapter
 
-        fun loadHistory () {
+        fun loadHistory() {
             hideNothingFound()
             tracks.clear()
-            val historyTracks = searchHistory.readTracks()
+            val historyTracks = searchHistory.getTracks()
             tracks.addAll(historyTracks)
             rvTrack.adapter?.notifyDataSetChanged()
         }
@@ -95,37 +92,31 @@ class SearchActivity : AppCompatActivity() {
             clearButton.hideKeyboard()
         }
 
-        cleanHistoryButton.setOnClickListener{
+        cleanHistoryButton.setOnClickListener {
             tracks.clear()
             sharedPrefs.edit().clear().apply()
             rvTrack.adapter?.notifyDataSetChanged()
         }
 
-
-        listener = SharedPreferences.OnSharedPreferenceChangeListener { sharedPreferences, key ->
-            if (key == VIEWED_TRACK) {
-                val track = searchHistory.readTrack()
-                if (track != null) {
-                    searchHistory.writeTracks(track)
-                }
-            }
-        }
-
-        sharedPrefs.registerOnSharedPreferenceChangeListener(listener)
-
-        val historyTracks = searchHistory.readTracks()
+        val historyTracks = searchHistory.getTracks()
 
         if (historyTracks.isNotEmpty()) {
             tracks.addAll(historyTracks)
+        } else {
+            hintMessage.visibility = View.GONE
+            cleanHistoryButton.visibility = View.GONE
         }
 
         val simpleTextWatcher = getSimpleTextWatcher(clearButton, ::loadHistory)
         inputEditText.addTextChangedListener(simpleTextWatcher)
 
         inputEditText.setOnFocusChangeListener { view, hasFocus ->
-            val inFocus = if (hasFocus && inputEditText.text.isEmpty()) View.VISIBLE else View.GONE
-            hintMessage.visibility = inFocus
-            cleanHistoryButton.visibility = inFocus
+            val historyVisibility = if (hasFocus && inputEditText.text.isEmpty() && searchHistory.getTracks()
+                    .isNotEmpty()
+            ) View.VISIBLE else View.GONE
+            hintMessage.visibility = historyVisibility
+            cleanHistoryButton.visibility = historyVisibility
+
         }
 
         setUpRecyclerWithRetrofit()
@@ -138,7 +129,7 @@ class SearchActivity : AppCompatActivity() {
             .addConverterFactory(
                 GsonConverterFactory.create(
                     GsonBuilder()
-                        .registerTypeAdapter(TrackTime::class.java, CustomTypeAdapter())
+                        .registerTypeAdapter(TrackTime::class.java, TrackTypeAdapter())
                         .create()
                 )
             )
@@ -160,34 +151,37 @@ class SearchActivity : AppCompatActivity() {
         }
     }
 
-    private fun getSimpleTextWatcher(clearButton: ImageView, loadHistory: KFunction0<Unit>) = object : TextWatcher {
-        override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
-        }
+    private fun getSimpleTextWatcher(clearButton: ImageView, loadHistory: KFunction0<Unit>) =
+        object : TextWatcher {
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
+            }
 
-        override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
-            val isTextEntered = if (
-                inputEditText.hasFocus() && s?.isEmpty() == true) View.VISIBLE else View.GONE
-            hintMessage.visibility = isTextEntered
-            cleanHistoryButton.visibility = isTextEntered
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+                val isTextEntered = if (
+                    inputEditText.hasFocus() && s?.isEmpty() == true
+                ) View.VISIBLE else View.GONE
 
-            clearButton.visibility = clearButtonVisibility(s)
+                hintMessage.visibility = isTextEntered
+                cleanHistoryButton.visibility = isTextEntered
 
-            if (isTextEntered == View.VISIBLE) {
-                loadHistory()
+                clearButton.visibility = clearButtonVisibility(s)
+
+                if (isTextEntered == View.VISIBLE) {
+                    loadHistory()
+                }
+            }
+
+            private fun clearButtonVisibility(s: CharSequence?): Int {
+                return if (s.isNullOrEmpty()) {
+                    View.GONE
+                } else {
+                    View.VISIBLE
+                }
+            }
+
+            override fun afterTextChanged(s: Editable?) {
             }
         }
-
-        private fun clearButtonVisibility(s: CharSequence?): Int {
-            return if (s.isNullOrEmpty()) {
-                View.GONE
-            } else {
-                View.VISIBLE
-            }
-        }
-
-        override fun afterTextChanged(s: Editable?) {
-        }
-    }
 
     private fun showNothingFound(text: String, view: EditText?) {
         if (text.isNotEmpty()) {
