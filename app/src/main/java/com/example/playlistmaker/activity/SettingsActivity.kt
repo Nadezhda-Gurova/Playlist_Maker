@@ -1,5 +1,6 @@
 package com.example.playlistmaker.activity
 
+import android.content.ActivityNotFoundException
 import android.content.Intent
 import android.content.Intent.createChooser
 import android.net.Uri
@@ -20,11 +21,22 @@ class SettingsActivity : AppCompatActivity() {
 
         initBackButton()
 
-        initShare()
+        try {
+            initShare()
+        } catch (_: ActivityNotFoundException) {
+        }
 
-        initWriteToSupport()
 
-        initTermOfUse()
+        try {
+            initWriteToSupport()
+        } catch (_: ActivityNotFoundException) {
+        }
+
+
+        try {
+            initTermOfUse()
+        } catch (_: ActivityNotFoundException) {
+        }
 
         setBlackTheme()
     }
