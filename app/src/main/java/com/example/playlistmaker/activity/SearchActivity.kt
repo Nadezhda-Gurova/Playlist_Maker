@@ -15,6 +15,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.playlistmaker.OnTrackClickListener
 import com.example.playlistmaker.R
 import com.example.playlistmaker.SearchTrackHistory
+import com.example.playlistmaker.SearchTrackHistoryImplementation
 import com.example.playlistmaker.data.Track
 import com.example.playlistmaker.data.TrackTime
 import com.example.playlistmaker.extentions.hideKeyboard
@@ -28,7 +29,8 @@ import retrofit2.Callback
 import retrofit2.Response
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
-import kotlin.reflect.KFunction0
+import kotlin.reflect.KFunction1
+
 
 class SearchActivity : AppCompatActivity() {
 
@@ -49,10 +51,9 @@ class SearchActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_search)
         val sharedPrefs = getSharedPreferences(VIEWED_TRACK, MODE_PRIVATE)
-        val searchHistory = SearchTrackHistory.Impl(sharedPrefs)
+        val searchHistory = SearchTrackHistoryImplementation(sharedPrefs)
 
         val onTrackClickListener = object : OnTrackClickListener {
-
             override fun onTrackClick(track: Track) {
                 searchHistory.addTrack(track)
             }
@@ -77,51 +78,45 @@ class SearchActivity : AppCompatActivity() {
         trackAdapter = TrackAdapter(tracks, onTrackClickListener)
         rvTrack.adapter = trackAdapter
 
-        fun loadHistory() {
-            hideNothingFound()
-            tracks.clear()
-            val historyTracks = searchHistory.getTracks()
-            tracks.addAll(historyTracks)
-            rvTrack.adapter?.notifyDataSetChanged()
-        }
-
         val clearButton = findViewById<ImageView>(R.id.clearIcon)
         clearButton.setOnClickListener {
             inputEditText.setText("")
-            loadHistory()
+            loadHistory(searchHistory)
             clearButton.hideKeyboard()
         }
 
         cleanHistoryButton.setOnClickListener {
-            tracks.clear()
+            hideYouSearched()
+            hideNothingFound()
+            clearTracks()
             sharedPrefs.edit().clear().apply()
-            rvTrack.adapter?.notifyDataSetChanged()
         }
 
-        val historyTracks = searchHistory.getTracks()
+        loadHistory(searchHistory)
 
-        if (historyTracks.isNotEmpty()) {
-            tracks.addAll(historyTracks)
-        } else {
-            hintMessage.visibility = View.GONE
-            cleanHistoryButton.visibility = View.GONE
-        }
-
-        val simpleTextWatcher = getSimpleTextWatcher(clearButton, ::loadHistory)
+        val simpleTextWatcher = getSimpleTextWatcher(clearButton, searchHistory, ::loadHistory)
         inputEditText.addTextChangedListener(simpleTextWatcher)
 
         inputEditText.setOnFocusChangeListener { view, hasFocus ->
-            val historyVisibility = if (hasFocus && inputEditText.text.isEmpty() && searchHistory.getTracks()
-                    .isNotEmpty()
-            ) View.VISIBLE else View.GONE
+            val historyVisibility =
+                if (hasFocus && inputEditText.text.isEmpty() && searchHistory.getTracks()
+                        .isNotEmpty()
+                ) View.VISIBLE else View.GONE
             hintMessage.visibility = historyVisibility
             cleanHistoryButton.visibility = historyVisibility
-
         }
 
         setUpRecyclerWithRetrofit()
     }
 
+    private fun loadHistory(searchHistory: SearchTrackHistory) {
+        val historyTracks = searchHistory.getTracks()
+        if (historyTracks.isNotEmpty()) {
+            replaceTracks(historyTracks)
+        } else {
+            hideYouSearched()
+        }
+    }
 
     private fun setUpRecyclerWithRetrofit() {
         val retrofit = Retrofit.Builder()
@@ -139,6 +134,7 @@ class SearchActivity : AppCompatActivity() {
         val iTunesService = retrofit.create(IMDbApi::class.java)
 
         badConnectionButton.setOnClickListener {
+            hideYouSearched()
             inputEditText.hideKeyboard()
             searchSong(iTunesService)
         }
@@ -151,24 +147,35 @@ class SearchActivity : AppCompatActivity() {
         }
     }
 
-    private fun getSimpleTextWatcher(clearButton: ImageView, loadHistory: KFunction0<Unit>) =
+    private fun getSimpleTextWatcher(
+        clearButton: ImageView,
+        searchHistory: SearchTrackHistory,
+        loadHistory: KFunction1<SearchTrackHistory, Unit>
+    ) =
         object : TextWatcher {
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
             }
 
-            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
-                val isTextEntered = if (
-                    inputEditText.hasFocus() && s?.isEmpty() == true
-                ) View.VISIBLE else View.GONE
+            override fun onTextChanged(
+                s: CharSequence,
+                start: Int,
+                before: Int,
+                count: Int
+            ) {
+                val isVisible = searchHistory.getTracks().isNotEmpty() &&
+                        inputEditText.hasFocus() && s.isEmpty()
 
-                hintMessage.visibility = isTextEntered
-                cleanHistoryButton.visibility = isTextEntered
+                val isTextEntered = if (isVisible) View.VISIBLE else View.GONE
+
+                if (isVisible) {
+                    loadHistory(searchHistory)
+                } else {
+                    clearTracks()
+                }
+
+                changeYouSearchedVisibility(isTextEntered)
 
                 clearButton.visibility = clearButtonVisibility(s)
-
-                if (isTextEntered == View.VISIBLE) {
-                    loadHistory()
-                }
             }
 
             private fun clearButtonVisibility(s: CharSequence?): Int {
@@ -188,22 +195,20 @@ class SearchActivity : AppCompatActivity() {
             view?.hideKeyboard()
             nothingFoundImg.visibility = View.VISIBLE
             nothingFoundText.visibility = View.VISIBLE
-            tracks.clear()
-            rvTrack.adapter?.notifyDataSetChanged()
+            clearTracks()
         } else {
             view?.hideKeyboard()
-            nothingFoundImg.visibility = View.GONE
-            nothingFoundText.visibility = View.GONE
+            hideYouSearched()
         }
     }
 
     private fun showBadConnection(view: EditText) {
+        hideYouSearched()
         view.hideKeyboard()
         badConnectionImg.visibility = View.VISIBLE
         badConnectionText.visibility = View.VISIBLE
         badConnectionButton.visibility = View.VISIBLE
-        tracks.clear()
-        rvTrack.adapter?.notifyDataSetChanged()
+        clearTracks()
     }
 
     private fun searchSong(
@@ -217,11 +222,10 @@ class SearchActivity : AppCompatActivity() {
                 ) {
                     if (response.code() == 200) {
                         hideNothingFound()
-                        tracks.clear()
                         if (response.body()?.results?.isNotEmpty() == true) {
-                            tracks.addAll(response.body()?.results!!)
-                            rvTrack.adapter?.notifyDataSetChanged()
+                            replaceTracks(response.body()?.results!!)
                         } else {
+                            clearTracks()
                             showNothingFound(
                                 inputEditText.text.toString(),
                                 inputEditText
@@ -237,6 +241,26 @@ class SearchActivity : AppCompatActivity() {
                 }
 
             })
+    }
+
+    private fun clearTracks() {
+        tracks.clear()
+        trackAdapter.notifyDataSetChanged()
+    }
+
+    private fun replaceTracks(addedTracks: List<Track>) {
+        tracks.clear()
+        tracks.addAll(addedTracks)
+        trackAdapter.notifyDataSetChanged()
+    }
+
+    private fun hideYouSearched() {
+        changeYouSearchedVisibility(View.GONE)
+    }
+
+    private fun changeYouSearchedVisibility(visibility: Int) {
+        hintMessage.visibility = visibility
+        cleanHistoryButton.visibility = visibility
     }
 
     private fun hideNothingFound() {
