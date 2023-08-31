@@ -23,4 +23,13 @@
     <string name="update">Обновить</string>
     <string name="you_searched">Вы искали</string>
     <string name="clean_history">Очистить историю</string>
+    <string name="arraw_back">Стрелка назад</string>
+    <string name="album">Альбом</string>
+    <string name="play_button">Кнопка воспроизведения</string>
+    <string name="add_to_favorites">Добавить в избранное</string>
+    <string name="duration">Длительность</string>
+    <string name="album_name">Альбом</string>
+    <string name="year">Год</string>
+    <string name="genre">Жанр</string>
+    <string name="country">Страна</string>
 </resources>
