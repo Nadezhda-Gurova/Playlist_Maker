@@ -119,7 +119,7 @@
         app:layout_constraintStart_toEndOf="@+id/left_guideline"
         app:layout_constraintTag="add_to_playlist"
         app:layout_constraintTop_toTopOf="@id/play_button"
-        app:layout_constraintVertical_bias="0.504"
+        app:layout_constraintVertical_bias="0.51"
         app:srcCompat="@drawable/add_to_playlist" />
 
     <ImageButton
@@ -168,6 +168,7 @@
         tools:text="0:30" />
 
     <ScrollView
+        android:id="@+id/scrollView2"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginTop="30dp"
@@ -281,8 +282,7 @@
                 app:layout_constraintBottom_toTopOf="@id/genre"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTag="year"
-                app:layout_constraintTop_toBottomOf="@id/album"
-                app:layout_goneMarginTop="@id/duration" />
+                app:layout_constraintTop_toBottomOf="@id/album" />
 
             <TextView
 
@@ -299,7 +299,6 @@
                 app:layout_constraintBaseline_toBaselineOf="@+id/year"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toEndOf="@+id/barrier_center_vertical"
-                app:layout_goneMarginTop="@id/duration_minutes"
                 tools:text="1965" />
 
             <TextView
