@@ -18,6 +18,11 @@
         <activity
             android:name=".activity.MediaActivity"
             android:exported="false" />
+
+        <activity
+            android:name=".activity.MediaPlayerActivity"
+            android:exported="false" />
+
         <activity
             android:name=".activity.SettingsActivity"
             android:exported="true">

@@ -21,4 +21,5 @@
     <color name="text_in_search">#1A1B22</color>
     <color name="text_author">#FFFFFF</color>
     <color name="text_in_player">#AEAFB4</color>
+    <color name="background_in_mediaplayer">#1A1B22</color>
 </resources>
