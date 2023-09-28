@@ -50,27 +50,9 @@ class MediaPlayerActivity : AppCompatActivity() {
 
         requireNotNull(track) { "No track provided" }
 
-        albumCover = findViewById(R.id.album_cover)
-        songName = findViewById(R.id.name_of_song)
-        songAuthor = findViewById(R.id.author_of_song)
-        durationMinutes = findViewById(R.id.duration_minutes)
-        albumYear = findViewById(R.id.album_year)
-        albumCountry = findViewById(R.id.album_country)
-        album = findViewById(R.id.album)
-        albumName = findViewById(R.id.album_name)
-        addToPlaylist = findViewById(R.id.add_to_playlist)
-        playButton = findViewById(R.id.play_button)
-        addToFavorites = findViewById(R.id.add_to_favorites)
-        genre = findViewById(R.id.album_genre)
-        time = findViewById(R.id.time)
+        findWidgetById()
 
-        songName.text = track.trackName
-        songAuthor.text = track.artistName
-        durationMinutes.text = track.trackTime.time
-        albumYear.text = track.releaseDate.substring(0, 4)
-        albumCountry.text = track.country
-        albumName.text = track.collectionName
-        genre.text = track.primaryGenreName
+        setTrackData(track)
 
         if (albumName.text != null) {
             album.visibility = View.VISIBLE
@@ -122,6 +104,32 @@ class MediaPlayerActivity : AppCompatActivity() {
 
         handler = Handler(Looper.getMainLooper())
 
+    }
+
+    private fun setTrackData(track: Track) {
+        songName.text = track.trackName
+        songAuthor.text = track.artistName
+        durationMinutes.text = track.trackTime.time
+        albumYear.text = track.releaseDate.substring(0, 4)
+        albumCountry.text = track.country
+        albumName.text = track.collectionName
+        genre.text = track.primaryGenreName
+    }
+
+    private fun findWidgetById() {
+        albumCover = findViewById(R.id.album_cover)
+        songName = findViewById(R.id.name_of_song)
+        songAuthor = findViewById(R.id.author_of_song)
+        durationMinutes = findViewById(R.id.duration_minutes)
+        albumYear = findViewById(R.id.album_year)
+        albumCountry = findViewById(R.id.album_country)
+        album = findViewById(R.id.album)
+        albumName = findViewById(R.id.album_name)
+        addToPlaylist = findViewById(R.id.add_to_playlist)
+        playButton = findViewById(R.id.play_button)
+        addToFavorites = findViewById(R.id.add_to_favorites)
+        genre = findViewById(R.id.album_genre)
+        time = findViewById(R.id.time)
     }
 
     private fun pauseProgressUpdate() {
