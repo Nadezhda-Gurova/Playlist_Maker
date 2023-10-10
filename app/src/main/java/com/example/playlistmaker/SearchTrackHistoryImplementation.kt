@@ -1,8 +1,8 @@
 package com.example.playlistmaker
 
 import android.content.SharedPreferences
-import com.example.playlistmaker.activity.SearchActivity
 import com.example.playlistmaker.data.Track
+import com.example.playlistmaker.activity.SearchActivity
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 

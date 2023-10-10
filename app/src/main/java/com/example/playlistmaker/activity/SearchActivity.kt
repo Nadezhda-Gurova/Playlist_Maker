@@ -1,5 +1,6 @@
 package com.example.playlistmaker.activity
 
+import android.content.Intent
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
@@ -56,6 +57,9 @@ class SearchActivity : AppCompatActivity() {
         val onTrackClickListener = object : OnTrackClickListener {
             override fun onTrackClick(track: Track) {
                 searchHistory.addTrack(track)
+                val intent = Intent(this@SearchActivity, MediaPlayerActivity::class.java)
+                intent.putExtra(TRACK_MEDIA, track)
+                startActivity(intent)
             }
         }
 
@@ -284,6 +288,7 @@ class SearchActivity : AppCompatActivity() {
     companion object {
         const val VIEWED_TRACK = "VIEWED_TRACK"
         const val VIEWED_TRACKS = "key_for_viewed_tracks"
+        const val TRACK_MEDIA = "track_media"
         private const val SEARCH_INPUT = "SEARCH_INPUT"
         private const val ITUNES_BASE_URL = "https://itunes.apple.com"
     }
