@@ -2,11 +2,12 @@ package com.example.playlistmaker.activity
 
 import android.content.Intent
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.text.Editable
 import android.text.TextWatcher
 import android.util.Log
 import android.view.View
-import android.view.inputmethod.EditorInfo
 import android.widget.Button
 import android.widget.EditText
 import android.widget.ImageView
@@ -24,6 +25,7 @@ import com.example.playlistmaker.network.IMDbApi
 import com.example.playlistmaker.network.ITunesResponse
 import com.example.playlistmaker.recyclerview.TrackAdapter
 import com.example.playlistmaker.recyclerview.TrackTypeAdapter
+import com.google.android.material.progressindicator.CircularProgressIndicator
 import com.google.gson.GsonBuilder
 import retrofit2.Call
 import retrofit2.Callback
@@ -47,6 +49,9 @@ class SearchActivity : AppCompatActivity() {
     private lateinit var rvTrack: RecyclerView
     private lateinit var hintMessage: TextView
     private lateinit var cleanHistoryButton: Button
+    private lateinit var progressBar: CircularProgressIndicator
+    private lateinit var iTunesService: IMDbApi
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -57,12 +62,13 @@ class SearchActivity : AppCompatActivity() {
         val onTrackClickListener = object : OnTrackClickListener {
             override fun onTrackClick(track: Track) {
                 searchHistory.addTrack(track)
-                val intent = Intent(this@SearchActivity, MediaPlayerActivity::class.java)
-                intent.putExtra(TRACK_MEDIA, track)
-                startActivity(intent)
+                if (clickDebounce()) {
+                    val intent = Intent(this@SearchActivity, MediaPlayerActivity::class.java)
+                    intent.putExtra(TRACK_MEDIA, track)
+                    startActivity(intent)
+                }
             }
         }
-
 
         val back = findViewById<ImageView>(R.id.back_in_search)
         back.setOnClickListener {
@@ -78,6 +84,7 @@ class SearchActivity : AppCompatActivity() {
         hintMessage = findViewById(R.id.hint_message)
         cleanHistoryButton = findViewById(R.id.clean_history_button)
         rvTrack = findViewById(R.id.recyclerView)
+        progressBar = findViewById(R.id.progressBar)
 
         trackAdapter = TrackAdapter(tracks, onTrackClickListener)
         rvTrack.adapter = trackAdapter
@@ -113,6 +120,17 @@ class SearchActivity : AppCompatActivity() {
         setUpRecyclerWithRetrofit()
     }
 
+    private var isClickAllowed = true
+
+    private fun clickDebounce(): Boolean {
+        val current = isClickAllowed
+        if (isClickAllowed) {
+            isClickAllowed = false
+            handler.postDelayed({ isClickAllowed = true }, CLICK_DEBOUNCE_DELAY)
+        }
+        return current
+    }
+
     private fun loadHistory(searchHistory: SearchTrackHistory) {
         val historyTracks = searchHistory.getTracks()
         if (historyTracks.isNotEmpty()) {
@@ -135,20 +153,21 @@ class SearchActivity : AppCompatActivity() {
             .build()
 
 
-        val iTunesService = retrofit.create(IMDbApi::class.java)
+        iTunesService = retrofit.create(IMDbApi::class.java)
 
         badConnectionButton.setOnClickListener {
             hideYouSearched()
             inputEditText.hideKeyboard()
             searchSong(iTunesService)
         }
+    }
 
-        inputEditText.setOnEditorActionListener { _, actionId, _ ->
-            if (actionId == EditorInfo.IME_ACTION_DONE) {
-                searchSong(iTunesService)
-                true
-            } else false
-        }
+    private val searchRunnable = Runnable { searchSong(iTunesService) }
+    private val handler = Handler(Looper.getMainLooper())
+
+    private fun searchDebounce() {
+        handler.removeCallbacks(searchRunnable)
+        handler.postDelayed(searchRunnable, SEARCH_DEBOUNCE_DELAY)
     }
 
     private fun getSimpleTextWatcher(
@@ -180,6 +199,9 @@ class SearchActivity : AppCompatActivity() {
                 changeYouSearchedVisibility(isTextEntered)
 
                 clearButton.visibility = clearButtonVisibility(s)
+                if (s.isNotEmpty()) {
+                    searchDebounce()
+                }
             }
 
             private fun clearButtonVisibility(s: CharSequence?): Int {
@@ -218,12 +240,16 @@ class SearchActivity : AppCompatActivity() {
     private fun searchSong(
         iTunesService: IMDbApi
     ) {
+        progressBar.visibility = View.VISIBLE
+
         iTunesService.search(inputEditText.text.toString()).enqueue(
             object : Callback<ITunesResponse> {
                 override fun onResponse(
                     call: Call<ITunesResponse>,
                     response: Response<ITunesResponse>
                 ) {
+                    progressBar.visibility =
+                        View.GONE
                     if (response.code() == 200) {
                         hideNothingFound()
                         if (response.body()?.results?.isNotEmpty() == true) {
@@ -268,6 +294,7 @@ class SearchActivity : AppCompatActivity() {
     }
 
     private fun hideNothingFound() {
+        progressBar.visibility = View.GONE
         nothingFoundImg.visibility = View.GONE
         nothingFoundText.visibility = View.GONE
         badConnectionImg.visibility = View.GONE
@@ -291,7 +318,8 @@ class SearchActivity : AppCompatActivity() {
         const val TRACK_MEDIA = "track_media"
         private const val SEARCH_INPUT = "SEARCH_INPUT"
         private const val ITUNES_BASE_URL = "https://itunes.apple.com"
+        private const val SEARCH_DEBOUNCE_DELAY = 2000L
+        private const val CLICK_DEBOUNCE_DELAY = 1000L
     }
-
 }
 
