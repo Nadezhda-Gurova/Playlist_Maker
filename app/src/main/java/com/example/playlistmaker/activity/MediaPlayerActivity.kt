@@ -7,39 +7,28 @@ import android.os.Handler
 import android.os.Looper
 import android.util.Log
 import android.view.View
-import android.widget.ImageButton
 import android.widget.ImageView
-import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import com.bumptech.glide.Glide
 import com.example.playlistmaker.R
 import com.example.playlistmaker.activity.SearchActivity.Companion.TRACK_MEDIA
 import com.example.playlistmaker.data.Track
-import com.google.android.material.imageview.ShapeableImageView
+import com.example.playlistmaker.databinding.ActivityAudioPlayerBinding
+import java.lang.IllegalStateException
 import java.text.SimpleDateFormat
 import java.util.Locale
 
 
 class MediaPlayerActivity : AppCompatActivity() {
-    private lateinit var albumCover: ShapeableImageView
-    private lateinit var songName: TextView
-    private lateinit var songAuthor: TextView
-    private lateinit var albumYear: TextView
-    private lateinit var albumCountry: TextView
-    private lateinit var album: TextView
-    private lateinit var albumName: TextView
-    private lateinit var addToPlaylist: ImageButton
-    private lateinit var durationMinutes: TextView
-    private lateinit var playButton: ImageButton
-    private lateinit var addToFavorites: ImageButton
-    private lateinit var time: TextView
-    private lateinit var genre: TextView
+    private lateinit var binding: ActivityAudioPlayerBinding
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_audio_player)
+        binding = ActivityAudioPlayerBinding.bind(findViewById(R.id.root))
 
         initBackButton()
+
 
         val track: Track? = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             intent.getSerializableExtra(TRACK_MEDIA, Track::class.java)
@@ -49,29 +38,28 @@ class MediaPlayerActivity : AppCompatActivity() {
 
         requireNotNull(track) { "No track provided" }
 
-        findWidgetById()
 
         setTrackData(track)
 
-        if (albumName.text != null) {
-            album.visibility = View.VISIBLE
-            albumName.visibility = View.VISIBLE
+        if (binding.albumName.text != null) {
+            binding.album.visibility = View.VISIBLE
+            binding.albumName.visibility = View.VISIBLE
         }
 
         Glide.with(this)
             .load(getCoverArtwork(track))
             .centerCrop()
             .placeholder(R.drawable.placeholder_album)
-            .into(albumCover)
+            .into(binding.albumCover)
 
         var isAddToPlaylistClicked = false
 
-        addToPlaylist.setOnClickListener {
+        binding.addToPlaylist.setOnClickListener {
             isAddToPlaylistClicked = if (!isAddToPlaylistClicked) {
-                addToPlaylist.setImageResource(R.drawable.button1)
+                binding.addToPlaylist.setImageResource(R.drawable.button_add_to_playlist)
                 true
             } else {
-                addToPlaylist.setImageResource(R.drawable.add_to_playlist)
+                binding.addToPlaylist.setImageResource(R.drawable.add_to_playlist)
                 false
             }
         }
@@ -79,46 +67,30 @@ class MediaPlayerActivity : AppCompatActivity() {
         val url = track.previewUrl
         preparePlayer(url)
 
-        playButton.setOnClickListener {
-            setUpPlayerState()
+        binding.playButton.setOnClickListener {
+            switchPlayerState()
         }
 
         var isAddToFavoritesClicked = false
-        addToFavorites.setOnClickListener {
+        binding.addToFavorites.setOnClickListener {
             isAddToFavoritesClicked = if (!isAddToFavoritesClicked) {
-                addToFavorites.setImageResource(R.drawable.button3)
+                binding.addToFavorites.setImageResource(R.drawable.button_add_to_favorite)
                 true
             } else {
-                addToFavorites.setImageResource(R.drawable.add_to_favorites)
+                binding.addToFavorites.setImageResource(R.drawable.add_to_favorites)
                 false
             }
         }
     }
 
     private fun setTrackData(track: Track) {
-        songName.text = track.trackName
-        songAuthor.text = track.artistName
-        durationMinutes.text = track.trackTime.time
-        albumYear.text = track.releaseDate.substring(0, 4)
-        albumCountry.text = track.country
-        albumName.text = track.collectionName
-        genre.text = track.primaryGenreName
-    }
-
-    private fun findWidgetById() {
-        albumCover = findViewById(R.id.album_cover)
-        songName = findViewById(R.id.name_of_song)
-        songAuthor = findViewById(R.id.author_of_song)
-        durationMinutes = findViewById(R.id.duration_minutes)
-        albumYear = findViewById(R.id.album_year)
-        albumCountry = findViewById(R.id.album_country)
-        album = findViewById(R.id.album)
-        albumName = findViewById(R.id.album_name)
-        addToPlaylist = findViewById(R.id.add_to_playlist)
-        playButton = findViewById(R.id.play_button)
-        addToFavorites = findViewById(R.id.add_to_favorites)
-        genre = findViewById(R.id.album_genre)
-        time = findViewById(R.id.time)
+        binding.nameOfSong.text = track.trackName
+        binding.authorOfSong.text = track.artistName
+        binding.durationMinutes.text = track.trackTime.time
+        binding.albumYear.text = track.releaseDate.substring(0, 4)
+        binding.albumCountry.text = track.country
+        binding.albumName.text = track.collectionName
+        binding.albumGenre.text = track.primaryGenreName
     }
 
     private val handler = Handler(Looper.getMainLooper())
@@ -127,13 +99,18 @@ class MediaPlayerActivity : AppCompatActivity() {
     private fun startProgressUpdate() {
         handler.post(object : Runnable {
             override fun run() {
-                Log.d("TIME_IN_PLAYER", "${mediaPlayer.currentPosition}")
-                time.text = SimpleDateFormat(
-                    "mm:ss",
-                    Locale.getDefault()
-                ).format(mediaPlayer.currentPosition)
-                handler.postDelayed(this, 300L)
+                if (mediaPlayer.isPlaying) {
+                    Log.d("TIME_IN_PLAYER", "${mediaPlayer.currentPosition}")
+                    binding.time.text = SimpleDateFormat(
+                        "mm:ss",
+                        Locale.getDefault()
+                    ).format(mediaPlayer.currentPosition)
+                    handler.postDelayed(this, 300L)
+                } else {
+                    binding.time.text = getString(R.string.zero_time)
+                }
             }
+
         })
     }
 
@@ -160,52 +137,47 @@ class MediaPlayerActivity : AppCompatActivity() {
         }
     }
 
-    companion object {
-        private const val STATE_DEFAULT = 0
-        private const val STATE_PREPARED = 1
-        private const val STATE_PLAYING = 2
-        private const val STATE_PAUSED = 3
-    }
-
-    private var playerState = STATE_DEFAULT
+    private var playerState: PlayerState = PlayerState.NotInited
     private val mediaPlayer = MediaPlayer()
 
     private fun preparePlayer(url: String) {
         mediaPlayer.setDataSource(url)
         mediaPlayer.prepareAsync()
         mediaPlayer.setOnPreparedListener {
-            playButton.isEnabled = true
-            playerState = STATE_PREPARED
+            playerState = PlayerState.Inited
+            binding.playButton.isEnabled = true
         }
         mediaPlayer.setOnCompletionListener {
-            playerState = STATE_PREPARED
-            playButton.setImageResource(R.drawable.play_button)
+            playerState = PlayerState.Inited
+            binding.playButton.setImageResource(R.drawable.play_button)
         }
     }
 
     private fun startPlayer() {
         mediaPlayer.start()
-        playButton.setImageResource(R.drawable.button2)
-        playerState = STATE_PLAYING
+        binding.playButton.setImageResource(R.drawable.button_play)
+        playerState = PlayerState.Playing
         startProgressUpdate()
     }
 
     private fun pausePlayer() {
         mediaPlayer.pause()
-        playButton.setImageResource(R.drawable.play_button)
-        playerState = STATE_PAUSED
+        binding.playButton.setImageResource(R.drawable.play_button)
+        playerState = PlayerState.Paused
         pauseProgressUpdate()
     }
 
-    private fun setUpPlayerState() {
+    private fun switchPlayerState() {
         when (playerState) {
-            STATE_PLAYING -> {
+            PlayerState.Playing -> {
                 pausePlayer()
             }
 
-            STATE_PREPARED, STATE_PAUSED -> {
+            PlayerState.Inited, PlayerState.Paused -> {
                 startPlayer()
             }
+
+            PlayerState.NotInited -> throw IllegalStateException("Player can't be in this state")
         }
     }
 
@@ -214,4 +186,11 @@ class MediaPlayerActivity : AppCompatActivity() {
         pausePlayer()
     }
 
+}
+
+sealed class PlayerState {
+    object NotInited : PlayerState()
+    object Inited : PlayerState()
+    object Playing : PlayerState()
+    object Paused : PlayerState()
 }

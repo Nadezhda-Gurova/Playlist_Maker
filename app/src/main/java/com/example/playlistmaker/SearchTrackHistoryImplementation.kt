@@ -46,4 +46,3 @@ class SearchTrackHistoryImplementation(
         return Gson().fromJson(json, item)
     }
 }
-

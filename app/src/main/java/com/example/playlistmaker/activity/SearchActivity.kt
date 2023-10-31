@@ -8,24 +8,21 @@ import android.text.Editable
 import android.text.TextWatcher
 import android.util.Log
 import android.view.View
-import android.widget.Button
 import android.widget.EditText
 import android.widget.ImageView
-import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
-import androidx.recyclerview.widget.RecyclerView
 import com.example.playlistmaker.OnTrackClickListener
 import com.example.playlistmaker.R
 import com.example.playlistmaker.SearchTrackHistory
 import com.example.playlistmaker.SearchTrackHistoryImplementation
 import com.example.playlistmaker.data.Track
 import com.example.playlistmaker.data.TrackTime
+import com.example.playlistmaker.databinding.ActivitySearchBinding
 import com.example.playlistmaker.extentions.hideKeyboard
 import com.example.playlistmaker.network.IMDbApi
 import com.example.playlistmaker.network.ITunesResponse
 import com.example.playlistmaker.recyclerview.TrackAdapter
 import com.example.playlistmaker.recyclerview.TrackTypeAdapter
-import com.google.android.material.progressindicator.CircularProgressIndicator
 import com.google.gson.GsonBuilder
 import retrofit2.Call
 import retrofit2.Callback
@@ -38,24 +35,14 @@ import kotlin.reflect.KFunction1
 class SearchActivity : AppCompatActivity() {
 
     private val tracks = arrayListOf<Track>()
-    lateinit var trackAdapter: TrackAdapter
-
-    private lateinit var inputEditText: EditText
-    private lateinit var nothingFoundImg: ImageView
-    private lateinit var nothingFoundText: TextView
-    private lateinit var badConnectionImg: ImageView
-    private lateinit var badConnectionText: TextView
-    private lateinit var badConnectionButton: Button
-    private lateinit var rvTrack: RecyclerView
-    private lateinit var hintMessage: TextView
-    private lateinit var cleanHistoryButton: Button
-    private lateinit var progressBar: CircularProgressIndicator
-    private lateinit var iTunesService: IMDbApi
+    private lateinit var trackAdapter: TrackAdapter
+    private lateinit var binding: ActivitySearchBinding
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_search)
+        binding = ActivitySearchBinding.bind(findViewById(R.id.root))
         val sharedPrefs = getSharedPreferences(VIEWED_TRACK, MODE_PRIVATE)
         val searchHistory = SearchTrackHistoryImplementation(sharedPrefs)
 
@@ -75,28 +62,17 @@ class SearchActivity : AppCompatActivity() {
             finish()
         }
 
-        inputEditText = findViewById(R.id.inputEditText)
-        nothingFoundImg = findViewById(R.id.nothing_found)
-        nothingFoundText = findViewById(R.id.nothing_found_text)
-        badConnectionImg = findViewById(R.id.bad_connection)
-        badConnectionText = findViewById(R.id.bad_connection_text)
-        badConnectionButton = findViewById(R.id.bad_connection_button)
-        hintMessage = findViewById(R.id.hint_message)
-        cleanHistoryButton = findViewById(R.id.clean_history_button)
-        rvTrack = findViewById(R.id.recyclerView)
-        progressBar = findViewById(R.id.progressBar)
-
         trackAdapter = TrackAdapter(tracks, onTrackClickListener)
-        rvTrack.adapter = trackAdapter
+        binding.recyclerView.adapter = trackAdapter
 
         val clearButton = findViewById<ImageView>(R.id.clearIcon)
         clearButton.setOnClickListener {
-            inputEditText.setText("")
+            binding.inputEditText.setText("")
             loadHistory(searchHistory)
             clearButton.hideKeyboard()
         }
 
-        cleanHistoryButton.setOnClickListener {
+        binding.cleanHistoryButton.setOnClickListener {
             hideYouSearched()
             hideNothingFound()
             clearTracks()
@@ -106,18 +82,22 @@ class SearchActivity : AppCompatActivity() {
         loadHistory(searchHistory)
 
         val simpleTextWatcher = getSimpleTextWatcher(clearButton, searchHistory, ::loadHistory)
-        inputEditText.addTextChangedListener(simpleTextWatcher)
+        binding.inputEditText.addTextChangedListener(simpleTextWatcher)
 
-        inputEditText.setOnFocusChangeListener { view, hasFocus ->
+        binding.inputEditText.setOnFocusChangeListener { view, hasFocus ->
             val historyVisibility =
-                if (hasFocus && inputEditText.text.isEmpty() && searchHistory.getTracks()
+                if (hasFocus && binding.inputEditText.text.isEmpty() && searchHistory.getTracks()
                         .isNotEmpty()
                 ) View.VISIBLE else View.GONE
-            hintMessage.visibility = historyVisibility
-            cleanHistoryButton.visibility = historyVisibility
+            binding.hintMessage.visibility = historyVisibility
+            binding.cleanHistoryButton.visibility = historyVisibility
         }
 
-        setUpRecyclerWithRetrofit()
+        binding.badConnectionButton.setOnClickListener {
+            hideYouSearched()
+            binding.inputEditText.hideKeyboard()
+            searchSong()
+        }
     }
 
     private var isClickAllowed = true
@@ -140,29 +120,7 @@ class SearchActivity : AppCompatActivity() {
         }
     }
 
-    private fun setUpRecyclerWithRetrofit() {
-        val retrofit = Retrofit.Builder()
-            .baseUrl(ITUNES_BASE_URL)
-            .addConverterFactory(
-                GsonConverterFactory.create(
-                    GsonBuilder()
-                        .registerTypeAdapter(TrackTime::class.java, TrackTypeAdapter())
-                        .create()
-                )
-            )
-            .build()
-
-
-        iTunesService = retrofit.create(IMDbApi::class.java)
-
-        badConnectionButton.setOnClickListener {
-            hideYouSearched()
-            inputEditText.hideKeyboard()
-            searchSong(iTunesService)
-        }
-    }
-
-    private val searchRunnable = Runnable { searchSong(iTunesService) }
+    private val searchRunnable = Runnable { searchSong() }
     private val handler = Handler(Looper.getMainLooper())
 
     private fun searchDebounce() {
@@ -186,7 +144,7 @@ class SearchActivity : AppCompatActivity() {
                 count: Int
             ) {
                 val isVisible = searchHistory.getTracks().isNotEmpty() &&
-                        inputEditText.hasFocus() && s.isEmpty()
+                        binding.inputEditText.hasFocus() && s.isEmpty()
 
                 val isTextEntered = if (isVisible) View.VISIBLE else View.GONE
 
@@ -219,8 +177,8 @@ class SearchActivity : AppCompatActivity() {
     private fun showNothingFound(text: String, view: EditText?) {
         if (text.isNotEmpty()) {
             view?.hideKeyboard()
-            nothingFoundImg.visibility = View.VISIBLE
-            nothingFoundText.visibility = View.VISIBLE
+            binding.nothingFound.visibility = View.VISIBLE
+            binding.nothingFoundText.visibility = View.VISIBLE
             clearTracks()
         } else {
             view?.hideKeyboard()
@@ -231,24 +189,40 @@ class SearchActivity : AppCompatActivity() {
     private fun showBadConnection(view: EditText) {
         hideYouSearched()
         view.hideKeyboard()
-        badConnectionImg.visibility = View.VISIBLE
-        badConnectionText.visibility = View.VISIBLE
-        badConnectionButton.visibility = View.VISIBLE
+        binding.badConnection.visibility = View.VISIBLE
+        binding.badConnectionText.visibility = View.VISIBLE
+        binding.badConnectionButton.visibility = View.VISIBLE
         clearTracks()
     }
 
-    private fun searchSong(
-        iTunesService: IMDbApi
-    ) {
-        progressBar.visibility = View.VISIBLE
+    private val retrofit: Retrofit by lazy {
+        Retrofit.Builder()
+            .baseUrl(ITUNES_BASE_URL)
+            .addConverterFactory(
+                GsonConverterFactory.create(
+                    GsonBuilder()
+                        .registerTypeAdapter(TrackTime::class.java, TrackTypeAdapter())
+                        .create()
+                )
+            )
+            .build()
+    }
 
-        iTunesService.search(inputEditText.text.toString()).enqueue(
+    private val iTunesService: IMDbApi by lazy {
+        retrofit.create(IMDbApi::class.java)
+    }
+
+
+    private fun searchSong() {
+        binding.progressBar.visibility = View.VISIBLE
+
+        iTunesService.search(binding.inputEditText.text.toString()).enqueue(
             object : Callback<ITunesResponse> {
                 override fun onResponse(
                     call: Call<ITunesResponse>,
                     response: Response<ITunesResponse>
                 ) {
-                    progressBar.visibility =
+                    binding.progressBar.visibility =
                         View.GONE
                     if (response.code() == 200) {
                         hideNothingFound()
@@ -257,8 +231,8 @@ class SearchActivity : AppCompatActivity() {
                         } else {
                             clearTracks()
                             showNothingFound(
-                                inputEditText.text.toString(),
-                                inputEditText
+                                binding.inputEditText.text.toString(),
+                                binding.inputEditText
                             )
                         }
                     }
@@ -267,7 +241,7 @@ class SearchActivity : AppCompatActivity() {
                 override fun onFailure(call: Call<ITunesResponse>, t: Throwable) {
                     Log.e("onFailure", t.message, t)
                     hideNothingFound()
-                    showBadConnection(inputEditText)
+                    showBadConnection(binding.inputEditText)
                 }
 
             })
@@ -289,27 +263,27 @@ class SearchActivity : AppCompatActivity() {
     }
 
     private fun changeYouSearchedVisibility(visibility: Int) {
-        hintMessage.visibility = visibility
-        cleanHistoryButton.visibility = visibility
+        binding.hintMessage.visibility = visibility
+        binding.cleanHistoryButton.visibility = visibility
     }
 
     private fun hideNothingFound() {
-        progressBar.visibility = View.GONE
-        nothingFoundImg.visibility = View.GONE
-        nothingFoundText.visibility = View.GONE
-        badConnectionImg.visibility = View.GONE
-        badConnectionText.visibility = View.GONE
-        badConnectionButton.visibility = View.GONE
+        binding.progressBar.visibility = View.GONE
+        binding.nothingFound.visibility = View.GONE
+        binding.nothingFoundText.visibility = View.GONE
+        binding.badConnection.visibility = View.GONE
+        binding.badConnectionText.visibility = View.GONE
+        binding.badConnectionButton.visibility = View.GONE
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
-        outState.putString(SEARCH_INPUT, inputEditText.text.toString())
+        outState.putString(SEARCH_INPUT, binding.inputEditText.text.toString())
     }
 
     override fun onRestoreInstanceState(savedInstanceState: Bundle) {
         super.onRestoreInstanceState(savedInstanceState)
-        inputEditText.setText(savedInstanceState.getString(SEARCH_INPUT, ""))
+        binding.inputEditText.setText(savedInstanceState.getString(SEARCH_INPUT, ""))
     }
 
     companion object {
