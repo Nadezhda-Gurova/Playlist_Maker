@@ -37,10 +37,11 @@
 
     <androidx.appcompat.widget.SwitchCompat
         android:id="@+id/black_theme"
-        android:layout_width="395dp"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:fontFamily="@font/ys_display_regular"
         android:paddingVertical="@dimen/padding_inside_container"
+        android:layout_marginEnd="18dp"
         android:text="@string/black_theme"
         android:textColor="@color/black"
         android:textSize="@dimen/text_size"

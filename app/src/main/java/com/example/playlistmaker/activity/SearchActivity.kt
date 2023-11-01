@@ -1,169 +1,238 @@
 package com.example.playlistmaker.activity
 
+import android.content.Intent
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.text.Editable
 import android.text.TextWatcher
 import android.util.Log
 import android.view.View
-import android.view.inputmethod.EditorInfo
-import android.widget.Button
 import android.widget.EditText
 import android.widget.ImageView
-import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
-import androidx.recyclerview.widget.RecyclerView
-import com.example.playlistmaker.recyclerview.CustomTypeAdapter
+import com.example.playlistmaker.OnTrackClickListener
 import com.example.playlistmaker.R
+import com.example.playlistmaker.SearchTrackHistory
+import com.example.playlistmaker.SearchTrackHistoryImplementation
 import com.example.playlistmaker.data.Track
-import com.example.playlistmaker.recyclerview.TrackAdapter
 import com.example.playlistmaker.data.TrackTime
+import com.example.playlistmaker.databinding.ActivitySearchBinding
 import com.example.playlistmaker.extentions.hideKeyboard
 import com.example.playlistmaker.network.IMDbApi
 import com.example.playlistmaker.network.ITunesResponse
+import com.example.playlistmaker.recyclerview.TrackAdapter
+import com.example.playlistmaker.recyclerview.TrackTypeAdapter
 import com.google.gson.GsonBuilder
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
+import kotlin.reflect.KFunction1
+
 
 class SearchActivity : AppCompatActivity() {
 
-    private var inputEditText: EditText? = null
     private val tracks = arrayListOf<Track>()
-    private val trackAdapter = TrackAdapter(tracks)
-
-    private lateinit var nothingFoundImg: ImageView
-    private lateinit var nothingFoundText: TextView
-    private lateinit var badConnectionImg: ImageView
-    private lateinit var badConnectionText: TextView
-    private lateinit var badConnectionButton: Button
-    private lateinit var rvTrack: RecyclerView
+    private lateinit var trackAdapter: TrackAdapter
+    private lateinit var binding: ActivitySearchBinding
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_search)
+        binding = ActivitySearchBinding.bind(findViewById(R.id.root))
+        val sharedPrefs = getSharedPreferences(VIEWED_TRACK, MODE_PRIVATE)
+        val searchHistory = SearchTrackHistoryImplementation(sharedPrefs)
+
+        val onTrackClickListener = object : OnTrackClickListener {
+            override fun onTrackClick(track: Track) {
+                searchHistory.addTrack(track)
+                if (clickDebounce()) {
+                    val intent = Intent(this@SearchActivity, MediaPlayerActivity::class.java)
+                    intent.putExtra(TRACK_MEDIA, track)
+                    startActivity(intent)
+                }
+            }
+        }
 
         val back = findViewById<ImageView>(R.id.back_in_search)
         back.setOnClickListener {
             finish()
         }
 
-        inputEditText = findViewById(R.id.inputEditText)
-        nothingFoundImg = findViewById(R.id.nothing_found)
-        nothingFoundText = findViewById(R.id.nothing_found_text)
-        badConnectionImg = findViewById(R.id.bad_connection)
-        badConnectionText = findViewById(R.id.bad_connection_text)
-        badConnectionButton = findViewById(R.id.bad_connection_button)
-
+        trackAdapter = TrackAdapter(tracks, onTrackClickListener)
+        binding.recyclerView.adapter = trackAdapter
 
         val clearButton = findViewById<ImageView>(R.id.clearIcon)
         clearButton.setOnClickListener {
-            inputEditText?.setText("")
-            tracks.clear()
+            binding.inputEditText.setText("")
+            loadHistory(searchHistory)
             clearButton.hideKeyboard()
         }
 
-        val simpleTextWatcher = getSimpleTextWatcher(clearButton)
-        inputEditText?.addTextChangedListener(simpleTextWatcher)
-
-        setUpRecyclerWithRetrofit()
-    }
-
-    private fun setUpRecyclerWithRetrofit() {
-        rvTrack = findViewById(R.id.recyclerView)
-        rvTrack.adapter = trackAdapter
-
-        val retrofit = Retrofit.Builder()
-            .baseUrl(ITUNESBASEURL)
-            .addConverterFactory(
-                GsonConverterFactory.create(
-                    GsonBuilder()
-                        .registerTypeAdapter(TrackTime::class.java, CustomTypeAdapter())
-                        .create()
-                )
-            )
-            .build()
-
-
-        val iTunesService = retrofit.create(IMDbApi::class.java)
-
-        badConnectionButton.setOnClickListener {
-            inputEditText!!.hideKeyboard()
-            searchSong(iTunesService)
+        binding.cleanHistoryButton.setOnClickListener {
+            hideYouSearched()
+            hideNothingFound()
+            clearTracks()
+            sharedPrefs.edit().clear().apply()
         }
 
-        inputEditText?.setOnEditorActionListener { _, actionId, _ ->
-            if (actionId == EditorInfo.IME_ACTION_DONE) {
-                searchSong(iTunesService)
-                true
-            } else false
+        loadHistory(searchHistory)
+
+        val simpleTextWatcher = getSimpleTextWatcher(clearButton, searchHistory, ::loadHistory)
+        binding.inputEditText.addTextChangedListener(simpleTextWatcher)
+
+        binding.inputEditText.setOnFocusChangeListener { view, hasFocus ->
+            val historyVisibility =
+                if (hasFocus && binding.inputEditText.text.isEmpty() && searchHistory.getTracks()
+                        .isNotEmpty()
+                ) View.VISIBLE else View.GONE
+            binding.hintMessage.visibility = historyVisibility
+            binding.cleanHistoryButton.visibility = historyVisibility
+        }
+
+        binding.badConnectionButton.setOnClickListener {
+            hideYouSearched()
+            binding.inputEditText.hideKeyboard()
+            searchSong()
         }
     }
 
-    private fun getSimpleTextWatcher(clearButton: ImageView) = object : TextWatcher {
-        override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
-        }
+    private var isClickAllowed = true
 
-        override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
-            clearButton.visibility = clearButtonVisibility(s)
+    private fun clickDebounce(): Boolean {
+        val current = isClickAllowed
+        if (isClickAllowed) {
+            isClickAllowed = false
+            handler.postDelayed({ isClickAllowed = true }, CLICK_DEBOUNCE_DELAY)
         }
+        return current
+    }
 
-        private fun clearButtonVisibility(s: CharSequence?): Int {
-            return if (s.isNullOrEmpty()) {
-                View.GONE
-            } else {
-                View.VISIBLE
+    private fun loadHistory(searchHistory: SearchTrackHistory) {
+        val historyTracks = searchHistory.getTracks()
+        if (historyTracks.isNotEmpty()) {
+            replaceTracks(historyTracks)
+        } else {
+            hideYouSearched()
+        }
+    }
+
+    private val searchRunnable = Runnable { searchSong() }
+    private val handler = Handler(Looper.getMainLooper())
+
+    private fun searchDebounce() {
+        handler.removeCallbacks(searchRunnable)
+        handler.postDelayed(searchRunnable, SEARCH_DEBOUNCE_DELAY)
+    }
+
+    private fun getSimpleTextWatcher(
+        clearButton: ImageView,
+        searchHistory: SearchTrackHistory,
+        loadHistory: KFunction1<SearchTrackHistory, Unit>
+    ) =
+        object : TextWatcher {
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
+            }
+
+            override fun onTextChanged(
+                s: CharSequence,
+                start: Int,
+                before: Int,
+                count: Int
+            ) {
+                val isVisible = searchHistory.getTracks().isNotEmpty() &&
+                        binding.inputEditText.hasFocus() && s.isEmpty()
+
+                val isTextEntered = if (isVisible) View.VISIBLE else View.GONE
+
+                if (isVisible) {
+                    loadHistory(searchHistory)
+                } else {
+                    clearTracks()
+                }
+
+                changeYouSearchedVisibility(isTextEntered)
+
+                clearButton.visibility = clearButtonVisibility(s)
+                if (s.isNotEmpty()) {
+                    searchDebounce()
+                }
+            }
+
+            private fun clearButtonVisibility(s: CharSequence?): Int {
+                return if (s.isNullOrEmpty()) {
+                    View.GONE
+                } else {
+                    View.VISIBLE
+                }
+            }
+
+            override fun afterTextChanged(s: Editable?) {
             }
         }
-
-        override fun afterTextChanged(s: Editable?) {
-        }
-    }
 
     private fun showNothingFound(text: String, view: EditText?) {
         if (text.isNotEmpty()) {
             view?.hideKeyboard()
-            nothingFoundImg.visibility = View.VISIBLE
-            nothingFoundText.visibility = View.VISIBLE
-            tracks.clear()
-            rvTrack.adapter?.notifyDataSetChanged()
+            binding.nothingFound.visibility = View.VISIBLE
+            binding.nothingFoundText.visibility = View.VISIBLE
+            clearTracks()
         } else {
             view?.hideKeyboard()
-            nothingFoundImg.visibility = View.GONE
-            nothingFoundText.visibility = View.GONE
+            hideYouSearched()
         }
     }
 
     private fun showBadConnection(view: EditText) {
+        hideYouSearched()
         view.hideKeyboard()
-        badConnectionImg.visibility = View.VISIBLE
-        badConnectionText.visibility = View.VISIBLE
-        badConnectionButton.visibility = View.VISIBLE
-        tracks.clear()
-        rvTrack.adapter?.notifyDataSetChanged()
+        binding.badConnection.visibility = View.VISIBLE
+        binding.badConnectionText.visibility = View.VISIBLE
+        binding.badConnectionButton.visibility = View.VISIBLE
+        clearTracks()
     }
 
-    private fun searchSong(
-        iTunesService: IMDbApi
-    ) {
-        iTunesService.search(inputEditText?.text.toString()).enqueue(
+    private val retrofit: Retrofit by lazy {
+        Retrofit.Builder()
+            .baseUrl(ITUNES_BASE_URL)
+            .addConverterFactory(
+                GsonConverterFactory.create(
+                    GsonBuilder()
+                        .registerTypeAdapter(TrackTime::class.java, TrackTypeAdapter())
+                        .create()
+                )
+            )
+            .build()
+    }
+
+    private val iTunesService: IMDbApi by lazy {
+        retrofit.create(IMDbApi::class.java)
+    }
+
+
+    private fun searchSong() {
+        binding.progressBar.visibility = View.VISIBLE
+
+        iTunesService.search(binding.inputEditText.text.toString()).enqueue(
             object : Callback<ITunesResponse> {
                 override fun onResponse(
                     call: Call<ITunesResponse>,
                     response: Response<ITunesResponse>
                 ) {
+                    binding.progressBar.visibility =
+                        View.GONE
                     if (response.code() == 200) {
                         hideNothingFound()
-                        tracks.clear()
                         if (response.body()?.results?.isNotEmpty() == true) {
-                            tracks.addAll(response.body()?.results!!)
-                            rvTrack.adapter?.notifyDataSetChanged()
+                            replaceTracks(response.body()?.results!!)
                         } else {
+                            clearTracks()
                             showNothingFound(
-                                inputEditText?.text.toString(),
-                                inputEditText
+                                binding.inputEditText.text.toString(),
+                                binding.inputEditText
                             )
                         }
                     }
@@ -172,39 +241,59 @@ class SearchActivity : AppCompatActivity() {
                 override fun onFailure(call: Call<ITunesResponse>, t: Throwable) {
                     Log.e("onFailure", t.message, t)
                     hideNothingFound()
-                    showBadConnection(inputEditText!!)
+                    showBadConnection(binding.inputEditText)
                 }
 
             })
     }
 
+    private fun clearTracks() {
+        tracks.clear()
+        trackAdapter.notifyDataSetChanged()
+    }
+
+    private fun replaceTracks(addedTracks: List<Track>) {
+        tracks.clear()
+        tracks.addAll(addedTracks)
+        trackAdapter.notifyDataSetChanged()
+    }
+
+    private fun hideYouSearched() {
+        changeYouSearchedVisibility(View.GONE)
+    }
+
+    private fun changeYouSearchedVisibility(visibility: Int) {
+        binding.hintMessage.visibility = visibility
+        binding.cleanHistoryButton.visibility = visibility
+    }
+
     private fun hideNothingFound() {
-        nothingFoundImg.visibility = View.GONE
-        nothingFoundText.visibility = View.GONE
-        badConnectionImg.visibility = View.GONE
-        badConnectionText.visibility = View.GONE
-        badConnectionButton.visibility = View.GONE
+        binding.progressBar.visibility = View.GONE
+        binding.nothingFound.visibility = View.GONE
+        binding.nothingFoundText.visibility = View.GONE
+        binding.badConnection.visibility = View.GONE
+        binding.badConnectionText.visibility = View.GONE
+        binding.badConnectionButton.visibility = View.GONE
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
-        outState.putString(SEARCH_INPUT, inputEditText?.text.toString())
+        outState.putString(SEARCH_INPUT, binding.inputEditText.text.toString())
     }
 
     override fun onRestoreInstanceState(savedInstanceState: Bundle) {
         super.onRestoreInstanceState(savedInstanceState)
-        inputEditText?.setText(savedInstanceState.getString(SEARCH_INPUT, ""))
-    }
-
-    override fun onDestroy() {
-        super.onDestroy()
-        inputEditText = null
+        binding.inputEditText.setText(savedInstanceState.getString(SEARCH_INPUT, ""))
     }
 
     companion object {
+        const val VIEWED_TRACK = "VIEWED_TRACK"
+        const val VIEWED_TRACKS = "key_for_viewed_tracks"
+        const val TRACK_MEDIA = "track_media"
         private const val SEARCH_INPUT = "SEARCH_INPUT"
-        private const val ITUNESBASEURL = "https://itunes.apple.com"
+        private const val ITUNES_BASE_URL = "https://itunes.apple.com"
+        private const val SEARCH_DEBOUNCE_DELAY = 2000L
+        private const val CLICK_DEBOUNCE_DELAY = 1000L
     }
-
 }
 

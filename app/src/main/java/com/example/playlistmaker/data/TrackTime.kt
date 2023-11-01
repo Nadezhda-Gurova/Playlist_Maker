@@ -1,3 +1,5 @@
 package com.example.playlistmaker.data
 
-data class TrackTime(val time: String)
+import java.io.Serializable
+
+data class TrackTime(val time: String): Serializable

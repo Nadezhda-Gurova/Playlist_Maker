@@ -1,5 +1,6 @@
 package com.example.playlistmaker.activity
 
+import android.content.ActivityNotFoundException
 import android.content.Intent
 import android.content.Intent.createChooser
 import android.net.Uri
@@ -7,6 +8,10 @@ import android.os.Bundle
 import android.view.View
 import android.widget.ImageView
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.widget.SwitchCompat
+import com.example.playlistmaker.App
+import com.example.playlistmaker.App.Companion.DARK_THEME_MODE
+import com.example.playlistmaker.App.Companion.DARK_THEME_TEXT_KEY
 import com.example.playlistmaker.R
 
 class SettingsActivity : AppCompatActivity() {
@@ -14,16 +19,45 @@ class SettingsActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_settings)
 
-        getBack()
+        initBackButton()
 
-        search()
+        try {
+            initShare()
+        } catch (_: ActivityNotFoundException) {
+        }
 
-        writeToSupport()
 
-        termOfUse()
+        try {
+            initWriteToSupport()
+        } catch (_: ActivityNotFoundException) {
+        }
+
+
+        try {
+            initTermOfUse()
+        } catch (_: ActivityNotFoundException) {
+        }
+
+        setBlackTheme()
     }
 
-    private fun getBack() {
+    private fun setBlackTheme() {
+
+        val themeSwitcher = findViewById<SwitchCompat>(R.id.black_theme)
+
+        val sharedPrefs = getSharedPreferences(DARK_THEME_MODE, MODE_PRIVATE)
+        themeSwitcher.isChecked = sharedPrefs.getBoolean(DARK_THEME_TEXT_KEY, false)
+
+
+        themeSwitcher.setOnCheckedChangeListener { switcher, checked ->
+            (applicationContext as App).switchTheme(checked)
+            sharedPrefs.edit()
+                .putBoolean(DARK_THEME_TEXT_KEY, checked)
+                .apply()
+        }
+    }
+
+    private fun initBackButton() {
         val back = findViewById<ImageView>(R.id.back_button)
 
         back.setOnClickListener {
@@ -31,7 +65,7 @@ class SettingsActivity : AppCompatActivity() {
         }
     }
 
-    private fun termOfUse() {
+    private fun initTermOfUse() {
         val termsOfUse = findViewById<View>(R.id.terms_of_use_panel)
         termsOfUse.setOnClickListener {
             val intent = Intent(Intent.ACTION_VIEW, Uri.parse(getString(R.string.public_offer)))
@@ -39,7 +73,7 @@ class SettingsActivity : AppCompatActivity() {
         }
     }
 
-    private fun search() {
+    private fun initShare() {
         val search = findViewById<View>(R.id.share_text_panel)
 
         search.setOnClickListener {
@@ -53,7 +87,7 @@ class SettingsActivity : AppCompatActivity() {
         }
     }
 
-    private fun writeToSupport() {
+    private fun initWriteToSupport() {
         val writeToSupport = findViewById<View>(R.id.write_to_support_panel)
         writeToSupport.setOnClickListener {
             Intent(Intent.ACTION_SENDTO).apply {

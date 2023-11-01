@@ -1,0 +1,738 @@
+Index: app/src/main/AndroidManifest.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/app/src/main/AndroidManifest.xml b/app/src/main/AndroidManifest.xml
+--- a/app/src/main/AndroidManifest.xml	(revision 735946da3a24f27cf2312557c940dbfe19e67b30)
++++ b/app/src/main/AndroidManifest.xml	(revision db52c2284b52550bd74e7f3811bb9573b9e10c54)
+@@ -3,6 +3,7 @@
+     xmlns:tools="http://schemas.android.com/tools">
+     <uses-permission android:name="android.permission.INTERNET"/>
+     <application
++        android:name=".App"
+         android:allowBackup="true"
+         android:dataExtractionRules="@xml/data_extraction_rules"
+         android:fullBackupContent="@xml/backup_rules"
+Index: app/src/main/java/com/example/playlistmaker/App.kt
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/app/src/main/java/com/example/playlistmaker/App.kt b/app/src/main/java/com/example/playlistmaker/App.kt
+new file mode 100644
+--- /dev/null	(revision db52c2284b52550bd74e7f3811bb9573b9e10c54)
++++ b/app/src/main/java/com/example/playlistmaker/App.kt	(revision db52c2284b52550bd74e7f3811bb9573b9e10c54)
+@@ -0,0 +1,35 @@
++package com.example.playlistmaker
++
++import android.app.Application
++import androidx.appcompat.app.AppCompatDelegate
++
++class App : Application() {
++
++    var darkTheme = false
++
++    override fun onCreate() {
++        super.onCreate()
++
++        val sharedPrefs = getSharedPreferences(DARK_THEME_MODE, MODE_PRIVATE)
++
++        darkTheme = sharedPrefs.getBoolean(DARK_THEME_TEXT_KEY, darkTheme)
++
++        switchTheme(darkTheme)
++    }
++
++    fun switchTheme(darkThemeEnabled: Boolean) {
++        darkTheme = darkThemeEnabled
++        AppCompatDelegate.setDefaultNightMode(
++            if (darkThemeEnabled) {
++                AppCompatDelegate.MODE_NIGHT_YES
++            } else {
++                AppCompatDelegate.MODE_NIGHT_NO
++            }
++        )
++    }
++
++    companion object {
++        const val DARK_THEME_MODE = "dark_theme_mode"
++        const val DARK_THEME_TEXT_KEY = "key_for_dark_theme"
++    }
++}
+\ No newline at end of file
+Index: app/src/main/java/com/example/playlistmaker/Observable.kt
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/app/src/main/java/com/example/playlistmaker/Observable.kt b/app/src/main/java/com/example/playlistmaker/Observable.kt
+new file mode 100644
+--- /dev/null	(revision db52c2284b52550bd74e7f3811bb9573b9e10c54)
++++ b/app/src/main/java/com/example/playlistmaker/Observable.kt	(revision db52c2284b52550bd74e7f3811bb9573b9e10c54)
+@@ -0,0 +1,10 @@
++package com.example.playlistmaker
++
++import com.example.playlistmaker.data.Track
++import java.util.Observer
++
++interface Observable {
++    fun add(observer: Observer)
++    fun remove(observer: Observer)
++    fun notifyObservers(track: Track)
++}
+\ No newline at end of file
+Index: app/src/main/java/com/example/playlistmaker/OnTrackClickListener.kt
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/app/src/main/java/com/example/playlistmaker/OnTrackClickListener.kt b/app/src/main/java/com/example/playlistmaker/OnTrackClickListener.kt
+new file mode 100644
+--- /dev/null	(revision db52c2284b52550bd74e7f3811bb9573b9e10c54)
++++ b/app/src/main/java/com/example/playlistmaker/OnTrackClickListener.kt	(revision db52c2284b52550bd74e7f3811bb9573b9e10c54)
+@@ -0,0 +1,7 @@
++package com.example.playlistmaker
++
++import com.example.playlistmaker.data.Track
++
++interface OnTrackClickListener {
++    fun onTrackClick(track: Track)
++}
+\ No newline at end of file
+Index: app/src/main/java/com/example/playlistmaker/SearchHistory.kt
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/app/src/main/java/com/example/playlistmaker/SearchHistory.kt b/app/src/main/java/com/example/playlistmaker/SearchHistory.kt
+new file mode 100644
+--- /dev/null	(revision a22a94536f430d50d0440f662c4a8dacf803896b)
++++ b/app/src/main/java/com/example/playlistmaker/SearchHistory.kt	(revision a22a94536f430d50d0440f662c4a8dacf803896b)
+@@ -0,0 +1,65 @@
++package com.example.playlistmaker
++
++import android.content.SharedPreferences
++import com.example.playlistmaker.activity.SearchActivity.Companion.VIEWED_TRACK
++import com.example.playlistmaker.activity.SearchActivity.Companion.VIEWED_TRACKS
++import com.example.playlistmaker.data.Track
++import com.google.gson.Gson
++
++class SearchHistory (private val sharedPreferences: SharedPreferences) {
++    private val history = arrayListOf<Track>()
++    fun readTrack(): Track? {
++        val json = sharedPreferences.getString(VIEWED_TRACK, null) ?: return null
++        return Gson().fromJson(json, Track::class.java)
++    }
++
++    fun readTracks(): Array<Track> {
++        val json = sharedPreferences.getString(VIEWED_TRACKS, null) ?: return arrayOf<Track>()
++        return Gson().fromJson(json, Array<Track>::class.java)
++    }
++
++    fun writeTrack(track: Track) {
++        val json = Gson().toJson(track)
++
++        sharedPreferences.edit()
++                .putString(VIEWED_TRACK, json)
++                .apply()
++    }
++
++    fun writeTracks(track: Track?) {
++        if(track != null) {
++            var tracksJson = sharedPreferences.getString(VIEWED_TRACKS, null)
++
++            tracksJson = tracksJson ?: "[]"
++            val tracks = createTracksFromJson(tracksJson)
++
++            history.addAll(tracks)
++
++            val index = history.indexOf(track)
++
++            if (history.size <= 10) {
++                if (index != -1) {
++                    history.remove(track)
++                    history.add(0, track)
++                } else {
++                    history.add(track)
++                }
++            }
++
++            sharedPreferences.edit().putString(
++                VIEWED_TRACKS, createJsonFromTracks(
++                    history
++                )
++            ).apply()
++            history.clear()
++        }
++    }
++
++    private fun createJsonFromTracks(tracks: ArrayList<Track>): String {
++        return Gson().toJson(tracks)
++    }
++
++    private fun createTracksFromJson(json: String): Array<Track> {
++        return Gson().fromJson(json, Array<Track>::class.java)
++    }
++}
+\ No newline at end of file
+Index: app/src/main/java/com/example/playlistmaker/activity/SearchActivity.kt
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/app/src/main/java/com/example/playlistmaker/activity/SearchActivity.kt b/app/src/main/java/com/example/playlistmaker/activity/SearchActivity.kt
+--- a/app/src/main/java/com/example/playlistmaker/activity/SearchActivity.kt	(revision 735946da3a24f27cf2312557c940dbfe19e67b30)
++++ b/app/src/main/java/com/example/playlistmaker/activity/SearchActivity.kt	(revision f3ad4326fa84f3f8a2ce5ddf1d5aead59e365726)
+@@ -1,5 +1,6 @@
+ package com.example.playlistmaker.activity
+ 
++import android.content.SharedPreferences
+ import android.os.Bundle
+ import android.text.Editable
+ import android.text.TextWatcher
+@@ -12,8 +13,10 @@
+ import android.widget.TextView
+ import androidx.appcompat.app.AppCompatActivity
+ import androidx.recyclerview.widget.RecyclerView
++import com.example.playlistmaker.OnTrackClickListener
+ import com.example.playlistmaker.recyclerview.CustomTypeAdapter
+ import com.example.playlistmaker.R
++import com.example.playlistmaker.SearchHistory
+ import com.example.playlistmaker.data.Track
+ import com.example.playlistmaker.recyclerview.TrackAdapter
+ import com.example.playlistmaker.data.TrackTime
+@@ -26,24 +29,38 @@
+ import retrofit2.Response
+ import retrofit2.Retrofit
+ import retrofit2.converter.gson.GsonConverterFactory
++import kotlin.reflect.KFunction0
+ 
+ class SearchActivity : AppCompatActivity() {
+ 
+-    private var inputEditText: EditText? = null
+     private val tracks = arrayListOf<Track>()
+-    private val trackAdapter = TrackAdapter(tracks)
++    lateinit var trackAdapter: TrackAdapter
+ 
++    private lateinit var inputEditText: EditText
+     private lateinit var nothingFoundImg: ImageView
+     private lateinit var nothingFoundText: TextView
+     private lateinit var badConnectionImg: ImageView
+     private lateinit var badConnectionText: TextView
+     private lateinit var badConnectionButton: Button
+     private lateinit var rvTrack: RecyclerView
+-
++    private lateinit var hintMessage: TextView
++    private lateinit var cleanHistoryButton: Button
++    private lateinit var listener: SharedPreferences.OnSharedPreferenceChangeListener
+ 
+     override fun onCreate(savedInstanceState: Bundle?) {
+         super.onCreate(savedInstanceState)
+         setContentView(R.layout.activity_search)
++        val sharedPrefs = getSharedPreferences(VIEWED_TRACK, MODE_PRIVATE)
++        val searchHistory = SearchHistory(sharedPrefs)
++
++        val onTrackClickListener = object : OnTrackClickListener {
++
++            override fun onTrackClick(track: Track) {
++                searchHistory.writeTrack(track)
++            }
++        }
++
++
+ 
+         val back = findViewById<ImageView>(R.id.back_in_search)
+         back.setOnClickListener {
+@@ -56,27 +73,68 @@
+         badConnectionImg = findViewById(R.id.bad_connection)
+         badConnectionText = findViewById(R.id.bad_connection_text)
+         badConnectionButton = findViewById(R.id.bad_connection_button)
++        hintMessage = findViewById(R.id.hint_message)
++        cleanHistoryButton = findViewById(R.id.clean_history_button)
++        rvTrack = findViewById(R.id.recyclerView)
+ 
++        trackAdapter = TrackAdapter(tracks, onTrackClickListener)
++        rvTrack.adapter = trackAdapter
++
++        fun loadHistory () {
++            hideNothingFound()
++            tracks.clear()
++            val historyTracks = searchHistory.readTracks()
++            tracks.addAll(historyTracks)
++            rvTrack.adapter?.notifyDataSetChanged()
++        }
+ 
+         val clearButton = findViewById<ImageView>(R.id.clearIcon)
+         clearButton.setOnClickListener {
+-            inputEditText?.setText("")
++            inputEditText.setText("")
++            loadHistory()
++            clearButton.hideKeyboard()
++        }
++
++        cleanHistoryButton.setOnClickListener{
+             tracks.clear()
+-            clearButton.hideKeyboard()
++            sharedPrefs.edit().clear().apply()
++            rvTrack.adapter?.notifyDataSetChanged()
++        }
++
++
++        listener = SharedPreferences.OnSharedPreferenceChangeListener { sharedPreferences, key ->
++            if (key == VIEWED_TRACK) {
++                val track = searchHistory.readTrack()
++                if (track != null) {
++                    searchHistory.writeTracks(track)
++                }
++            }
+         }
+ 
+-        val simpleTextWatcher = getSimpleTextWatcher(clearButton)
+-        inputEditText?.addTextChangedListener(simpleTextWatcher)
++        sharedPrefs.registerOnSharedPreferenceChangeListener(listener)
++
++        val historyTracks = searchHistory.readTracks()
++
++        if (historyTracks.isNotEmpty()) {
++            tracks.addAll(historyTracks)
++        }
++
++        val simpleTextWatcher = getSimpleTextWatcher(clearButton, ::loadHistory)
++        inputEditText.addTextChangedListener(simpleTextWatcher)
++
++        inputEditText.setOnFocusChangeListener { view, hasFocus ->
++            val inFocus = if (hasFocus && inputEditText.text.isEmpty()) View.VISIBLE else View.GONE
++            hintMessage.visibility = inFocus
++            cleanHistoryButton.visibility = inFocus
++        }
+ 
+         setUpRecyclerWithRetrofit()
+     }
+ 
++
+     private fun setUpRecyclerWithRetrofit() {
+-        rvTrack = findViewById(R.id.recyclerView)
+-        rvTrack.adapter = trackAdapter
+-
+         val retrofit = Retrofit.Builder()
+-            .baseUrl(ITUNESBASEURL)
++            .baseUrl(ITUNES_BASE_URL)
+             .addConverterFactory(
+                 GsonConverterFactory.create(
+                     GsonBuilder()
+@@ -90,11 +148,11 @@
+         val iTunesService = retrofit.create(IMDbApi::class.java)
+ 
+         badConnectionButton.setOnClickListener {
+-            inputEditText!!.hideKeyboard()
++            inputEditText.hideKeyboard()
+             searchSong(iTunesService)
+         }
+ 
+-        inputEditText?.setOnEditorActionListener { _, actionId, _ ->
++        inputEditText.setOnEditorActionListener { _, actionId, _ ->
+             if (actionId == EditorInfo.IME_ACTION_DONE) {
+                 searchSong(iTunesService)
+                 true
+@@ -102,12 +160,21 @@
+         }
+     }
+ 
+-    private fun getSimpleTextWatcher(clearButton: ImageView) = object : TextWatcher {
++    private fun getSimpleTextWatcher(clearButton: ImageView, loadHistory: KFunction0<Unit>) = object : TextWatcher {
+         override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
+         }
+ 
+         override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
++            val isTextEntered = if (
++                inputEditText.hasFocus() && s?.isEmpty() == true) View.VISIBLE else View.GONE
++            hintMessage.visibility = isTextEntered
++            cleanHistoryButton.visibility = isTextEntered
++
+             clearButton.visibility = clearButtonVisibility(s)
++
++            if (isTextEntered == View.VISIBLE) {
++                loadHistory()
++            }
+         }
+ 
+         private fun clearButtonVisibility(s: CharSequence?): Int {
+@@ -148,7 +215,7 @@
+     private fun searchSong(
+         iTunesService: IMDbApi
+     ) {
+-        iTunesService.search(inputEditText?.text.toString()).enqueue(
++        iTunesService.search(inputEditText.text.toString()).enqueue(
+             object : Callback<ITunesResponse> {
+                 override fun onResponse(
+                     call: Call<ITunesResponse>,
+@@ -162,7 +229,7 @@
+                             rvTrack.adapter?.notifyDataSetChanged()
+                         } else {
+                             showNothingFound(
+-                                inputEditText?.text.toString(),
++                                inputEditText.text.toString(),
+                                 inputEditText
+                             )
+                         }
+@@ -172,7 +239,7 @@
+                 override fun onFailure(call: Call<ITunesResponse>, t: Throwable) {
+                     Log.e("onFailure", t.message, t)
+                     hideNothingFound()
+-                    showBadConnection(inputEditText!!)
++                    showBadConnection(inputEditText)
+                 }
+ 
+             })
+@@ -188,22 +255,19 @@
+ 
+     override fun onSaveInstanceState(outState: Bundle) {
+         super.onSaveInstanceState(outState)
+-        outState.putString(SEARCH_INPUT, inputEditText?.text.toString())
++        outState.putString(SEARCH_INPUT, inputEditText.text.toString())
+     }
+ 
+     override fun onRestoreInstanceState(savedInstanceState: Bundle) {
+         super.onRestoreInstanceState(savedInstanceState)
+-        inputEditText?.setText(savedInstanceState.getString(SEARCH_INPUT, ""))
+-    }
+-
+-    override fun onDestroy() {
+-        super.onDestroy()
+-        inputEditText = null
++        inputEditText.setText(savedInstanceState.getString(SEARCH_INPUT, ""))
+     }
+ 
+     companion object {
++        const val VIEWED_TRACK = "VIEWED_TRACK"
++        const val VIEWED_TRACKS = "key_for_viewed_tracks"
+         private const val SEARCH_INPUT = "SEARCH_INPUT"
+-        private const val ITUNESBASEURL = "https://itunes.apple.com"
++        private const val ITUNES_BASE_URL = "https://itunes.apple.com"
+     }
+ 
+ }
+Index: app/src/main/java/com/example/playlistmaker/activity/SettingsActivity.kt
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/app/src/main/java/com/example/playlistmaker/activity/SettingsActivity.kt b/app/src/main/java/com/example/playlistmaker/activity/SettingsActivity.kt
+--- a/app/src/main/java/com/example/playlistmaker/activity/SettingsActivity.kt	(revision 735946da3a24f27cf2312557c940dbfe19e67b30)
++++ b/app/src/main/java/com/example/playlistmaker/activity/SettingsActivity.kt	(revision db52c2284b52550bd74e7f3811bb9573b9e10c54)
+@@ -7,6 +7,10 @@
+ import android.view.View
+ import android.widget.ImageView
+ import androidx.appcompat.app.AppCompatActivity
++import androidx.appcompat.widget.SwitchCompat
++import com.example.playlistmaker.App
++import com.example.playlistmaker.App.Companion.DARK_THEME_MODE
++import com.example.playlistmaker.App.Companion.DARK_THEME_TEXT_KEY
+ import com.example.playlistmaker.R
+ 
+ class SettingsActivity : AppCompatActivity() {
+@@ -14,16 +18,34 @@
+         super.onCreate(savedInstanceState)
+         setContentView(R.layout.activity_settings)
+ 
+-        getBack()
++        initBackButton()
++
++        initShare()
++
++        initWriteToSupport()
++
++        initTermOfUse()
++
++        setBlackTheme()
++    }
++
++    private fun setBlackTheme() {
++
++        val themeSwitcher = findViewById<SwitchCompat>(R.id.black_theme)
+ 
+-        search()
++        val sharedPrefs = getSharedPreferences(DARK_THEME_MODE, MODE_PRIVATE)
++        themeSwitcher.isChecked = sharedPrefs.getBoolean(DARK_THEME_TEXT_KEY, false)
+ 
+-        writeToSupport()
+ 
+-        termOfUse()
++        themeSwitcher.setOnCheckedChangeListener { switcher, checked ->
++            (applicationContext as App).switchTheme(checked)
++            sharedPrefs.edit()
++                .putBoolean(DARK_THEME_TEXT_KEY, checked)
++                .apply()
++        }
+     }
+ 
+-    private fun getBack() {
++    private fun initBackButton() {
+         val back = findViewById<ImageView>(R.id.back_button)
+ 
+         back.setOnClickListener {
+@@ -31,7 +53,7 @@
+         }
+     }
+ 
+-    private fun termOfUse() {
++    private fun initTermOfUse() {
+         val termsOfUse = findViewById<View>(R.id.terms_of_use_panel)
+         termsOfUse.setOnClickListener {
+             val intent = Intent(Intent.ACTION_VIEW, Uri.parse(getString(R.string.public_offer)))
+@@ -39,7 +61,7 @@
+         }
+     }
+ 
+-    private fun search() {
++    private fun initShare() {
+         val search = findViewById<View>(R.id.share_text_panel)
+ 
+         search.setOnClickListener {
+@@ -53,7 +75,7 @@
+         }
+     }
+ 
+-    private fun writeToSupport() {
++    private fun initWriteToSupport() {
+         val writeToSupport = findViewById<View>(R.id.write_to_support_panel)
+         writeToSupport.setOnClickListener {
+             Intent(Intent.ACTION_SENDTO).apply {
+@@ -75,4 +97,4 @@
+     override fun onNewIntent(intent: Intent?) {
+         super.onNewIntent(intent)
+     }
+-}
+\ No newline at end of file
++}
+Index: app/src/main/java/com/example/playlistmaker/data/Track.kt
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/app/src/main/java/com/example/playlistmaker/data/Track.kt b/app/src/main/java/com/example/playlistmaker/data/Track.kt
+--- a/app/src/main/java/com/example/playlistmaker/data/Track.kt	(revision 735946da3a24f27cf2312557c940dbfe19e67b30)
++++ b/app/src/main/java/com/example/playlistmaker/data/Track.kt	(revision db52c2284b52550bd74e7f3811bb9573b9e10c54)
+@@ -3,6 +3,7 @@
+ import com.google.gson.annotations.SerializedName
+ 
+ data class Track(
++    val trackId: Int,
+     val trackName: String, // Название композиции
+     val artistName: String, // Имя исполнителя
+     @SerializedName("trackTimeMillis")
+Index: app/src/main/java/com/example/playlistmaker/recyclerview/HistoryAdapter.kt
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/app/src/main/java/com/example/playlistmaker/recyclerview/HistoryAdapter.kt b/app/src/main/java/com/example/playlistmaker/recyclerview/HistoryAdapter.kt
+new file mode 100644
+--- /dev/null	(revision db52c2284b52550bd74e7f3811bb9573b9e10c54)
++++ b/app/src/main/java/com/example/playlistmaker/recyclerview/HistoryAdapter.kt	(revision db52c2284b52550bd74e7f3811bb9573b9e10c54)
+@@ -0,0 +1,33 @@
++package com.example.playlistmaker.recyclerview
++
++import android.view.LayoutInflater
++import android.view.ViewGroup
++import androidx.recyclerview.widget.RecyclerView
++import com.example.playlistmaker.OnTrackClickListener
++import com.example.playlistmaker.R
++import com.example.playlistmaker.data.Track
++
++class HistoryAdapter(
++    private val data: List<Track>,
++    private val onTrackClickListener: OnTrackClickListener
++) : RecyclerView.Adapter<TrackViewHolder>() {
++
++    override fun onCreateViewHolder(
++        parent: ViewGroup,
++        viewType: Int
++    ): TrackViewHolder {
++        val view = LayoutInflater.from(parent.context).inflate(R.layout.items_view, parent, false)
++        return TrackViewHolder(view)
++    }
++
++    override fun onBindViewHolder(holder: TrackViewHolder, position: Int) {
++        holder.bind(data[position])
++        holder.itemView.setOnClickListener { onTrackClickListener.onTrackClick(data[holder.adapterPosition]) }
++    }
++
++
++    override fun getItemCount(): Int {
++        return data.size
++    }
++
++}
+\ No newline at end of file
+Index: app/src/main/java/com/example/playlistmaker/recyclerview/TrackAdapter.kt
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/app/src/main/java/com/example/playlistmaker/recyclerview/TrackAdapter.kt b/app/src/main/java/com/example/playlistmaker/recyclerview/TrackAdapter.kt
+--- a/app/src/main/java/com/example/playlistmaker/recyclerview/TrackAdapter.kt	(revision 735946da3a24f27cf2312557c940dbfe19e67b30)
++++ b/app/src/main/java/com/example/playlistmaker/recyclerview/TrackAdapter.kt	(revision db52c2284b52550bd74e7f3811bb9573b9e10c54)
+@@ -2,12 +2,15 @@
+ 
+ import android.view.LayoutInflater
+ import android.view.ViewGroup
++
+ import androidx.recyclerview.widget.RecyclerView
++import com.example.playlistmaker.OnTrackClickListener
+ import com.example.playlistmaker.R
+ import com.example.playlistmaker.data.Track
+ 
+ class TrackAdapter(
+-    private val data: List<Track>
++    private val data: List<Track>,
++    private val onTrackClickListener: OnTrackClickListener
+ ) : RecyclerView.Adapter<TrackViewHolder>() {
+ 
+     override fun onCreateViewHolder(
+@@ -20,9 +23,12 @@
+ 
+     override fun onBindViewHolder(holder: TrackViewHolder, position: Int) {
+         holder.bind(data[position])
++        holder.itemView.setOnClickListener { onTrackClickListener.onTrackClick(data[holder.adapterPosition]) }
+     }
++
+ 
+     override fun getItemCount(): Int {
+         return data.size
+     }
++
+ }
+\ No newline at end of file
+Index: app/src/main/res/layout/activity_search.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/app/src/main/res/layout/activity_search.xml b/app/src/main/res/layout/activity_search.xml
+--- a/app/src/main/res/layout/activity_search.xml	(revision 735946da3a24f27cf2312557c940dbfe19e67b30)
++++ b/app/src/main/res/layout/activity_search.xml	(revision db52c2284b52550bd74e7f3811bb9573b9e10c54)
+@@ -33,7 +33,7 @@
+         app:layout_constraintTop_toTopOf="parent" />
+ 
+     <androidx.constraintlayout.widget.ConstraintLayout
+-        android:id="@+id/container"
++        android:id="@+id/container_search"
+         android:layout_width="match_parent"
+         android:layout_height="wrap_content"
+         android:layout_marginStart="16dp"
+@@ -89,13 +89,49 @@
+ 
+     </androidx.constraintlayout.widget.ConstraintLayout>
+ 
+-    <androidx.recyclerview.widget.RecyclerView
+-        android:id="@+id/recyclerView"
+-        android:layout_width="match_parent"
+-        android:layout_height="wrap_content"
+-        android:layout_marginTop="24dp"
+-        app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+-        app:layout_constraintTop_toBottomOf="@+id/container" />
++    <LinearLayout
++        android:id="@+id/containerHistory"
++        android:layout_width="match_parent"
++        android:layout_height="wrap_content"
++        android:layout_marginTop="24dp"
++        android:orientation="vertical"
++        app:layout_constraintTop_toBottomOf="@+id/container_search">
++
++
++        <TextView
++            android:id="@+id/hint_message"
++            android:layout_width="match_parent"
++            android:layout_height="wrap_content"
++            android:fontFamily="@font/ys_display_medium"
++            android:gravity="center"
++            android:paddingTop="18dp"
++            android:paddingBottom="12dp"
++            android:text="@string/you_searched"
++            android:textColor="@color/black_light"
++            android:textSize="19sp" />
++
++        <androidx.recyclerview.widget.RecyclerView
++            android:id="@+id/recyclerView"
++            android:layout_width="match_parent"
++            android:layout_height="wrap_content"
++            android:layout_marginTop="8dp"
++            app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
++            app:layout_constraintTop_toBottomOf="@+id/hint_message"
++            tools:itemCount="10" />
++
++        <Button
++            android:id="@+id/clean_history_button"
++            style="@style/UpdateButton"
++            android:layout_width="wrap_content"
++            android:layout_height="wrap_content"
++            android:layout_gravity="center"
++            android:layout_marginTop="24dp"
++            android:text="@string/clean_history"
++            app:layout_constraintLeft_toLeftOf="parent"
++            app:layout_constraintRight_toRightOf="parent"
++            app:layout_constraintTop_toBottomOf="@+id/recyclerView" />
++
++    </LinearLayout>
+ 
+ 
+     <ImageView
+@@ -109,7 +145,7 @@
+         android:visibility="gone"
+         app:layout_constraintLeft_toLeftOf="parent"
+         app:layout_constraintRight_toRightOf="parent"
+-        app:layout_constraintTop_toBottomOf="@+id/container"
++        app:layout_constraintTop_toBottomOf="@+id/container_search"
+         tools:ignore="ContentDescription" />
+ 
+     <TextView
+@@ -140,7 +176,7 @@
+         android:visibility="gone"
+         app:layout_constraintLeft_toLeftOf="parent"
+         app:layout_constraintRight_toRightOf="parent"
+-        app:layout_constraintTop_toBottomOf="@+id/container"
++        app:layout_constraintTop_toBottomOf="@+id/container_search"
+         tools:ignore="ContentDescription" />
+ 
+     <TextView
+@@ -166,6 +202,7 @@
+         style="@style/UpdateButton"
+         android:layout_width="wrap_content"
+         android:layout_height="wrap_content"
++        android:layout_marginTop="24dp"
+         android:text="@string/update"
+         android:visibility="gone"
+         app:layout_constraintLeft_toLeftOf="parent"
+Index: app/src/main/res/values/strings.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/app/src/main/res/values/strings.xml b/app/src/main/res/values/strings.xml
+--- a/app/src/main/res/values/strings.xml	(revision 735946da3a24f27cf2312557c940dbfe19e67b30)
++++ b/app/src/main/res/values/strings.xml	(revision db52c2284b52550bd74e7f3811bb9573b9e10c54)
+@@ -21,4 +21,6 @@
+     <string name="nothing_found_text">Ничего не нашлось</string>
+     <string name="bad_connection_text">Проблемы со связью \n\nЗагрузка не удалась. Проверьте \nподключение к интернету</string>
+     <string name="update">Обновить</string>
++    <string name="you_searched">Вы искали</string>
++    <string name="clean_history">Очистить историю</string>
+ </resources>
+\ No newline at end of file
+Index: app/src/main/res/values/styles.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/app/src/main/res/values/styles.xml b/app/src/main/res/values/styles.xml
+--- a/app/src/main/res/values/styles.xml	(revision 735946da3a24f27cf2312557c940dbfe19e67b30)
++++ b/app/src/main/res/values/styles.xml	(revision db52c2284b52550bd74e7f3811bb9573b9e10c54)
+@@ -62,7 +62,6 @@
+     </style>
+ 
+     <style name="UpdateButton" parent="Widget.MaterialComponents.Button.UnelevatedButton">
+-        <item name="android:layout_marginTop">24dp</item>
+         <item name="android:backgroundTint">@color/black</item>
+         <item name="android:textAllCaps">false</item>
+         <item name="android:textColor">@color/background_color</item>

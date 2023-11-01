@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:left="39dp" android:right="39dp" android:top="39dp" android:bottom="39dp">
+        <bitmap android:src="@drawable/placeholder_player" />
+    </item>
+</selector>
