@@ -1,6 +1,6 @@
-package com.example.playlistmaker.recyclerview
+package com.example.playlistmaker.ui.recyclerview
 
-import com.example.playlistmaker.data.TrackTime
+import com.example.playlistmaker.data.dto.TrackTime
 import com.google.gson.TypeAdapter
 import com.google.gson.stream.JsonReader
 import com.google.gson.stream.JsonWriter

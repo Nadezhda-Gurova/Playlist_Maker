@@ -1,4 +1,4 @@
-package com.example.playlistmaker.extentions
+package com.example.playlistmaker.ui.extentions
 
 import android.content.Context
 import android.view.View

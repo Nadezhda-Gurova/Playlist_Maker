@@ -1,4 +1,4 @@
-package com.example.playlistmaker.activity
+package com.example.playlistmaker.ui
 
 import android.content.Intent
 import android.os.Bundle
@@ -11,18 +11,17 @@ import android.view.View
 import android.widget.EditText
 import android.widget.ImageView
 import androidx.appcompat.app.AppCompatActivity
-import com.example.playlistmaker.OnTrackClickListener
+import com.example.playlistmaker.ui.recyclerview.OnTrackClickListener
 import com.example.playlistmaker.R
-import com.example.playlistmaker.SearchTrackHistory
-import com.example.playlistmaker.SearchTrackHistoryImplementation
-import com.example.playlistmaker.data.Track
-import com.example.playlistmaker.data.TrackTime
+import com.example.playlistmaker.data.repository.SearchTrackHistoryRepositoryImpl
+import com.example.playlistmaker.data.dto.Track
+import com.example.playlistmaker.data.dto.TrackTime
 import com.example.playlistmaker.databinding.ActivitySearchBinding
-import com.example.playlistmaker.extentions.hideKeyboard
-import com.example.playlistmaker.network.IMDbApi
-import com.example.playlistmaker.network.ITunesResponse
-import com.example.playlistmaker.recyclerview.TrackAdapter
-import com.example.playlistmaker.recyclerview.TrackTypeAdapter
+import com.example.playlistmaker.data.dto.ITunesResponse
+import com.example.playlistmaker.data.network.IMDbApi
+import com.example.playlistmaker.ui.recyclerview.TrackAdapter
+import com.example.playlistmaker.ui.recyclerview.TrackTypeAdapter
+import com.example.playlistmaker.ui.extentions.hideKeyboard
 import com.google.gson.GsonBuilder
 import retrofit2.Call
 import retrofit2.Callback
@@ -44,7 +43,7 @@ class SearchActivity : AppCompatActivity() {
         setContentView(R.layout.activity_search)
         binding = ActivitySearchBinding.bind(findViewById(R.id.root))
         val sharedPrefs = getSharedPreferences(VIEWED_TRACK, MODE_PRIVATE)
-        val searchHistory = SearchTrackHistoryImplementation(sharedPrefs)
+        val searchHistory = SearchTrackHistoryRepositoryImpl(sharedPrefs)
 
         val onTrackClickListener = object : OnTrackClickListener {
             override fun onTrackClick(track: Track) {
@@ -111,7 +110,7 @@ class SearchActivity : AppCompatActivity() {
         return current
     }
 
-    private fun loadHistory(searchHistory: SearchTrackHistory) {
+    private fun loadHistory(searchHistory: SearchTrackHistoryRepository) {
         val historyTracks = searchHistory.getTracks()
         if (historyTracks.isNotEmpty()) {
             replaceTracks(historyTracks)
@@ -130,8 +129,8 @@ class SearchActivity : AppCompatActivity() {
 
     private fun getSimpleTextWatcher(
         clearButton: ImageView,
-        searchHistory: SearchTrackHistory,
-        loadHistory: KFunction1<SearchTrackHistory, Unit>
+        searchHistory: SearchTrackHistoryRepository,
+        loadHistory: KFunction1<SearchTrackHistoryRepository, Unit>
     ) =
         object : TextWatcher {
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {

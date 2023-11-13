@@ -1,4 +1,4 @@
-package com.example.playlistmaker.activity
+package com.example.playlistmaker.ui
 
 import android.content.ActivityNotFoundException
 import android.content.Intent
@@ -9,9 +9,8 @@ import android.view.View
 import android.widget.ImageView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.SwitchCompat
-import com.example.playlistmaker.App
-import com.example.playlistmaker.App.Companion.DARK_THEME_MODE
-import com.example.playlistmaker.App.Companion.DARK_THEME_TEXT_KEY
+import com.example.playlistmaker.ui.App.Companion.DARK_THEME_MODE
+import com.example.playlistmaker.ui.App.Companion.DARK_THEME_TEXT_KEY
 import com.example.playlistmaker.R
 
 class SettingsActivity : AppCompatActivity() {

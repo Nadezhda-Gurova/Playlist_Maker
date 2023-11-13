@@ -1,14 +1,15 @@
-package com.example.playlistmaker
+package com.example.playlistmaker.data.repository
 
 import android.content.SharedPreferences
-import com.example.playlistmaker.data.Track
-import com.example.playlistmaker.activity.SearchActivity
+import com.example.playlistmaker.data.dto.Track
+import com.example.playlistmaker.ui.SearchActivity
+import com.example.playlistmaker.ui.SearchTrackHistoryRepository
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 
-class SearchTrackHistoryImplementation(
+class SearchTrackHistoryRepositoryImpl(
     private val sharedPreferences: SharedPreferences
-) : SearchTrackHistory {
+) : SearchTrackHistoryRepository {
     override fun addTrack(track: Track) {
         val tracks = getTracks().toMutableList()
         var indexOfElement = -1

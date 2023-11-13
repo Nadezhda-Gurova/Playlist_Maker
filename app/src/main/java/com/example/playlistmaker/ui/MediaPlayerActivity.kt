@@ -1,4 +1,4 @@
-package com.example.playlistmaker.activity
+package com.example.playlistmaker.ui
 
 import android.media.MediaPlayer
 import android.os.Build
@@ -11,8 +11,8 @@ import android.widget.ImageView
 import androidx.appcompat.app.AppCompatActivity
 import com.bumptech.glide.Glide
 import com.example.playlistmaker.R
-import com.example.playlistmaker.activity.SearchActivity.Companion.TRACK_MEDIA
-import com.example.playlistmaker.data.Track
+import com.example.playlistmaker.ui.SearchActivity.Companion.TRACK_MEDIA
+import com.example.playlistmaker.data.dto.Track
 import com.example.playlistmaker.databinding.ActivityAudioPlayerBinding
 import java.lang.IllegalStateException
 import java.text.SimpleDateFormat
