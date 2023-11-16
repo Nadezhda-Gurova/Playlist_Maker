@@ -6,28 +6,20 @@ import android.os.Handler
 import android.os.Looper
 import android.text.Editable
 import android.text.TextWatcher
-import android.util.Log
 import android.view.View
 import android.widget.EditText
 import android.widget.ImageView
 import androidx.appcompat.app.AppCompatActivity
+import com.example.playlistmaker.creator.Creator
 import com.example.playlistmaker.ui.recyclerview.OnTrackClickListener
 import com.example.playlistmaker.R
 import com.example.playlistmaker.data.repository.SearchTrackHistoryRepositoryImpl
 import com.example.playlistmaker.data.dto.Track
-import com.example.playlistmaker.data.dto.TrackTime
 import com.example.playlistmaker.databinding.ActivitySearchBinding
-import com.example.playlistmaker.data.dto.ITunesResponse
-import com.example.playlistmaker.data.network.IMDbApi
 import com.example.playlistmaker.ui.recyclerview.TrackAdapter
-import com.example.playlistmaker.ui.recyclerview.TrackTypeAdapter
 import com.example.playlistmaker.ui.extentions.hideKeyboard
-import com.google.gson.GsonBuilder
-import retrofit2.Call
-import retrofit2.Callback
-import retrofit2.Response
-import retrofit2.Retrofit
-import retrofit2.converter.gson.GsonConverterFactory
+import com.example.vehicle_shop_clean.domain.consumer.Consumer
+import com.example.vehicle_shop_clean.domain.consumer.ConsumerData
 import kotlin.reflect.KFunction1
 
 
@@ -36,6 +28,8 @@ class SearchActivity : AppCompatActivity() {
     private val tracks = arrayListOf<Track>()
     private lateinit var trackAdapter: TrackAdapter
     private lateinit var binding: ActivitySearchBinding
+    private val getProductListUseCase = Creator.provideGetTracksListUseCase()
+    private var detailsRunnable: Runnable? = null
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -194,57 +188,51 @@ class SearchActivity : AppCompatActivity() {
         clearTracks()
     }
 
-    private val retrofit: Retrofit by lazy {
-        Retrofit.Builder()
-            .baseUrl(ITUNES_BASE_URL)
-            .addConverterFactory(
-                GsonConverterFactory.create(
-                    GsonBuilder()
-                        .registerTypeAdapter(TrackTime::class.java, TrackTypeAdapter())
-                        .create()
-                )
-            )
-            .build()
-    }
-
-    private val iTunesService: IMDbApi by lazy {
-        retrofit.create(IMDbApi::class.java)
-    }
-
 
     private fun searchSong() {
+        hideNothingFound()
         binding.progressBar.visibility = View.VISIBLE
-
-        iTunesService.search(binding.inputEditText.text.toString()).enqueue(
-            object : Callback<ITunesResponse> {
-                override fun onResponse(
-                    call: Call<ITunesResponse>,
-                    response: Response<ITunesResponse>
-                ) {
-                    binding.progressBar.visibility =
-                        View.GONE
-                    if (response.code() == 200) {
-                        hideNothingFound()
-                        if (response.body()?.results?.isNotEmpty() == true) {
-                            replaceTracks(response.body()?.results!!)
-                        } else {
-                            clearTracks()
-                            showNothingFound(
-                                binding.inputEditText.text.toString(),
-                                binding.inputEditText
-                            )
-                        }
-                    }
+        getProductListUseCase.execute(
+            binding.inputEditText.text.toString(),
+            consumer = object : Consumer<Track> {
+                override fun consume(data: ConsumerData<Track>) {
+                    consumeTrack(data)
                 }
+            }
+        )
+    }
 
-                override fun onFailure(call: Call<ITunesResponse>, t: Throwable) {
-                    Log.e("onFailure", t.message, t)
+    private fun consumeTrack(data: ConsumerData<Track>) {
+        val currentRunnable = detailsRunnable
+        if (currentRunnable != null) {
+            handler.removeCallbacks(currentRunnable)
+        }
+
+        val newDetailsRunnable = Runnable {
+            binding.progressBar.visibility = View.GONE
+            when (data) {
+                is ConsumerData.Error -> {
                     hideNothingFound()
                     showBadConnection(binding.inputEditText)
                 }
 
-            })
+                is ConsumerData.Data -> {
+                    if (data.value.isNotEmpty()) {
+                        replaceTracks(data.value)
+                    } else {
+                        clearTracks()
+                        showNothingFound(
+                            binding.inputEditText.text.toString(),
+                            binding.inputEditText
+                        )
+                    }
+                }
+            }
+        }
+        detailsRunnable = newDetailsRunnable
+        handler.post(newDetailsRunnable)
     }
+
 
     private fun clearTracks() {
         tracks.clear()
@@ -267,7 +255,6 @@ class SearchActivity : AppCompatActivity() {
     }
 
     private fun hideNothingFound() {
-        binding.progressBar.visibility = View.GONE
         binding.nothingFound.visibility = View.GONE
         binding.nothingFoundText.visibility = View.GONE
         binding.badConnection.visibility = View.GONE
@@ -290,7 +277,6 @@ class SearchActivity : AppCompatActivity() {
         const val VIEWED_TRACKS = "key_for_viewed_tracks"
         const val TRACK_MEDIA = "track_media"
         private const val SEARCH_INPUT = "SEARCH_INPUT"
-        private const val ITUNES_BASE_URL = "https://itunes.apple.com"
         private const val SEARCH_DEBOUNCE_DELAY = 2000L
         private const val CLICK_DEBOUNCE_DELAY = 1000L
     }

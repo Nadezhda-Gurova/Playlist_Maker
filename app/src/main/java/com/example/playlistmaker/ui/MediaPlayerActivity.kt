@@ -18,9 +18,11 @@ import java.lang.IllegalStateException
 import java.text.SimpleDateFormat
 import java.util.Locale
 
-
 class MediaPlayerActivity : AppCompatActivity() {
     private lateinit var binding: ActivityAudioPlayerBinding
+    private val handler = Handler(Looper.getMainLooper())
+    private var playerState: PlayerState = PlayerState.NotInited
+    private val mediaPlayer = MediaPlayer()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -29,7 +31,6 @@ class MediaPlayerActivity : AppCompatActivity() {
 
         initBackButton()
 
-
         val track: Track? = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             intent.getSerializableExtra(TRACK_MEDIA, Track::class.java)
         } else {
@@ -37,7 +38,6 @@ class MediaPlayerActivity : AppCompatActivity() {
         }
 
         requireNotNull(track) { "No track provided" }
-
 
         setTrackData(track)
 
@@ -93,9 +93,6 @@ class MediaPlayerActivity : AppCompatActivity() {
         binding.albumGenre.text = track.primaryGenreName
     }
 
-    private val handler = Handler(Looper.getMainLooper())
-
-
     private fun startProgressUpdate() {
         handler.post(object : Runnable {
             override fun run() {
@@ -114,7 +111,6 @@ class MediaPlayerActivity : AppCompatActivity() {
         })
     }
 
-
     override fun onDestroy() {
         super.onDestroy()
         mediaPlayer.release()
@@ -128,7 +124,6 @@ class MediaPlayerActivity : AppCompatActivity() {
     private fun getCoverArtwork(track: Track) =
         track.artworkUrl100.replaceAfterLast('/', "512x512bb.jpg")
 
-
     private fun initBackButton() {
         val back = findViewById<ImageView>(R.id.back_button)
 
@@ -136,9 +131,6 @@ class MediaPlayerActivity : AppCompatActivity() {
             finish()
         }
     }
-
-    private var playerState: PlayerState = PlayerState.NotInited
-    private val mediaPlayer = MediaPlayer()
 
     private fun preparePlayer(url: String) {
         mediaPlayer.setDataSource(url)
@@ -185,7 +177,6 @@ class MediaPlayerActivity : AppCompatActivity() {
         super.onPause()
         pausePlayer()
     }
-
 }
 
 sealed class PlayerState {
