@@ -1,9 +1,9 @@
 package com.example.playlistmaker.data.repository
 
 import android.content.SharedPreferences
-import com.example.playlistmaker.data.dto.Track
-import com.example.playlistmaker.ui.SearchActivity
-import com.example.playlistmaker.ui.SearchTrackHistoryRepository
+import com.example.playlistmaker.domain.models.Track
+import com.example.playlistmaker.domain.repository.SearchTrackHistoryRepository
+import com.example.playlistmaker.domain.util.VIEWED_TRACKS
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 
@@ -28,12 +28,17 @@ class SearchTrackHistoryRepositoryImpl(
             tracks.subList(0, 10)
         }
 
-        sharedPreferences.edit().putString(SearchActivity.VIEWED_TRACKS, createJsonFromTracks(tracks)).apply()
+        sharedPreferences.edit().putString(VIEWED_TRACKS, createJsonFromTracks(tracks)).apply()
+    }
+
+    override fun clear() {
+        sharedPreferences.edit().clear().apply()
     }
 
     override fun getTracks(): List<Track> {
-        return createTracksFromJson(sharedPreferences.getString(SearchActivity.VIEWED_TRACKS, null))
+        return createTracksFromJson(sharedPreferences.getString(VIEWED_TRACKS, null))
     }
+
 
     private fun createJsonFromTracks(tracks: List<Track>): String {
         return Gson().toJson(tracks)

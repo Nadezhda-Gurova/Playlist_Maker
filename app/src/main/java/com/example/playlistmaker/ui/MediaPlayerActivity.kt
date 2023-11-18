@@ -11,10 +11,9 @@ import android.widget.ImageView
 import androidx.appcompat.app.AppCompatActivity
 import com.bumptech.glide.Glide
 import com.example.playlistmaker.R
-import com.example.playlistmaker.ui.SearchActivity.Companion.TRACK_MEDIA
-import com.example.playlistmaker.data.dto.Track
 import com.example.playlistmaker.databinding.ActivityAudioPlayerBinding
-import java.lang.IllegalStateException
+import com.example.playlistmaker.domain.models.Track
+import com.example.playlistmaker.ui.SearchActivity.Companion.TRACK_MEDIA
 import java.text.SimpleDateFormat
 import java.util.Locale
 
@@ -86,7 +85,7 @@ class MediaPlayerActivity : AppCompatActivity() {
     private fun setTrackData(track: Track) {
         binding.nameOfSong.text = track.trackName
         binding.authorOfSong.text = track.artistName
-        binding.durationMinutes.text = track.trackTime.time
+        binding.durationMinutes.text = track.trackTime
         binding.albumYear.text = track.releaseDate.substring(0, 4)
         binding.albumCountry.text = track.country
         binding.albumName.text = track.collectionName

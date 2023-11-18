@@ -10,16 +10,15 @@ import android.view.View
 import android.widget.EditText
 import android.widget.ImageView
 import androidx.appcompat.app.AppCompatActivity
-import com.example.playlistmaker.creator.Creator
-import com.example.playlistmaker.ui.recyclerview.OnTrackClickListener
 import com.example.playlistmaker.R
-import com.example.playlistmaker.data.repository.SearchTrackHistoryRepositoryImpl
-import com.example.playlistmaker.data.dto.Track
+import com.example.playlistmaker.creator.Creator
 import com.example.playlistmaker.databinding.ActivitySearchBinding
-import com.example.playlistmaker.ui.recyclerview.TrackAdapter
+import com.example.playlistmaker.domain.models.Track
+import com.example.playlistmaker.domain.use_case.SearchTrackHistoryUseCase
 import com.example.playlistmaker.ui.extentions.hideKeyboard
-import com.example.vehicle_shop_clean.domain.consumer.Consumer
-import com.example.vehicle_shop_clean.domain.consumer.ConsumerData
+import com.example.playlistmaker.ui.recyclerview.OnTrackClickListener
+import com.example.playlistmaker.ui.recyclerview.TrackAdapter
+import com.example.playlistmaker.util.LoadingState
 import kotlin.reflect.KFunction1
 
 
@@ -36,9 +35,8 @@ class SearchActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_search)
         binding = ActivitySearchBinding.bind(findViewById(R.id.root))
-        val sharedPrefs = getSharedPreferences(VIEWED_TRACK, MODE_PRIVATE)
-        val searchHistory = SearchTrackHistoryRepositoryImpl(sharedPrefs)
-
+        val searchHistory = Creator.provideSearchTrackHistoryUseCase(this)
+        
         val onTrackClickListener = object : OnTrackClickListener {
             override fun onTrackClick(track: Track) {
                 searchHistory.addTrack(track)
@@ -69,7 +67,7 @@ class SearchActivity : AppCompatActivity() {
             hideYouSearched()
             hideNothingFound()
             clearTracks()
-            sharedPrefs.edit().clear().apply()
+            searchHistory.clear()
         }
 
         loadHistory(searchHistory)
@@ -104,7 +102,7 @@ class SearchActivity : AppCompatActivity() {
         return current
     }
 
-    private fun loadHistory(searchHistory: SearchTrackHistoryRepository) {
+    private fun loadHistory(searchHistory: SearchTrackHistoryUseCase) {
         val historyTracks = searchHistory.getTracks()
         if (historyTracks.isNotEmpty()) {
             replaceTracks(historyTracks)
@@ -123,8 +121,8 @@ class SearchActivity : AppCompatActivity() {
 
     private fun getSimpleTextWatcher(
         clearButton: ImageView,
-        searchHistory: SearchTrackHistoryRepository,
-        loadHistory: KFunction1<SearchTrackHistoryRepository, Unit>
+        searchHistory: SearchTrackHistoryUseCase,
+        loadHistory: KFunction1<SearchTrackHistoryUseCase, Unit>
     ) =
         object : TextWatcher {
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
@@ -193,16 +191,11 @@ class SearchActivity : AppCompatActivity() {
         hideNothingFound()
         binding.progressBar.visibility = View.VISIBLE
         getProductListUseCase.execute(
-            binding.inputEditText.text.toString(),
-            consumer = object : Consumer<Track> {
-                override fun consume(data: ConsumerData<Track>) {
-                    consumeTrack(data)
-                }
-            }
-        )
+            binding.inputEditText.text.toString()
+        ) { data -> consumeTrack(data) }
     }
 
-    private fun consumeTrack(data: ConsumerData<Track>) {
+    private fun consumeTrack(loadingState: LoadingState<List<Track>>) {
         val currentRunnable = detailsRunnable
         if (currentRunnable != null) {
             handler.removeCallbacks(currentRunnable)
@@ -210,15 +203,15 @@ class SearchActivity : AppCompatActivity() {
 
         val newDetailsRunnable = Runnable {
             binding.progressBar.visibility = View.GONE
-            when (data) {
-                is ConsumerData.Error -> {
+            when (loadingState) {
+                is LoadingState.Error -> {
                     hideNothingFound()
                     showBadConnection(binding.inputEditText)
                 }
 
-                is ConsumerData.Data -> {
-                    if (data.value.isNotEmpty()) {
-                        replaceTracks(data.value)
+                is LoadingState.Success -> {
+                    if (loadingState.data.isNotEmpty()) {
+                        replaceTracks(loadingState.data)
                     } else {
                         clearTracks()
                         showNothingFound(
@@ -273,8 +266,6 @@ class SearchActivity : AppCompatActivity() {
     }
 
     companion object {
-        const val VIEWED_TRACK = "VIEWED_TRACK"
-        const val VIEWED_TRACKS = "key_for_viewed_tracks"
         const val TRACK_MEDIA = "track_media"
         private const val SEARCH_INPUT = "SEARCH_INPUT"
         private const val SEARCH_DEBOUNCE_DELAY = 2000L

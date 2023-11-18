@@ -5,7 +5,8 @@ import android.view.ViewGroup
 
 import androidx.recyclerview.widget.RecyclerView
 import com.example.playlistmaker.R
-import com.example.playlistmaker.data.dto.Track
+
+import com.example.playlistmaker.domain.models.Track
 
 class TrackAdapter(
     private val data: List<Track>,

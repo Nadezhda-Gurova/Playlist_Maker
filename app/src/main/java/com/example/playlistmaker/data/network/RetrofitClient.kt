@@ -1,7 +1,7 @@
 package com.example.playlistmaker.data.network
 
+import com.example.playlistmaker.data.adapter.TrackTypeAdapter
 import com.example.playlistmaker.data.dto.TrackTime
-import com.example.playlistmaker.ui.recyclerview.TrackTypeAdapter
 import com.google.gson.GsonBuilder
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
