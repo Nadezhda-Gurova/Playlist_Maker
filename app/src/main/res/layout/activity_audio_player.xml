@@ -105,7 +105,7 @@
             app:barrierDirection="bottom"
             app:constraint_referenced_tags="container, back_button" />
 
-        <ImageButton
+        <androidx.appcompat.widget.AppCompatImageButton
             android:id="@+id/add_to_playlist"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -121,7 +121,7 @@
             app:layout_constraintVertical_bias="0.51"
             app:srcCompat="@drawable/add_to_playlist" />
 
-        <ImageButton
+        <androidx.appcompat.widget.AppCompatImageButton
             android:id="@+id/play_button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -134,7 +134,7 @@
             app:layout_constraintTop_toBottomOf="@id/author_of_song"
             app:srcCompat="@drawable/play_button" />
 
-        <ImageButton
+        <androidx.appcompat.widget.AppCompatImageButton
             android:id="@+id/add_to_favorites"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"

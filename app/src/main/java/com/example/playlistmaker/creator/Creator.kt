@@ -2,16 +2,16 @@ package com.example.playlistmaker.creator
 
 import android.content.Context
 import androidx.appcompat.app.AppCompatActivity
-import com.example.playlistmaker.data.mapper.TrackMapper
-import com.example.playlistmaker.data.network.ITunesRetrofitNetworkClient
-import com.example.playlistmaker.data.repository.ITunesNetworkClient
-import com.example.playlistmaker.data.repository.ITunesRepositoryImpl
-import com.example.playlistmaker.data.repository.SearchTrackHistoryRepositoryImpl
-import com.example.playlistmaker.domain.repository.SearchTrackHistoryRepository
-import com.example.playlistmaker.domain.repository.TracksRepository
-import com.example.playlistmaker.domain.use_case.GetTracksListUseCase
-import com.example.playlistmaker.domain.use_case.SearchTrackHistoryUseCase
-import com.example.playlistmaker.domain.util.VIEWED_TRACK
+import com.example.playlistmaker.search.data.mapper.TrackMapper
+import com.example.playlistmaker.search.data.network.ITunesRetrofitNetworkClient
+import com.example.playlistmaker.search.data.repository.ITunesNetworkClient
+import com.example.playlistmaker.search.data.repository.ITunesRepositoryImpl
+import com.example.playlistmaker.search.data.repository.SearchTrackHistoryRepositoryImpl
+import com.example.playlistmaker.search.domain.repository.SearchTrackHistoryRepository
+import com.example.playlistmaker.search.domain.repository.TracksRepository
+import com.example.playlistmaker.search.domain.use_case.GetTracksListUseCase
+import com.example.playlistmaker.search.domain.use_case.SearchTrackHistoryUseCase
+import com.example.playlistmaker.search.domain.util.VIEWED_TRACK
 
 object Creator {
 
