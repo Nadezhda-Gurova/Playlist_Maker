@@ -25,7 +25,7 @@ class MediaPlayerActivity : ComponentActivity() {
     private val handler = Handler(Looper.getMainLooper())
     private var playerState: PlayerState = PlayerState.NotInited
     private val mediaPlayer = MediaPlayer()
-    private val viewModel: MediaPlayerViewModel by viewModels()
+    //private val viewModel: MediaPlayerViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -41,8 +41,8 @@ class MediaPlayerActivity : ComponentActivity() {
         
         requireNotNull(track) { "No track provided" }
 
-        viewModel.setTrackData(track)
-        observeViewModel()
+        //viewModel.setTrackData(track)
+        //observeViewModel()
 
         if (binding.albumName.text != null) {
             binding.album.visibility = View.VISIBLE
@@ -66,7 +66,7 @@ class MediaPlayerActivity : ComponentActivity() {
         preparePlayer(url)
 
         binding.playButton.setOnClickListener {
-            viewModel.switchPlayerState()
+            //viewModel.switchPlayerState()
         }
 
         var isAddToFavoritesClicked = false
@@ -81,29 +81,29 @@ class MediaPlayerActivity : ComponentActivity() {
         }
     }
 
-    private fun observeViewModel()  {
-        viewModel.trackData.observe(this) { track ->
-            setTrackData(track)
-
-            Glide.with(this)
-                .load(getCoverArtwork(track))
-                .centerCrop()
-                .placeholder(R.drawable.placeholder_album)
-                .into(binding.albumCover)
-        }
-
-        viewModel.playerState.observe(this) { state ->
-            when (state) {
-                is PlayerState.Playing -> {
-                    startPlayer()
-                }
-                is PlayerState.Paused -> {
-                    pausePlayer()
-                }
-                else -> Log.d(TAG, "Invalid state $state")
-            }
-        }
-    }
+//    private fun observeViewModel()  {
+//        viewModel.trackData.observe(this) { track ->
+//            setTrackData(track)
+//
+//            Glide.with(this)
+//                .load(getCoverArtwork(track))
+//                .centerCrop()
+//                .placeholder(R.drawable.placeholder_album)
+//                .into(binding.albumCover)
+//        }
+//
+//        viewModel.playerState.observe(this) { state ->
+//            when (state) {
+//                is PlayerState.Playing -> {
+//                    startPlayer()
+//                }
+//                is PlayerState.Paused -> {
+//                    pausePlayer()
+//                }
+//                else -> Log.d(TAG, "Invalid state $state")
+//            }
+//        }
+//    }
 
     private fun getCoverArtwork(track: Track) =
         track.artworkUrl100.replaceAfterLast('/', "512x512bb.jpg")

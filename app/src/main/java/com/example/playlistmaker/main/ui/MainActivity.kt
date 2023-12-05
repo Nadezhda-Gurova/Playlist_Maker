@@ -31,7 +31,7 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun navigateTo(clazz: Class<out AppCompatActivity>) {
+    private fun navigateTo(clazz: Class<*>) {
         val intent = Intent(this, clazz)
         startActivity(intent)
     }
