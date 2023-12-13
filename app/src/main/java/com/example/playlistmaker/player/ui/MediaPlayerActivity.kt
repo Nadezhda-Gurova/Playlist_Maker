@@ -10,6 +10,7 @@ import android.view.View
 import android.widget.ImageView
 import androidx.activity.ComponentActivity
 import androidx.activity.viewModels
+import androidx.lifecycle.ViewModelProvider
 import com.bumptech.glide.Glide
 import com.example.playlistmaker.R
 import com.example.playlistmaker.databinding.ActivityAudioPlayerBinding
@@ -18,14 +19,16 @@ import com.example.playlistmaker.search.ui.SearchActivity.Companion.TRACK_MEDIA
 import java.text.SimpleDateFormat
 import java.util.Locale
 
-private const val TAG = "MPA"
 
 class MediaPlayerActivity : ComponentActivity() {
     private lateinit var binding: ActivityAudioPlayerBinding
     private val handler = Handler(Looper.getMainLooper())
     private var playerState: PlayerState = PlayerState.NotInited
     private val mediaPlayer = MediaPlayer()
-    //private val viewModel: MediaPlayerViewModel by viewModels()
+    private val viewModel: MediaPlayerViewModel by viewModels {
+        ViewModelProvider.AndroidViewModelFactory.getInstance(application)
+    }
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -40,15 +43,23 @@ class MediaPlayerActivity : ComponentActivity() {
         }
         
         requireNotNull(track) { "No track provided" }
+        viewModel.loadTrackData(track)
+        viewModel.switchPlayerState()
 
-        //viewModel.setTrackData(track)
-        //observeViewModel()
+        viewModel.trackLiveData.observe(this) { loadedTrack ->
+            setTrackData(loadedTrack)
+
+            Glide.with(this)
+                .load(getCoverArtwork(loadedTrack))
+                .centerCrop()
+                .placeholder(R.drawable.placeholder_album)
+                .into(binding.albumCover)
+        }
 
         if (binding.albumName.text != null) {
             binding.album.visibility = View.VISIBLE
             binding.albumName.visibility = View.VISIBLE
         }
-
 
         var isAddToPlaylistClicked = false
 
@@ -66,7 +77,7 @@ class MediaPlayerActivity : ComponentActivity() {
         preparePlayer(url)
 
         binding.playButton.setOnClickListener {
-            //viewModel.switchPlayerState()
+            viewModel.switchPlayerState()
         }
 
         var isAddToFavoritesClicked = false

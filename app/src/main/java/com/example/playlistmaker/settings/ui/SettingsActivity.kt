@@ -10,6 +10,7 @@ import androidx.appcompat.widget.SwitchCompat
 import androidx.lifecycle.ViewModelProvider
 import com.example.playlistmaker.R
 import com.example.playlistmaker.creator.Creator
+import com.example.playlistmaker.util.ui.App
 
 class SettingsActivity(
 ) : ComponentActivity() {
@@ -18,15 +19,22 @@ class SettingsActivity(
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_settings)
+
+        val myApplication = application as App
+        val sharedPreferences = myApplication.sharedPrefs
+
         viewModel = ViewModelProvider(
             this,
             SettingsViewModel.getViewModelFactory(
                 Creator.provideSharingInteractor(this),
-                Creator.provideSettingsInteractor()
+                Creator.provideSettingsInteractor(sharedPreferences)
             )
         )[SettingsViewModel::class.java]
-        viewModel.getLoadingLiveData().observe(this) { isLoading ->
-            changeProgressBarVisibility(isLoading)
+
+
+
+        viewModel.darkThemeLiveData().observe(this) {theme ->
+            viewModel.updateBlackTheme(theme)
         }
 
         initBackButton()
@@ -51,13 +59,9 @@ class SettingsActivity(
         setBlackTheme()
     }
 
-    private fun changeProgressBarVisibility(loading: Boolean?) {
-    }
 
     private fun setBlackTheme() {
         val themeSwitcher = findViewById<SwitchCompat>(R.id.black_theme)
-
-        viewModel.getBlackTheme()
 
         themeSwitcher.setOnCheckedChangeListener { switcher, checked ->
             viewModel.updateBlackTheme(checked)

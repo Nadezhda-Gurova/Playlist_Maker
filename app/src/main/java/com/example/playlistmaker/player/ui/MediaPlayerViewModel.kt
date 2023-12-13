@@ -3,44 +3,54 @@ package com.example.playlistmaker.player.ui
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.ViewModelProvider.AndroidViewModelFactory.Companion.APPLICATION_KEY
-import androidx.lifecycle.viewmodel.initializer
-import androidx.lifecycle.viewmodel.viewModelFactory
-import com.bumptech.glide.Glide.init
+import androidx.lifecycle.viewModelScope
 import com.example.playlistmaker.search.domain.models.Track
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
-//class MediaPlayerViewModel(
-//    private val trackId: String,
-//    private val tracksInteractor: TracksInteractor,
-//): ViewModel() {
-//
-//    private var screenStateLiveData = MutableLiveData<TrackScreenState>(TrackScreenState.Loading)
-//
-//    init {
-//        tracksInteractor.loadTrackData(
-//            trackId = trackId,
-//            onComplete = { trackModel ->
-//                // 1
-//                screenStateLiveData.postValue(
-//                    TrackScreenState.Content(trackModel)
-//                )
-//            }
-//        )
-//    }
-//
-//    fun getScreenStateLiveData(): LiveData<TrackScreenState> = screenStateLiveData
-//
-//    companion object {
-//        fun getViewModelFactory(trackId: String): ViewModelProvider.Factory = viewModelFactory {
-//            initializer {
-//                val interactor = (this[APPLICATION_KEY] as MyApplication).provideTracksInteractor()
-//
-//                MediaPlayerViewModel(
-//                    trackId,
-//                    interactor,
-//                )
-//            }
-//        }
-//    }
-//}
+class MediaPlayerViewModel(
+): ViewModel() {
+
+    private var _trackLiveData = MutableLiveData<Track>()
+    val trackLiveData: LiveData<Track> get() = _trackLiveData
+
+    private val _playerStateLiveData = MutableLiveData<PlayerState>(PlayerState.NotInited)
+    val playerStateLiveData: LiveData<PlayerState> get() = _playerStateLiveData
+
+    fun loadTrackData(track: Track) {
+        viewModelScope.launch(Dispatchers.IO) {
+            // Simulate loading data from a repository
+            // Replace with actual data loading logic
+            // For example: val loadedTrack = repository.loadTrack(trackId)
+            val loadedTrack = track
+            _trackLiveData.postValue(loadedTrack)
+        }
+    }
+
+    fun switchPlayerState() {
+        when (_playerStateLiveData.value) {
+            PlayerState.Playing -> {
+                pausePlayer()
+            }
+
+            PlayerState.Inited, PlayerState.Paused -> {
+                startPlayer()
+            }
+
+            PlayerState.NotInited -> throw IllegalStateException("Player can't be in this state")
+            else -> {}
+        }
+    }
+
+    private fun startPlayer() {
+        // Add logic to start the player
+        _playerStateLiveData.postValue(PlayerState.Playing)
+    }
+
+    private fun pausePlayer() {
+        // Add logic to pause the player
+        _playerStateLiveData.postValue(PlayerState.Paused)
+    }
+
+
+}
