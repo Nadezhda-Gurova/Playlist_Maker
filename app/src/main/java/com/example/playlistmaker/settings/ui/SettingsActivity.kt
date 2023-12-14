@@ -1,6 +1,8 @@
 package com.example.playlistmaker.settings.ui
 
+import android.app.UiModeManager
 import android.content.ActivityNotFoundException
+import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.view.View
@@ -10,31 +12,34 @@ import androidx.appcompat.widget.SwitchCompat
 import androidx.lifecycle.ViewModelProvider
 import com.example.playlistmaker.R
 import com.example.playlistmaker.creator.Creator
+import com.example.playlistmaker.databinding.ActivitySettingsBinding
 import com.example.playlistmaker.util.ui.App
+import com.example.playlistmaker.util.ui.App.Companion.DARK_THEME_TEXT_KEY
 
 class SettingsActivity(
 ) : ComponentActivity() {
     private lateinit var viewModel: SettingsViewModel
+    private lateinit var binding: ActivitySettingsBinding
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_settings)
 
-        val myApplication = application as App
-        val sharedPreferences = myApplication.sharedPrefs
+        binding = ActivitySettingsBinding.bind(findViewById(R.id.root))
 
         viewModel = ViewModelProvider(
             this,
             SettingsViewModel.getViewModelFactory(
                 Creator.provideSharingInteractor(this),
-                Creator.provideSettingsInteractor(sharedPreferences)
+                Creator.provideSettingsInteractor(
+                    getSystemService(Context.UI_MODE_SERVICE) as UiModeManager,
+                    application.getSharedPreferences(App.DARK_THEME_MODE, MODE_PRIVATE)
+                )
             )
         )[SettingsViewModel::class.java]
 
-
-
-        viewModel.darkThemeLiveData().observe(this) {theme ->
-            viewModel.updateBlackTheme(theme)
+        viewModel.darkThemeLiveData().observe(this) { isChecked ->
+            binding.blackTheme.isChecked = isChecked
         }
 
         initBackButton()
@@ -61,11 +66,10 @@ class SettingsActivity(
 
 
     private fun setBlackTheme() {
-        val themeSwitcher = findViewById<SwitchCompat>(R.id.black_theme)
-
-        themeSwitcher.setOnCheckedChangeListener { switcher, checked ->
+        binding.blackTheme.setOnCheckedChangeListener { switcher, checked ->
             viewModel.updateBlackTheme(checked)
         }
+
     }
 
     private fun initBackButton() {

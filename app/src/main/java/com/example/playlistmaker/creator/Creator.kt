@@ -1,5 +1,6 @@
 package com.example.playlistmaker.creator
 
+import android.app.UiModeManager
 import android.content.Context
 import android.content.SharedPreferences
 import androidx.appcompat.app.AppCompatActivity
@@ -20,8 +21,11 @@ import com.example.playlistmaker.sharing.domain.SharingInteractor
 import com.example.playlistmaker.sharing.domain.SharingInteractorImpl
 
 object Creator {
-    fun provideSettingsInteractor(sharedPreferences: SharedPreferences): SettingsInteractor{
-        return SettingsInteractorImpl(sharedPreferences)
+    fun provideSettingsInteractor(
+        uiModeManager: UiModeManager,
+        sharedPrefs: SharedPreferences
+    ): SettingsInteractor {
+        return SettingsInteractorImpl(uiModeManager, sharedPrefs)
     }
 
     fun provideSharingInteractor(context: Context): SharingInteractor {

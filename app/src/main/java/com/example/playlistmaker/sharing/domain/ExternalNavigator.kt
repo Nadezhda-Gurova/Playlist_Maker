@@ -3,6 +3,7 @@ package com.example.playlistmaker.sharing.domain
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
+import androidx.core.content.ContextCompat.startActivity
 import com.example.playlistmaker.sharing.data.EmailData
 
 class ExternalNavigator(
@@ -12,7 +13,7 @@ class ExternalNavigator(
         Intent(Intent.ACTION_SEND).apply {
             putExtra(Intent.EXTRA_TEXT, shareAppLink)
             type = "text/plain"
-            context.startActivity(this)
+            context.startActivity(Intent.createChooser(this, ""))
         }
     }
 

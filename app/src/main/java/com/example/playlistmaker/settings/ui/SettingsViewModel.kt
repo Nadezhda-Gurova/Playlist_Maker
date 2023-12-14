@@ -21,11 +21,6 @@ class SettingsViewModel(
 
     fun darkThemeLiveData(): LiveData<Boolean> = darkThemeLiveData
 
-    fun getDarkTheme() {
-        val themeSetting = settingsInteractor.getThemeSettings()
-        darkThemeLiveData.value = themeSetting.isDarkTheme
-    }
-
     fun shareData() {
         sharingInteractor.shareApp()
     }
@@ -40,6 +35,7 @@ class SettingsViewModel(
 
     fun updateBlackTheme(checked: Boolean) {
         settingsInteractor.updateThemeSetting(ThemeSettings(checked))
+        darkThemeLiveData.value = checked
     }
 
     companion object {
