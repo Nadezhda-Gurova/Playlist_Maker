@@ -5,8 +5,8 @@ import android.content.SharedPreferences
 import android.os.Build
 import androidx.appcompat.app.AppCompatDelegate
 import com.example.playlistmaker.settings.data.ThemeSettings
-import com.example.playlistmaker.util.ui.App
-import com.example.playlistmaker.util.ui.App.Companion.DARK_THEME_TEXT_KEY
+import com.example.playlistmaker.App
+import com.example.playlistmaker.App.Companion.DARK_THEME_TEXT_KEY
 
 class SettingsInteractorImpl(
     private val uiModeManager: UiModeManager,

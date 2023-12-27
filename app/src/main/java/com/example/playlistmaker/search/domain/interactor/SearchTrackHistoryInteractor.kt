@@ -1,10 +1,10 @@
-package com.example.playlistmaker.search.domain.use_case
+package com.example.playlistmaker.search.domain.interactor
 
 import com.example.playlistmaker.search.domain.models.Track
 import com.example.playlistmaker.search.domain.repository.SearchTrackHistoryRepository
 
 
-class SearchTrackHistoryUseCase(
+class SearchTrackHistoryInteractor(
     private val historyRepository: SearchTrackHistoryRepository
 ) {
     fun addTrack(track: Track) {

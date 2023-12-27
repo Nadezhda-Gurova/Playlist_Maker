@@ -8,13 +8,11 @@ import android.os.Bundle
 import android.view.View
 import android.widget.ImageView
 import androidx.activity.ComponentActivity
-import androidx.appcompat.widget.SwitchCompat
 import androidx.lifecycle.ViewModelProvider
 import com.example.playlistmaker.R
 import com.example.playlistmaker.creator.Creator
 import com.example.playlistmaker.databinding.ActivitySettingsBinding
-import com.example.playlistmaker.util.ui.App
-import com.example.playlistmaker.util.ui.App.Companion.DARK_THEME_TEXT_KEY
+import com.example.playlistmaker.App
 
 class SettingsActivity(
 ) : ComponentActivity() {

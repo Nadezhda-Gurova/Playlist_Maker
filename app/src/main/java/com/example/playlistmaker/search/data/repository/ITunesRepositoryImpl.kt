@@ -9,8 +9,8 @@ import com.example.playlistmaker.util.LoadingState
 class ITunesRepositoryImpl(
     private val itunesNetworkClient: ITunesNetworkClient,
     private val mapper: TrackMapper
-): TracksRepository {
-    override fun getTracks(track:String): LoadingState<List<Track>> {
+) : TracksRepository {
+    override fun getTracks(track: String): LoadingState<List<Track>> {
         val itunesResponse = itunesNetworkClient.getTracks(track)
         return if (itunesResponse is ITunesResponse) {
             LoadingState.Success(mapper.map(itunesResponse))

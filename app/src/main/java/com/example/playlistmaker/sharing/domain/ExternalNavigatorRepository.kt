@@ -3,25 +3,23 @@ package com.example.playlistmaker.sharing.domain
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
-import androidx.core.content.ContextCompat.startActivity
+import com.example.playlistmaker.R
 import com.example.playlistmaker.sharing.data.EmailData
 
-class ExternalNavigator(
+class ExternalNavigatorRepository(
     private val context: Context,
 ) {
-    fun shareLink(shareAppLink: String) {
+    fun shareLink() {
         Intent(Intent.ACTION_SEND).apply {
-            putExtra(Intent.EXTRA_TEXT, shareAppLink)
+            putExtra(Intent.EXTRA_TEXT, context.getString(R.string.shareAppLink))
             type = "text/plain"
             context.startActivity(Intent.createChooser(this, ""))
         }
     }
 
-    fun openLink(termsLink: String) {
-        Intent(Intent.ACTION_SEND).apply {
-            putExtra(Intent.EXTRA_TEXT, termsLink)
-            type = "text/plain"
-            context.startActivity(this)
+    fun openLink() {
+        Intent(Intent.ACTION_VIEW, Uri.parse(context.getString(R.string.public_offer))).apply {
+            context.startActivity(Intent.createChooser(this, context.getString(R.string.title)))
         }
     }
 

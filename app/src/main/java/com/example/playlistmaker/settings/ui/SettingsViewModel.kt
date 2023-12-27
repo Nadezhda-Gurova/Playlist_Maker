@@ -15,7 +15,6 @@ class SettingsViewModel(
     private val sharingInteractor: SharingInteractor,
     private val settingsInteractor: SettingsInteractor,
 ) : ViewModel() {
-
     private var darkThemeLiveData =
         MutableLiveData(settingsInteractor.getThemeSettings().isDarkTheme)
 

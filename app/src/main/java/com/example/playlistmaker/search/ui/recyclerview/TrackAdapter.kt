@@ -9,7 +9,7 @@ import com.example.playlistmaker.R
 import com.example.playlistmaker.search.domain.models.Track
 
 class TrackAdapter(
-    private val data: List<Track>,
+    private val data: MutableList<Track>,
     private val onTrackClickListener: OnTrackClickListener
 ) : RecyclerView.Adapter<TrackViewHolder>() {
 
@@ -29,6 +29,17 @@ class TrackAdapter(
 
     override fun getItemCount(): Int {
         return data.size
+    }
+
+    fun clearTracks() {
+        data.clear()
+        notifyDataSetChanged()
+    }
+
+    fun replaceTracks(addedTracks: List<Track>) {
+        data.clear()
+        data.addAll(addedTracks)
+        notifyDataSetChanged()
     }
 
 }
