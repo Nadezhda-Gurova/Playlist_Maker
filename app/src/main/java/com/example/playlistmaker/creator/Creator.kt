@@ -3,7 +3,13 @@ package com.example.playlistmaker.creator
 import android.app.UiModeManager
 import android.content.Context
 import android.content.SharedPreferences
+import android.media.MediaPlayer
+import android.os.Handler
 import androidx.appcompat.app.AppCompatActivity
+import com.example.playlistmaker.player.ui.MediaPlayerInteractor
+import com.example.playlistmaker.player.ui.MediaPlayerInteractorImpl
+import com.example.playlistmaker.player.ui.TimerInteractor
+import com.example.playlistmaker.player.ui.TimerInteractorImpl
 import com.example.playlistmaker.search.data.mapper.TrackMapper
 import com.example.playlistmaker.search.data.network.ITunesRetrofitNetworkClient
 import com.example.playlistmaker.search.data.repository.ITunesNetworkClient
@@ -19,8 +25,36 @@ import com.example.playlistmaker.settings.domain.SettingsInteractorImpl
 import com.example.playlistmaker.sharing.domain.ExternalNavigatorRepository
 import com.example.playlistmaker.sharing.domain.SharingInteractor
 import com.example.playlistmaker.sharing.domain.SharingInteractorImpl
+import java.text.SimpleDateFormat
+import java.util.Locale
 
 object Creator {
+
+    fun provideSimpleDateFormat(): SimpleDateFormat {
+        return SimpleDateFormat(
+            "mm:ss",
+            Locale.getDefault()
+        )
+    }
+
+    fun provideTimerInteractor(
+        player: MediaPlayer,
+        handler: Handler,
+        format: SimpleDateFormat,
+        context: Context
+    ): TimerInteractor {
+        return TimerInteractorImpl(
+            player = player,
+            handler = handler,
+            format = format,
+            context = context
+        )
+    }
+
+    fun provideMediaPlayerInteractor(player: MediaPlayer): MediaPlayerInteractor {
+        return MediaPlayerInteractorImpl(player)
+    }
+
     fun provideSettingsInteractor(
         uiModeManager: UiModeManager,
         sharedPrefs: SharedPreferences
