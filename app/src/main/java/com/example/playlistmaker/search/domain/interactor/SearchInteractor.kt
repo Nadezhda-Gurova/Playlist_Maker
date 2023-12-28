@@ -7,7 +7,7 @@ import com.example.playlistmaker.util.LoadingState
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 
-class GetTracksListInteractor(
+class SearchInteractor(
     private val tracksRepository: TracksRepository,
     private val executorService: ExecutorService = Executors.newCachedThreadPool()
 ) {

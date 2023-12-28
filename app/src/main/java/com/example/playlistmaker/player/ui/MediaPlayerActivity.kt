@@ -66,7 +66,7 @@ class MediaPlayerActivity : ComponentActivity() {
         }
 
         viewModel.isShowPlayingLiveData.observe(this) {
-            binding.playButton.setImageResource(if (it) R.drawable.pause_button else R.drawable.play_button)
+            binding.playButton.setImageResource(if (it) R.drawable.play_button else R.drawable.pause_button)
         }
 
         viewModel.loadTrackData(track)
