@@ -1,4 +1,4 @@
-package com.example.playlistmaker.player.ui
+package com.example.playlistmaker.player.domain
 
 import android.content.Context
 import android.media.MediaPlayer

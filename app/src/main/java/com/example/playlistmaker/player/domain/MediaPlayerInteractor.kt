@@ -1,4 +1,4 @@
-package com.example.playlistmaker.player.ui
+package com.example.playlistmaker.player.domain
 
 interface MediaPlayerInteractor {
     fun release()
