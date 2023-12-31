@@ -10,6 +10,8 @@ class App : Application() {
     override fun onCreate() {
         super.onCreate()
 
+        Creator.setApplication(this)
+
         Creator.provideSettingsInteractor(
             getSystemService(Context.UI_MODE_SERVICE) as UiModeManager,
             getSharedPreferences(DARK_THEME_MODE, MODE_PRIVATE)

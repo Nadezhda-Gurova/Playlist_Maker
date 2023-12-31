@@ -15,11 +15,8 @@ class MediaPlayerViewModel(
     private val timerInteractor: TimerInteractor
 ) : ViewModel() {
 
-    private var _playingProgressLiveData = MutableLiveData<String>()
-    val playingProgressLiveData: LiveData<String> get() = _playingProgressLiveData
-
-    private var _trackLiveData = MutableLiveData<Track>()
-    val trackLiveData: LiveData<Track> get() = _trackLiveData
+    private var _uiStateLiveData = MutableLiveData<UiState>()
+    val uiStateLiveData: LiveData<UiState> get() = _uiStateLiveData
 
     private var playerState: PlayerState = PlayerState.NotInited
 
@@ -27,25 +24,15 @@ class MediaPlayerViewModel(
         mediaPlayerInteractor.prepare(track.previewUrl,
             onPrepared = {
                 playerState = PlayerState.Inited
-                _onPreparedLiveData.value = Unit
+                _uiStateLiveData.value = UiState.Prepared
             },
             onCompletion = {
                 playerState = PlayerState.Inited
-                _onCompletionLiveData.value = Unit
+                _uiStateLiveData.value = UiState.Completed
             })
 
-        _trackLiveData.value = track
+        _uiStateLiveData.value = UiState.CurrentTrack(track)
     }
-
-    private var _onPreparedLiveData = MutableLiveData<Unit>()
-    val onPreparedLiveData: LiveData<Unit> = _onPreparedLiveData
-
-    private var _onCompletionLiveData = MutableLiveData<Unit>()
-    val onCompletionLiveData: LiveData<Unit> = _onCompletionLiveData
-
-    private var _isShowPlayingLiveData = MutableLiveData<Boolean>()
-    val isShowPlayingLiveData: LiveData<Boolean> = _isShowPlayingLiveData
-
 
     fun onPlayerClicked() {
         when (playerState) {
@@ -64,17 +51,17 @@ class MediaPlayerViewModel(
     private fun startPlayer() {
         mediaPlayerInteractor.play()
         timerInteractor.startProgressUpdate {
-            _playingProgressLiveData.value = it
+            _uiStateLiveData.value = UiState.Progress(it)
         }
         playerState = PlayerState.Playing
-        _isShowPlayingLiveData.value = false
+        _uiStateLiveData.value = UiState.PausePlaying
     }
 
     private fun pausePlayer() {
         mediaPlayerInteractor.pause()
         timerInteractor.pauseProgressUpdate()
         playerState = PlayerState.Paused
-        _isShowPlayingLiveData.value = true
+        _uiStateLiveData.value = UiState.ShowPlaying
     }
 
     fun onDestroy() {
@@ -84,6 +71,30 @@ class MediaPlayerViewModel(
 
     fun onPause() {
         mediaPlayerInteractor.pause()
+    }
+
+    private var isAddToFavoritesClicked = false
+
+    fun addToFavorites() {
+        isAddToFavoritesClicked = if (isAddToFavoritesClicked) {
+            _uiStateLiveData.value = UiState.RemovedFromFavorites
+            false
+        } else {
+            _uiStateLiveData.value = UiState.AddedToFavorites
+            true
+        }
+    }
+
+    private var isAddToPlaylistClicked = false
+
+    fun addToPlaylist() {
+        isAddToPlaylistClicked = if (isAddToPlaylistClicked) {
+            _uiStateLiveData.value = UiState.AddedToPlaylist
+            false
+        } else {
+            _uiStateLiveData.value = UiState.RemovedFromPlaylist
+            true
+        }
     }
 
     companion object {
@@ -100,4 +111,11 @@ class MediaPlayerViewModel(
                 }
             }
     }
+}
+
+private sealed class PlayerState {
+    object NotInited : PlayerState()
+    object Inited : PlayerState()
+    object Playing : PlayerState()
+    object Paused : PlayerState()
 }

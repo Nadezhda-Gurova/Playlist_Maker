@@ -1,5 +1,6 @@
 package com.example.playlistmaker.creator
 
+import android.app.Application
 import android.app.UiModeManager
 import android.content.Context
 import android.content.SharedPreferences
@@ -14,7 +15,7 @@ import com.example.playlistmaker.search.data.mapper.TrackMapper
 import com.example.playlistmaker.search.data.network.ITunesRetrofitNetworkClient
 import com.example.playlistmaker.search.data.repository.ITunesNetworkClient
 import com.example.playlistmaker.search.data.repository.ITunesRepositoryImpl
-import com.example.playlistmaker.search.data.repository.SearchTrackHistoryRepositoryImpl
+import com.example.playlistmaker.search.data.repository.TrackHistoryRepositoryImpl
 import com.example.playlistmaker.search.domain.repository.SearchTrackHistoryRepository
 import com.example.playlistmaker.search.domain.repository.TracksRepository
 import com.example.playlistmaker.search.domain.interactor.SearchInteractor
@@ -22,13 +23,18 @@ import com.example.playlistmaker.search.domain.interactor.SearchHistoryInteracto
 import com.example.playlistmaker.search.domain.util.VIEWED_TRACK
 import com.example.playlistmaker.settings.domain.SettingsInteractor
 import com.example.playlistmaker.settings.domain.SettingsInteractorImpl
-import com.example.playlistmaker.sharing.domain.ExternalNavigatorRepository
+import com.example.playlistmaker.sharing.ui.ExternalNavigator
 import com.example.playlistmaker.sharing.domain.SharingInteractor
-import com.example.playlistmaker.sharing.domain.SharingInteractorImpl
+import com.example.playlistmaker.sharing.ui.SharingInteractorImpl
 import java.text.SimpleDateFormat
 import java.util.Locale
 
 object Creator {
+    private lateinit var application: Application
+
+    fun setApplication(application: Application){
+        this.application = application
+    }
 
     fun provideSimpleDateFormat(): SimpleDateFormat {
         return SimpleDateFormat(
@@ -62,21 +68,21 @@ object Creator {
         return SettingsInteractorImpl(uiModeManager, sharedPrefs)
     }
 
-    fun provideSharingInteractor(context: Context): SharingInteractor {
-        return SharingInteractorImpl(context, ExternalNavigatorRepository(context))
+    fun provideSharingInteractor(): SharingInteractor {
+        return SharingInteractorImpl(ExternalNavigator(application))
     }
 
-    fun provideSearchTrackHistoryUseCase(context: Context): SearchHistoryInteractor {
-        return SearchHistoryInteractor(provideSearchTrackHistoryRepository(context))
+    fun provideSearchHistoryInteractor(): SearchHistoryInteractor {
+        return SearchHistoryInteractor(provideSearchTrackHistoryRepository())
     }
 
-    fun provideGetTracksListInteractor(): SearchInteractor {
+    fun provideSearchInteractor(): SearchInteractor {
         return SearchInteractor(provideTracksRepository())
     }
 
-    private fun provideSearchTrackHistoryRepository(context: Context): SearchTrackHistoryRepository {
-        return SearchTrackHistoryRepositoryImpl(
-            context.getSharedPreferences(
+    private fun provideSearchTrackHistoryRepository(): SearchTrackHistoryRepository {
+        return TrackHistoryRepositoryImpl(
+            application.getSharedPreferences(
                 VIEWED_TRACK,
                 AppCompatActivity.MODE_PRIVATE
             )

@@ -7,11 +7,11 @@ import com.example.playlistmaker.search.domain.util.VIEWED_TRACKS
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 
-class SearchTrackHistoryRepositoryImpl(
-    private val sharedPreferences: SharedPreferences
+class TrackHistoryRepositoryImpl(
+    private val sharedPreferences: SharedPreferences,
 ) : SearchTrackHistoryRepository {
     override fun addTrack(track: Track) {
-        val tracks = getTracks().toMutableList()
+        var tracks = getTracks().toMutableList()
         var indexOfElement = -1
         for (i in tracks.indices) {
             if (tracks[i].trackId == track.trackId) {
@@ -24,13 +24,11 @@ class SearchTrackHistoryRepositoryImpl(
         }
 
         tracks.add(0, track)
-        if (tracks.size > 10) {
-            tracks.subList(0, 10)
+        if (tracks.size > LIMIT) {
+            tracks = tracks.subList(0, LIMIT)
         }
-
         sharedPreferences.edit().putString(VIEWED_TRACKS, createJsonFromTracks(tracks)).apply()
     }
-
     override fun clear() {
         sharedPreferences.edit().clear().apply()
     }
@@ -38,7 +36,6 @@ class SearchTrackHistoryRepositoryImpl(
     override fun getTracks(): List<Track> {
         return createTracksFromJson(sharedPreferences.getString(VIEWED_TRACKS, null))
     }
-
 
     private fun createJsonFromTracks(tracks: List<Track>): String {
         return Gson().toJson(tracks)
@@ -52,3 +49,5 @@ class SearchTrackHistoryRepositoryImpl(
         return Gson().fromJson(json, item)
     }
 }
+
+private const val LIMIT = 10

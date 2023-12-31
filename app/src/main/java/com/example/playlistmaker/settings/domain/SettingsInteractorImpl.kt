@@ -5,7 +5,6 @@ import android.content.SharedPreferences
 import android.os.Build
 import androidx.appcompat.app.AppCompatDelegate
 import com.example.playlistmaker.settings.data.ThemeSettings
-import com.example.playlistmaker.App
 import com.example.playlistmaker.App.Companion.DARK_THEME_TEXT_KEY
 
 class SettingsInteractorImpl(
@@ -14,7 +13,7 @@ class SettingsInteractorImpl(
 ) :
     SettingsInteractor {
     override fun getThemeSettings(): ThemeSettings {
-        return ThemeSettings(sharedPrefs.getBoolean(App.DARK_THEME_TEXT_KEY, false))
+        return ThemeSettings(sharedPrefs.getBoolean(DARK_THEME_TEXT_KEY, false))
     }
 
     override fun updateThemeSetting(settings: ThemeSettings) {

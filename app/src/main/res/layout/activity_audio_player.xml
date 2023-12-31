@@ -119,7 +119,7 @@
             app:layout_constraintTag="add_to_playlist"
             app:layout_constraintTop_toTopOf="@id/play_button"
             app:layout_constraintVertical_bias="0.51"
-            app:srcCompat="@drawable/add_to_playlist" />
+            app:srcCompat="@drawable/removed_to_playlist" />
 
         <androidx.appcompat.widget.AppCompatImageButton
             android:id="@+id/play_button"
@@ -146,7 +146,7 @@
             app:layout_constraintTag="add_to_favorites"
             app:layout_constraintTop_toTopOf="@id/play_button"
             app:layout_constraintVertical_bias="0.506"
-            app:srcCompat="@drawable/add_to_favorites" />
+            app:srcCompat="@drawable/unfavorite" />
 
         <TextView
             android:id="@+id/time"

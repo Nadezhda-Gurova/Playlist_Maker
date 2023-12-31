@@ -1,8 +1,18 @@
 package com.example.playlistmaker.player.ui
 
-sealed class PlayerState {
-    object NotInited : PlayerState()
-    object Inited : PlayerState()
-    object Playing : PlayerState()
-    object Paused : PlayerState()
+import com.example.playlistmaker.search.domain.models.Track
+
+sealed class UiState {
+    object AddedToFavorites : UiState()
+    object RemovedFromFavorites : UiState()
+    object AddedToPlaylist : UiState()
+    object RemovedFromPlaylist : UiState()
+
+    class CurrentTrack(val track: Track) : UiState()
+    class Progress(val time: String) : UiState()
+    object Prepared : UiState()
+    object Completed : UiState()
+    object ShowPlaying : UiState()
+    object PausePlaying : UiState()
+
 }

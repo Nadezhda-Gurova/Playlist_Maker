@@ -5,9 +5,8 @@ import android.os.Build
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
-import android.view.View
-import android.widget.ImageView
 import androidx.activity.ComponentActivity
+import androidx.core.view.isVisible
 import androidx.lifecycle.ViewModelProvider
 import com.bumptech.glide.Glide
 import com.example.playlistmaker.R
@@ -45,7 +44,6 @@ class MediaPlayerActivity : ComponentActivity() {
 
         initBackButton()
 
-
         val track: Track? = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             intent.getSerializableExtra(TRACK_MEDIA, Track::class.java)
         } else {
@@ -53,64 +51,49 @@ class MediaPlayerActivity : ComponentActivity() {
         }
 
         requireNotNull(track) { "No track provided" }
-        viewModel.onPreparedLiveData.observe(this) {
-            binding.playButton.isEnabled = true
+
+        viewModel.uiStateLiveData.observe(this) {
+            when (it) {
+                is UiState.CurrentTrack -> {
+                    setTrackData(it.track)
+                    Glide.with(this)
+                        .load(it.track.getCoverArtwork())
+                        .centerCrop()
+                        .placeholder(R.drawable.placeholder_album)
+                        .into(binding.albumCover)
+                }
+
+                UiState.PausePlaying -> {
+                    binding.playButton.setImageResource(R.drawable.pause_button)
+                }
+
+                UiState.Prepared -> binding.playButton.isEnabled = true
+                is UiState.Progress -> binding.time.text = it.time
+                UiState.ShowPlaying, UiState.Completed -> {
+                    binding.playButton.setImageResource(R.drawable.play_button)
+                }
+
+                UiState.AddedToFavorites -> binding.addToFavorites.setImageResource(R.drawable.favorite)
+                UiState.RemovedFromFavorites -> binding.addToFavorites.setImageResource(R.drawable.unfavorite)
+                UiState.AddedToPlaylist -> binding.addToPlaylist.setImageResource(R.drawable.added_to_playlist)
+                UiState.RemovedFromPlaylist -> binding.addToPlaylist.setImageResource(R.drawable.removed_to_playlist)
+            }
         }
 
-        viewModel.onCompletionLiveData.observe(this) {
-            binding.playButton.setImageResource(R.drawable.play_button)
-        }
+        viewModel.loadTrackData(track)
 
         binding.playButton.setOnClickListener {
             viewModel.onPlayerClicked()
         }
 
-        viewModel.isShowPlayingLiveData.observe(this) {
-            binding.playButton.setImageResource(if (it) R.drawable.play_button else R.drawable.pause_button)
-        }
-
-        viewModel.loadTrackData(track)
-
-        viewModel.trackLiveData.observe(this) { loadedTrack ->
-            setTrackData(loadedTrack)
-            Glide.with(this)
-                .load(loadedTrack.getCoverArtwork())
-                .centerCrop()
-                .placeholder(R.drawable.placeholder_album)
-                .into(binding.albumCover)
-        }
-
-        if (binding.albumName.text != null) {
-            binding.album.visibility = View.VISIBLE
-            binding.albumName.visibility = View.VISIBLE
-        }
-
-        var isAddToPlaylistClicked = false
-
         binding.addToPlaylist.setOnClickListener {
-            isAddToPlaylistClicked = if (!isAddToPlaylistClicked) {
-                binding.addToPlaylist.setImageResource(R.drawable.button_add_to_playlist)
-                true
-            } else {
-                binding.addToPlaylist.setImageResource(R.drawable.add_to_playlist)
-                false
-            }
+            viewModel.addToPlaylist()
         }
 
-        var isAddToFavoritesClicked = false
         binding.addToFavorites.setOnClickListener {
-            isAddToFavoritesClicked = if (!isAddToFavoritesClicked) {
-                binding.addToFavorites.setImageResource(R.drawable.button_add_to_favorite)
-                true
-            } else {
-                binding.addToFavorites.setImageResource(R.drawable.add_to_favorites)
-                false
-            }
+            viewModel.addToFavorites()
         }
 
-        viewModel.playingProgressLiveData.observe(this) {
-            binding.time.text = it
-        }
     }
 
     private fun setTrackData(track: Track) {
@@ -121,6 +104,11 @@ class MediaPlayerActivity : ComponentActivity() {
         binding.albumCountry.text = track.country
         binding.albumName.text = track.collectionName
         binding.albumGenre.text = track.primaryGenreName
+
+        if (track.collectionName != null) {
+            binding.album.isVisible = true
+            binding.albumName.isVisible = true
+        }
     }
 
     override fun onDestroy() {
@@ -130,9 +118,7 @@ class MediaPlayerActivity : ComponentActivity() {
 
 
     private fun initBackButton() {
-        val back = findViewById<ImageView>(R.id.back_button)
-
-        back.setOnClickListener {
+        binding.backButton.setOnClickListener {
             finish()
         }
     }
