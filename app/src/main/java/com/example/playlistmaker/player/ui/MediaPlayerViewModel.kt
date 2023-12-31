@@ -44,7 +44,7 @@ class MediaPlayerViewModel(
                 startPlayer()
             }
 
-            PlayerState.NotInited -> throw IllegalStateException("Player can't be in this state")
+            PlayerState.NotInited -> {}
         }
     }
 

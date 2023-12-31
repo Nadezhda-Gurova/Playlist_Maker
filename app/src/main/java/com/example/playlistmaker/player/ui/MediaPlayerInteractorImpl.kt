@@ -1,6 +1,7 @@
-package com.example.playlistmaker.player.domain
+package com.example.playlistmaker.player.ui
 
 import android.media.MediaPlayer
+import com.example.playlistmaker.player.domain.MediaPlayerInteractor
 
 class MediaPlayerInteractorImpl(
     private val mediaPlayer: MediaPlayer

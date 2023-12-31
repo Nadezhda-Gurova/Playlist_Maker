@@ -8,7 +8,7 @@ import android.media.MediaPlayer
 import android.os.Handler
 import androidx.appcompat.app.AppCompatActivity
 import com.example.playlistmaker.player.domain.MediaPlayerInteractor
-import com.example.playlistmaker.player.domain.MediaPlayerInteractorImpl
+import com.example.playlistmaker.player.ui.MediaPlayerInteractorImpl
 import com.example.playlistmaker.player.domain.TimerInteractor
 import com.example.playlistmaker.player.domain.TimerInteractorImpl
 import com.example.playlistmaker.search.data.mapper.TrackMapper

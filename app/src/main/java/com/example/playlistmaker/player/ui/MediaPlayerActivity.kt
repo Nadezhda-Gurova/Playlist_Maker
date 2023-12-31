@@ -15,7 +15,6 @@ import com.example.playlistmaker.databinding.ActivityAudioPlayerBinding
 import com.example.playlistmaker.search.domain.models.Track
 import com.example.playlistmaker.search.ui.SearchActivity.Companion.TRACK_MEDIA
 
-
 class MediaPlayerActivity : ComponentActivity() {
     private lateinit var binding: ActivityAudioPlayerBinding
 
