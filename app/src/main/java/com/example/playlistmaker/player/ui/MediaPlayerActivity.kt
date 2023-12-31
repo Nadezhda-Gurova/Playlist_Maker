@@ -52,31 +52,37 @@ class MediaPlayerActivity : ComponentActivity() {
         requireNotNull(track) { "No track provided" }
 
         viewModel.uiStateLiveData.observe(this) {
-            when (it) {
-                is UiState.CurrentTrack -> {
-                    setTrackData(it.track)
-                    Glide.with(this)
-                        .load(it.track.getCoverArtwork())
-                        .centerCrop()
-                        .placeholder(R.drawable.placeholder_album)
-                        .into(binding.albumCover)
-                }
+            setTrackData(it.curTrack)
+            Glide.with(this)
+                .load(it.curTrack.getCoverArtwork())
+                .centerCrop()
+                .placeholder(R.drawable.placeholder_album)
+                .into(binding.albumCover)
 
-                UiState.PausePlaying -> {
-                    binding.playButton.setImageResource(R.drawable.pause_button)
-                }
-
-                UiState.Prepared -> binding.playButton.isEnabled = true
-                is UiState.Progress -> binding.time.text = it.time
-                UiState.ShowPlaying, UiState.Completed -> {
-                    binding.playButton.setImageResource(R.drawable.play_button)
-                }
-
-                UiState.AddedToFavorites -> binding.addToFavorites.setImageResource(R.drawable.favorite)
-                UiState.RemovedFromFavorites -> binding.addToFavorites.setImageResource(R.drawable.unfavorite)
-                UiState.AddedToPlaylist -> binding.addToPlaylist.setImageResource(R.drawable.added_to_playlist)
-                UiState.RemovedFromPlaylist -> binding.addToPlaylist.setImageResource(R.drawable.removed_to_playlist)
+            if (it.isPausePlaying) {
+                binding.playButton.setImageResource(R.drawable.play_button)
+            } else {
+                binding.playButton.setImageResource(R.drawable.pause_button)
             }
+
+            if (it.isAddedToFavorites) {
+                binding.addToFavorites.setImageResource(R.drawable.favorite)
+            } else {
+                binding.addToFavorites.setImageResource(R.drawable.unfavorite)
+            }
+
+            if (it.isAddedToPlaylist) {
+                binding.addToPlaylist.setImageResource(R.drawable.added_to_playlist)
+            } else {
+                binding.addToPlaylist.setImageResource(R.drawable.removed_to_playlist)
+            }
+
+            if (it.isReady) {
+                binding.playButton.isEnabled = true
+            }
+
+            binding.time.text = it.curTime
+
         }
 
         viewModel.loadTrackData(track)

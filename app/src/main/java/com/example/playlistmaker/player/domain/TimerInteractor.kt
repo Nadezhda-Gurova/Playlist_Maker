@@ -9,14 +9,19 @@ import java.text.SimpleDateFormat
 interface TimerInteractor {
     fun startProgressUpdate(onUpdate: (String) -> Unit)
     fun pauseProgressUpdate()
+    val curTime: String
 }
 
-class TimerInteractorImpl (
+class TimerInteractorImpl(
     private val player: MediaPlayer,
     private val handler: Handler,
     private val format: SimpleDateFormat,
-    private val context: Context
-): TimerInteractor {
+    context: Context
+) : TimerInteractor {
+
+    private val zeroTime = context.getString(R.string.zero_time)
+
+    override var curTime: String = zeroTime
 
     override fun pauseProgressUpdate() {
         handler.removeCallbacksAndMessages(null)
@@ -26,13 +31,14 @@ class TimerInteractorImpl (
         handler.post(object : Runnable {
             override fun run() {
                 if (player.isPlaying) {
-                    onUpdate(format.format(player.currentPosition))
+                    curTime = format.format(player.currentPosition)
+                    onUpdate(curTime)
                     handler.postDelayed(this, 300L)
                 } else {
-                    onUpdate(context.getString(R.string.zero_time))
+                    curTime = zeroTime
+                    onUpdate(zeroTime)
                 }
             }
         })
     }
-
 }
