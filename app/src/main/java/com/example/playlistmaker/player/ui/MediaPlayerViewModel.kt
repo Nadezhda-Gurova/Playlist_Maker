@@ -27,7 +27,6 @@ class MediaPlayerViewModel(
         mediaPlayerInteractor.prepare(track.previewUrl,
             onPrepared = {
                 playerState = PlayerState.Inited
-                //_uiStateLiveData.value = UiState.Prepared
                 _uiStateLiveData.value = UiState(
                     isAddedToFavorites = addedToFavorites,
                     isAddedToPlaylist = addedToPlaylist,
@@ -39,7 +38,6 @@ class MediaPlayerViewModel(
             },
             onCompletion = {
                 playerState = PlayerState.Inited
-                //_uiStateLiveData.value = UiState.Completed
                 _uiStateLiveData.value = UiState(
                     isAddedToFavorites = addedToFavorites,
                     isAddedToPlaylist = addedToPlaylist,
@@ -50,7 +48,6 @@ class MediaPlayerViewModel(
                 )
             })
 
-        //_uiStateLiveData.value = UiState.CurrentTrack(track)
         _uiStateLiveData.value = UiState(
             isAddedToFavorites = addedToFavorites,
             isAddedToPlaylist = addedToPlaylist,
@@ -78,39 +75,36 @@ class MediaPlayerViewModel(
     private fun startPlayer() {
         mediaPlayerInteractor.play()
         timerInteractor.startProgressUpdate {
-            //_uiStateLiveData.value = UiState.Progress(it)
             _uiStateLiveData.value = UiState(
                 isAddedToFavorites = addedToFavorites,
                 isAddedToPlaylist = addedToPlaylist,
                 curTrack = curTrack,
                 curTime = it,
                 isReady = true,
-                isPausePlaying = playerState == PlayerState.Paused
+                isPausePlaying = playerState != PlayerState.Playing
             )
         }
         playerState = PlayerState.Playing
-        //_uiStateLiveData.value = UiState.PausePlaying
-        _uiStateLiveData.value = UiState(
-            isAddedToFavorites = false,
-            isAddedToPlaylist = false,
-            curTrack = curTrack,
-            curTime = timerInteractor.curTime,
-            isReady = true,
-            isPausePlaying = playerState == PlayerState.Paused)
-    }
-
-    private fun pausePlayer() {
-        mediaPlayerInteractor.pause()
-        timerInteractor.pauseProgressUpdate()
-        playerState = PlayerState.Paused
-        //_uiStateLiveData.value = UiState.ShowPlaying
         _uiStateLiveData.value = UiState(
             isAddedToFavorites = addedToFavorites,
             isAddedToPlaylist = addedToPlaylist,
             curTrack = curTrack,
             curTime = timerInteractor.curTime,
             isReady = true,
-            isPausePlaying = playerState == PlayerState.Paused)
+            isPausePlaying = playerState != PlayerState.Playing)
+    }
+
+    private fun pausePlayer() {
+        mediaPlayerInteractor.pause()
+        timerInteractor.pauseProgressUpdate()
+        playerState = PlayerState.Paused
+        _uiStateLiveData.value = UiState(
+            isAddedToFavorites = addedToFavorites,
+            isAddedToPlaylist = addedToPlaylist,
+            curTrack = curTrack,
+            curTime = timerInteractor.curTime,
+            isReady = true,
+            isPausePlaying = playerState != PlayerState.Playing)
     }
 
     fun onDestroy() {
@@ -122,54 +116,48 @@ class MediaPlayerViewModel(
         mediaPlayerInteractor.pause()
     }
 
-    private var isAddToFavoritesClicked = false
 
     fun addToFavorites() {
-        isAddToFavoritesClicked = if (isAddToFavoritesClicked) {
-            //_uiStateLiveData.value = UiState.RemovedFromFavorites
+        addedToFavorites = if (addedToFavorites) {
             _uiStateLiveData.value = UiState(
                 isAddedToFavorites = false,
                 isAddedToPlaylist = addedToPlaylist,
                 curTrack = curTrack,
                 curTime = timerInteractor.curTime,
                 isReady = true,
-                isPausePlaying = playerState == PlayerState.Paused)
+                isPausePlaying = playerState != PlayerState.Playing)
             false
         } else {
-            //_uiStateLiveData.value = UiState.AddedToFavorites
             _uiStateLiveData.value = UiState(
                 isAddedToFavorites = true,
                 isAddedToPlaylist = addedToPlaylist,
                 curTrack = curTrack,
                 curTime = timerInteractor.curTime,
                 isReady = true,
-                isPausePlaying = playerState == PlayerState.Paused)
+                isPausePlaying = playerState != PlayerState.Playing)
             true
         }
     }
 
-    private var isAddToPlaylistClicked = false
 
     fun addToPlaylist() {
-        isAddToPlaylistClicked = if (isAddToPlaylistClicked) {
-            //_uiStateLiveData.value = UiState.AddedToPlaylist
+        addedToPlaylist = if (addedToPlaylist) {
             _uiStateLiveData.value = UiState(
                 isAddedToFavorites = addedToFavorites,
                 isAddedToPlaylist = false,
                 curTrack = curTrack,
                 curTime = timerInteractor.curTime,
                 isReady = true,
-                isPausePlaying = playerState == PlayerState.Paused)
+                isPausePlaying = playerState != PlayerState.Playing)
             false
         } else {
-            //_uiStateLiveData.value = UiState.RemovedFromPlaylist
             _uiStateLiveData.value = UiState(
                 isAddedToFavorites = addedToFavorites,
                 isAddedToPlaylist = true,
                 curTrack = curTrack,
                 curTime = timerInteractor.curTime,
                 isReady = true,
-                isPausePlaying = playerState == PlayerState.Paused)
+                isPausePlaying = playerState != PlayerState.Playing)
             true
         }
     }

@@ -14,7 +14,7 @@ class App : Application() {
 
         Creator.provideSettingsInteractor(
             getSystemService(Context.UI_MODE_SERVICE) as UiModeManager,
-            getSharedPreferences(DARK_THEME_MODE, MODE_PRIVATE)
+            Creator.provideDarkModeRepository()
         ).apply {
             updateThemeSetting(getThemeSettings())
         }

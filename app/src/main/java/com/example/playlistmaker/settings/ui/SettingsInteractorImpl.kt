@@ -1,25 +1,22 @@
-package com.example.playlistmaker.settings.domain
+package com.example.playlistmaker.settings.ui
 
 import android.app.UiModeManager
-import android.content.SharedPreferences
 import android.os.Build
 import androidx.appcompat.app.AppCompatDelegate
-import com.example.playlistmaker.settings.data.ThemeSettings
-import com.example.playlistmaker.App.Companion.DARK_THEME_TEXT_KEY
+import com.example.playlistmaker.settings.data.DarkModeRepository
+import com.example.playlistmaker.settings.domain.ThemeSettings
+import com.example.playlistmaker.settings.domain.SettingsInteractor
 
 class SettingsInteractorImpl(
     private val uiModeManager: UiModeManager,
-    private val sharedPrefs: SharedPreferences
-) :
-    SettingsInteractor {
+    private val darkModeRepository: DarkModeRepository
+) : SettingsInteractor {
     override fun getThemeSettings(): ThemeSettings {
-        return ThemeSettings(sharedPrefs.getBoolean(DARK_THEME_TEXT_KEY, false))
+        return darkModeRepository.get()
     }
 
     override fun updateThemeSetting(settings: ThemeSettings) {
-        sharedPrefs.edit()
-            .putBoolean(DARK_THEME_TEXT_KEY, settings.isDarkTheme)
-            .apply()
+        darkModeRepository.save(settings)
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
             if (settings.isDarkTheme) {

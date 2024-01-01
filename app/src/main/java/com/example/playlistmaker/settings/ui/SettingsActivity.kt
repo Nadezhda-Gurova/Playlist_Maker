@@ -8,7 +8,6 @@ import androidx.lifecycle.ViewModelProvider
 import com.example.playlistmaker.R
 import com.example.playlistmaker.creator.Creator
 import com.example.playlistmaker.databinding.ActivitySettingsBinding
-import com.example.playlistmaker.App
 
 class SettingsActivity(
 ) : AppCompatActivity() {
@@ -27,7 +26,7 @@ class SettingsActivity(
                 Creator.provideSharingInteractor(),
                 Creator.provideSettingsInteractor(
                     getSystemService(Context.UI_MODE_SERVICE) as UiModeManager,
-                    application.getSharedPreferences(App.DARK_THEME_MODE, MODE_PRIVATE)
+                    Creator.provideDarkModeRepository()
                 )
             )
         )[SettingsViewModel::class.java]
