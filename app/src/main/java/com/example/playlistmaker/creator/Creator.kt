@@ -3,16 +3,8 @@ package com.example.playlistmaker.creator
 import android.app.Application
 import android.app.UiModeManager
 import android.content.Context.MODE_PRIVATE
-import android.media.MediaPlayer
-import android.os.Handler
 import androidx.appcompat.app.AppCompatActivity
 import com.example.playlistmaker.App
-import com.example.playlistmaker.player.data.PlayerRepositoryImpl
-import com.example.playlistmaker.player.domain.MediaPlayerInteractor
-import com.example.playlistmaker.player.domain.MediaPlayerInteractorImpl
-import com.example.playlistmaker.player.domain.PlayerRepository
-import com.example.playlistmaker.player.domain.TimerInteractor
-import com.example.playlistmaker.player.domain.TimerInteractorImpl
 import com.example.playlistmaker.search.data.mapper.TrackMapper
 import com.example.playlistmaker.search.data.network.ITunesRetrofitNetworkClient
 import com.example.playlistmaker.search.data.repository.ITunesNetworkClient
@@ -27,9 +19,6 @@ import com.example.playlistmaker.settings.domain.DarkModeRepository
 import com.example.playlistmaker.settings.data.DarkModeRepositoryImpl
 import com.example.playlistmaker.settings.domain.SettingsInteractor
 import com.example.playlistmaker.settings.domain.SettingsInteractorImpl
-import com.example.playlistmaker.sharing.data.ExternalNavigator
-import com.example.playlistmaker.sharing.domain.SharingInteractor
-import com.example.playlistmaker.sharing.domain.SharingInteractorImpl
 import java.text.SimpleDateFormat
 import java.util.Locale
 
@@ -47,33 +36,6 @@ object Creator {
         )
     }
 
-    fun provideTimerInteractor(
-        playerRepository: PlayerRepository
-    ): TimerInteractor {
-        return TimerInteractorImpl(
-            playerRepository
-        )
-    }
-
-
-    fun providePlayerRepository(
-        player: MediaPlayer,
-        handler: Handler,
-        format: SimpleDateFormat,
-        zeroTime: String
-    ): PlayerRepository {
-        return PlayerRepositoryImpl(
-            mediaPlayer = player,
-            handler = handler,
-            format = format,
-            zeroTime = zeroTime
-        )
-    }
-
-    fun provideMediaPlayerInteractor(player: MediaPlayer): MediaPlayerInteractor {
-        return MediaPlayerInteractorImpl(player)
-    }
-
     fun provideDarkModeRepository(uiModeManager: UiModeManager): DarkModeRepository {
         return DarkModeRepositoryImpl(
             application.getSharedPreferences(App.DARK_THEME_MODE, MODE_PRIVATE),
@@ -85,10 +47,6 @@ object Creator {
         darkModeRepository: DarkModeRepository
     ): SettingsInteractor {
         return SettingsInteractorImpl(darkModeRepository)
-    }
-
-    fun provideSharingInteractor(): SharingInteractor {
-        return SharingInteractorImpl(ExternalNavigator(application))
     }
 
     fun provideSearchHistoryInteractor(): SearchHistoryInteractor {

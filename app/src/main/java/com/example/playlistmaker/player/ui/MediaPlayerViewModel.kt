@@ -1,47 +1,46 @@
 package com.example.playlistmaker.player.ui
 
+import android.media.MediaPlayer
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
-import com.example.playlistmaker.player.domain.MediaPlayerInteractor
-import com.example.playlistmaker.player.domain.PlayerRepository
+import android.os.Handler
+import android.os.Looper
+import com.example.playlistmaker.creator.Creator
 import com.example.playlistmaker.search.domain.models.Track
 
 class MediaPlayerViewModel(
-    private val mediaPlayerInteractor: MediaPlayerInteractor,
-    private val timerInteractor: PlayerRepository
+    zeroTime: String
 ) : ViewModel() {
     private var addedToFavorites = false
     private var addedToPlaylist = false
+
+    private var curTime: String = zeroTime
+    private var onUpdateListener: ((String) -> Unit)? = null
+    private var format =  Creator.provideSimpleDateFormat()
     private lateinit var curTrack:Track
     private var _uiStateLiveData = MutableLiveData<UiState>()
+
+    private val handler = Handler(Looper.getMainLooper())
+
+    private val player = MediaPlayer()
     val uiStateLiveData: LiveData<UiState> get() = _uiStateLiveData
 
     private var playerState: PlayerState = PlayerState.NotInited
 
     fun loadTrackData(track: Track) {
         curTrack = track
-        mediaPlayerInteractor.prepare(track.previewUrl,
-            onPrepared = {
-                playerState = PlayerState.Inited
-                _uiStateLiveData.value = _uiStateLiveData.value?.copy(
-                    isReady = false,
-                )
-            },
-            onCompletion = {
-                playerState = PlayerState.Inited
-                _uiStateLiveData.value = _uiStateLiveData.value?.copy(
-                    isReady = true,
-                )
-            })
+
+        playerPrepare(track.previewUrl)
+
         _uiStateLiveData.value = UiState(
             isAddedToFavorites = addedToFavorites,
             isAddedToPlaylist = addedToPlaylist,
             curTrack = track,
-            curTime = timerInteractor.getCurrentTime(),
+            curTime = getCurrentTime(),
             isReady = false,
             isPausePlaying = true
         )
@@ -62,23 +61,25 @@ class MediaPlayerViewModel(
     }
 
     private fun startPlayer() {
-        mediaPlayerInteractor.play()
-        timerInteractor.startProgressUpdate {
+        player.start()
+
+        startProgressUpdate {
             _uiStateLiveData.value = _uiStateLiveData.value?.copy(
                 curTime = it,
                 isPausePlaying = playerState != PlayerState.Playing
             )
         }
+
         playerState = PlayerState.Playing
         _uiStateLiveData.value = _uiStateLiveData.value?.copy(
-            curTime = timerInteractor.getCurrentTime(),
+            curTime = getCurrentTime(),
             isPausePlaying = playerState != PlayerState.Playing
         )
     }
 
     private fun pausePlayer() {
-        mediaPlayerInteractor.pause()
-        timerInteractor.pauseProgressUpdate()
+        player.pause()
+        pauseProgressUpdate()
         playerState = PlayerState.Paused
         _uiStateLiveData.value = _uiStateLiveData.value?.copy(
             isPausePlaying = playerState != PlayerState.Playing
@@ -86,20 +87,35 @@ class MediaPlayerViewModel(
     }
 
     fun onDestroy() {
-        mediaPlayerInteractor.release()
-        timerInteractor.pauseProgressUpdate()
+        player.release()
+        pauseProgressUpdate()
     }
 
     fun onPause() {
-        mediaPlayerInteractor.pause()
+        player.pause()
     }
 
 
     fun addToFavorites() {
-        addedToFavorites = !addedToFavorites
-        _uiStateLiveData.value = _uiStateLiveData.value?.copy(
-            isAddedToFavorites = addedToFavorites
-        )
+        addedToFavorites = if (addedToFavorites) {
+            _uiStateLiveData.value = UiState(
+                isAddedToFavorites = false,
+                isAddedToPlaylist = addedToPlaylist,
+                curTrack = curTrack,
+                curTime = curTime,
+                isReady = true,
+                isPausePlaying = playerState != PlayerState.Playing)
+            false
+        } else {
+            _uiStateLiveData.value = UiState(
+                isAddedToFavorites = true,
+                isAddedToPlaylist = addedToPlaylist,
+                curTrack = curTrack,
+                curTime = curTime,
+                isReady = true,
+                isPausePlaying = playerState != PlayerState.Playing)
+            true
+        }
     }
 
 
@@ -110,20 +126,60 @@ class MediaPlayerViewModel(
         )
     }
 
+    fun startProgressUpdate(onUpdate: (String) -> Unit) {
+        onUpdateListener = onUpdate
+        handler.postDelayed(progressUpdateRunnable, 300L)
+    }
+
+    fun pauseProgressUpdate() {
+        handler.removeCallbacks(progressUpdateRunnable)
+    }
+
+    private val progressUpdateRunnable = object : Runnable {
+        override fun run() {
+            if (player.isPlaying) {
+                curTime = format.format(player.currentPosition)
+                onUpdateListener?.invoke(curTime)
+                handler.postDelayed(this, 300L)
+            } else {
+                curTime = zeroTime
+                onUpdateListener?.invoke(zeroTime)
+            }
+        }
+    }
+
+    fun getCurrentTime(): String {
+        return curTime
+    }
+
     companion object {
         fun getViewModelFactory(
-            mediaPlayerInteractor: MediaPlayerInteractor,
-            playerRepositoryImpl: PlayerRepository
+            zeroTime: String
         ): ViewModelProvider.Factory =
             viewModelFactory {
                 initializer {
-                    MediaPlayerViewModel(
-                        mediaPlayerInteractor,
-                        playerRepositoryImpl
-                    )
+                    MediaPlayerViewModel(zeroTime)
                 }
             }
     }
+
+    fun playerPrepare (url: String){
+        player.setDataSource(url)
+        player.prepareAsync()
+        player.setOnPreparedListener {
+            playerState = PlayerState.Inited
+            _uiStateLiveData.value = _uiStateLiveData.value?.copy(
+                isReady = false,
+            )
+        }
+        player.setOnCompletionListener {
+            playerState = PlayerState.Inited
+            _uiStateLiveData.value = _uiStateLiveData.value?.copy(
+                isReady = true,
+            )
+        }
+    }
+
 }
 
 private sealed class PlayerState {

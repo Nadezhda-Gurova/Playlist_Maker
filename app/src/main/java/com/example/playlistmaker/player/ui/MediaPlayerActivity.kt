@@ -1,16 +1,12 @@
 package com.example.playlistmaker.player.ui
 
-import android.media.MediaPlayer
 import android.os.Build
 import android.os.Bundle
-import android.os.Handler
-import android.os.Looper
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.isVisible
 import androidx.lifecycle.ViewModelProvider
 import com.bumptech.glide.Glide
 import com.example.playlistmaker.R
-import com.example.playlistmaker.creator.Creator
 import com.example.playlistmaker.databinding.ActivityAudioPlayerBinding
 import com.example.playlistmaker.search.domain.models.Track
 import com.example.playlistmaker.search.ui.SearchActivity.Companion.TRACK_MEDIA
@@ -26,19 +22,9 @@ class MediaPlayerActivity : AppCompatActivity()  {
         setContentView(R.layout.activity_audio_player)
         binding = ActivityAudioPlayerBinding.bind(findViewById(R.id.root))
 
-        val mediaPlayer = MediaPlayer()
-
         viewModel = ViewModelProvider(
             this,
-            MediaPlayerViewModel.getViewModelFactory(
-                Creator.provideMediaPlayerInteractor(mediaPlayer),
-                Creator.providePlayerRepository(
-                    mediaPlayer,
-                    Handler(Looper.getMainLooper()),
-                    Creator.provideSimpleDateFormat(),
-                    getString(R.string.zero_time)
-                )
-            )
+            MediaPlayerViewModel.getViewModelFactory(getString(R.string.zero_time))
         )[MediaPlayerViewModel::class.java]
 
         initBackButton()

@@ -8,11 +8,9 @@ import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import com.example.playlistmaker.settings.domain.ThemeSettings
 import com.example.playlistmaker.settings.domain.SettingsInteractor
-import com.example.playlistmaker.sharing.domain.SharingInteractor
 
 
 class SettingsViewModel(
-    private val sharingInteractor: SharingInteractor,
     private val settingsInteractor: SettingsInteractor,
 ) : ViewModel() {
     private var darkThemeLiveData =
@@ -20,33 +18,20 @@ class SettingsViewModel(
 
     fun darkThemeLiveData(): LiveData<Boolean> = darkThemeLiveData
 
-    fun shareData() {
-        sharingInteractor.shareApp()
-    }
-
-    fun openTerms() {
-        sharingInteractor.openTerms()
-    }
-
-    fun openSupport() {
-        sharingInteractor.openSupport()
-    }
-
     fun updateBlackTheme(checked: Boolean) {
         val theme = ThemeSettings(checked)
         settingsInteractor.updateThemeSetting(theme)
         darkThemeLiveData.value = checked
     }
 
+
     companion object {
         fun getViewModelFactory(
-            sharingInteractor: SharingInteractor,
             settingsInteractor: SettingsInteractor,
         ): ViewModelProvider.Factory =
             viewModelFactory {
                 initializer {
                     SettingsViewModel(
-                        sharingInteractor,
                         settingsInteractor,
                     )
                 }

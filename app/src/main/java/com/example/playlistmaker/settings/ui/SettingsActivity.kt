@@ -1,13 +1,17 @@
 package com.example.playlistmaker.settings.ui
 
 import android.app.UiModeManager
+import android.content.ActivityNotFoundException
 import android.content.Context
+import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
 import com.example.playlistmaker.R
 import com.example.playlistmaker.creator.Creator
 import com.example.playlistmaker.databinding.ActivitySettingsBinding
+import com.example.playlistmaker.sharing.data.EmailData
 
 class SettingsActivity(
 ) : AppCompatActivity() {
@@ -23,7 +27,6 @@ class SettingsActivity(
         viewModel = ViewModelProvider(
             this,
             SettingsViewModel.getViewModelFactory(
-                Creator.provideSharingInteractor(),
                 Creator.provideSettingsInteractor(
                     Creator.provideDarkModeRepository(
                         getSystemService(Context.UI_MODE_SERVICE) as UiModeManager
@@ -57,19 +60,69 @@ class SettingsActivity(
 
     private fun initTermOfUse() {
         binding.termsOfUsePanel.setOnClickListener {
-            viewModel.openTerms()
+            openLink()
         }
     }
 
     private fun initShare() {
         binding.shareTextPanel.setOnClickListener {
-            viewModel.shareData()
+            shareLink()
         }
     }
 
     private fun initWriteToSupport() {
         binding.writeToSupportPanel.setOnClickListener {
-            viewModel.openSupport()
+           openEmail()
+        }
+    }
+
+    fun shareLink() {
+        Intent(Intent.ACTION_SEND).apply {
+            putExtra(Intent.EXTRA_TEXT, getString(R.string.shareAppLink))
+            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            type = "text/plain"
+            startActivitySafely { startActivity(Intent.createChooser(this, "")) }
+        }
+    }
+
+    fun openLink() {
+        Intent(Intent.ACTION_VIEW, Uri.parse(getString(R.string.public_offer))).apply {
+            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            startActivitySafely {
+                startActivity(
+                    Intent.createChooser(
+                        this,
+                        getString(R.string.title)
+                    )
+                )
+            }
+        }
+    }
+
+    fun openEmail() {
+        val supportEmailData: EmailData = getSupportEmailData()
+        Intent(Intent.ACTION_SENDTO).apply {
+            data = Uri.parse("mailto:")
+            putExtra(Intent.EXTRA_EMAIL, arrayOf(supportEmailData.emailAddress))
+            putExtra(Intent.EXTRA_SUBJECT, supportEmailData.subject)
+            putExtra(Intent.EXTRA_TEXT, supportEmailData.body)
+            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            startActivitySafely { startActivity(this) }
+        }
+    }
+
+    private fun getSupportEmailData(): EmailData {
+        return EmailData(
+            emailAddress = getString(R.string.mail),
+            subject = getString(R.string.letter_subject),
+            body = getString(R.string.letter_text)
+        )
+    }
+
+    private fun startActivitySafely(action: () -> Unit) {
+        try {
+            action()
+        } catch (_: ActivityNotFoundException) {
         }
     }
 }
