@@ -114,7 +114,7 @@ class SearchActivity : AppCompatActivity() {
         trackAdapter.clearTracks()
         hideYouSearched()
         hideNothingFound()
-        binding.loader.visibility = View.VISIBLE
+        binding.loader.isVisible = true
         handler.removeCallbacks(searchRunnable)
         handler.postDelayed(searchRunnable, delay)
     }
@@ -125,8 +125,8 @@ class SearchActivity : AppCompatActivity() {
             hideYouSearched()
         } else {
             view?.hideKeyboard()
-            binding.nothingFound.visibility = View.VISIBLE
-            binding.nothingFoundText.visibility = View.VISIBLE
+            binding.nothingFound.isVisible = true
+            binding.nothingFoundText.isVisible = true
             trackAdapter.clearTracks()
         }
     }
@@ -134,14 +134,14 @@ class SearchActivity : AppCompatActivity() {
     private fun showBadConnection(view: EditText) {
         hideYouSearched()
         view.hideKeyboard()
-        binding.badConnection.visibility = View.VISIBLE
-        binding.badConnectionText.visibility = View.VISIBLE
-        binding.badConnectionButton.visibility = View.VISIBLE
+        binding.badConnection.isVisible = true
+        binding.badConnectionText.isVisible = true
+        binding.badConnectionButton.isVisible = true
         trackAdapter.clearTracks()
     }
 
     private fun renderTracks(loadingState: LoadingState<State>) {
-        binding.loader.visibility = View.GONE
+        binding.loader.isVisible = false
         when (loadingState) {
             is LoadingState.Error -> {
                 hideNothingFound()
@@ -194,11 +194,11 @@ class SearchActivity : AppCompatActivity() {
     }
 
     private fun hideNothingFound() {
-        binding.nothingFound.visibility = View.GONE
-        binding.nothingFoundText.visibility = View.GONE
-        binding.badConnection.visibility = View.GONE
-        binding.badConnectionText.visibility = View.GONE
-        binding.badConnectionButton.visibility = View.GONE
+        binding.nothingFound.isVisible = false
+        binding.nothingFoundText.isVisible = false
+        binding.badConnection.isVisible = false
+        binding.badConnectionText.isVisible = false
+        binding.badConnectionButton.isVisible = false
     }
 
     override fun onSaveInstanceState(outState: Bundle) {

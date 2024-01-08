@@ -1,11 +1,10 @@
-package com.example.playlistmaker.sharing.ui
+package com.example.playlistmaker.sharing.data
 
 import android.content.ActivityNotFoundException
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import com.example.playlistmaker.R
-import com.example.playlistmaker.sharing.data.EmailData
 
 class ExternalNavigator(
     private val context: Context,

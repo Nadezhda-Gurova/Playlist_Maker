@@ -25,8 +25,9 @@ class SettingsActivity(
             SettingsViewModel.getViewModelFactory(
                 Creator.provideSharingInteractor(),
                 Creator.provideSettingsInteractor(
-                    getSystemService(Context.UI_MODE_SERVICE) as UiModeManager,
-                    Creator.provideDarkModeRepository()
+                    Creator.provideDarkModeRepository(
+                        getSystemService(Context.UI_MODE_SERVICE) as UiModeManager
+                    )
                 )
             )
         )[SettingsViewModel::class.java]

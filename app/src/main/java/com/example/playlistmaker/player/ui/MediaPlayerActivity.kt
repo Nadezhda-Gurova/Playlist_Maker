@@ -5,8 +5,7 @@ import android.os.Build
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
-import android.util.Log
-import androidx.activity.ComponentActivity
+import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.isVisible
 import androidx.lifecycle.ViewModelProvider
 import com.bumptech.glide.Glide
@@ -16,7 +15,7 @@ import com.example.playlistmaker.databinding.ActivityAudioPlayerBinding
 import com.example.playlistmaker.search.domain.models.Track
 import com.example.playlistmaker.search.ui.SearchActivity.Companion.TRACK_MEDIA
 
-class MediaPlayerActivity : ComponentActivity() {
+class MediaPlayerActivity : AppCompatActivity()  {
     private lateinit var binding: ActivityAudioPlayerBinding
 
     private lateinit var viewModel: MediaPlayerViewModel
@@ -33,11 +32,11 @@ class MediaPlayerActivity : ComponentActivity() {
             this,
             MediaPlayerViewModel.getViewModelFactory(
                 Creator.provideMediaPlayerInteractor(mediaPlayer),
-                Creator.provideTimerInteractor(
+                Creator.providePlayerRepository(
                     mediaPlayer,
                     Handler(Looper.getMainLooper()),
                     Creator.provideSimpleDateFormat(),
-                    this
+                    getString(R.string.zero_time)
                 )
             )
         )[MediaPlayerViewModel::class.java]
@@ -67,18 +66,14 @@ class MediaPlayerActivity : ComponentActivity() {
             }
 
             if (it.isAddedToFavorites) {
-                Log.d("GAV","ADDED_TO_FAV")
                 binding.addToFavorites.setImageResource(R.drawable.favorite)
             } else {
-                Log.d("GAV","UNAIDED_TO_FAV")
                 binding.addToFavorites.setImageResource(R.drawable.unfavorite)
             }
 
             if (it.isAddedToPlaylist) {
-                Log.d("GAV","ADDED_TO_Playlist")
                 binding.addToPlaylist.setImageResource(R.drawable.added_to_playlist)
             } else {
-                Log.d("GAV","UNAIDED_TO_FAV")
                 binding.addToPlaylist.setImageResource(R.drawable.removed_to_playlist)
             }
 
@@ -103,7 +98,6 @@ class MediaPlayerActivity : ComponentActivity() {
         binding.addToFavorites.setOnClickListener {
             viewModel.addToFavorites()
         }
-
     }
 
     private fun setTrackData(track: Track) {

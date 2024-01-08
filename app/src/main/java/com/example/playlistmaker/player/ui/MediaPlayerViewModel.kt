@@ -7,12 +7,12 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import com.example.playlistmaker.player.domain.MediaPlayerInteractor
-import com.example.playlistmaker.player.domain.TimerInteractor
+import com.example.playlistmaker.player.domain.PlayerRepository
 import com.example.playlistmaker.search.domain.models.Track
 
 class MediaPlayerViewModel(
     private val mediaPlayerInteractor: MediaPlayerInteractor,
-    private val timerInteractor: TimerInteractor
+    private val timerInteractor: PlayerRepository
 ) : ViewModel() {
     private var addedToFavorites = false
     private var addedToPlaylist = false
@@ -27,32 +27,21 @@ class MediaPlayerViewModel(
         mediaPlayerInteractor.prepare(track.previewUrl,
             onPrepared = {
                 playerState = PlayerState.Inited
-                _uiStateLiveData.value = UiState(
-                    isAddedToFavorites = addedToFavorites,
-                    isAddedToPlaylist = addedToPlaylist,
-                    curTrack = curTrack,
-                    curTime = timerInteractor.curTime,
+                _uiStateLiveData.value = _uiStateLiveData.value?.copy(
                     isReady = false,
-                    isPausePlaying = true
                 )
             },
             onCompletion = {
                 playerState = PlayerState.Inited
-                _uiStateLiveData.value = UiState(
-                    isAddedToFavorites = addedToFavorites,
-                    isAddedToPlaylist = addedToPlaylist,
-                    curTrack = track,
-                    curTime = timerInteractor.curTime,
+                _uiStateLiveData.value = _uiStateLiveData.value?.copy(
                     isReady = true,
-                    isPausePlaying = true
                 )
             })
-
         _uiStateLiveData.value = UiState(
             isAddedToFavorites = addedToFavorites,
             isAddedToPlaylist = addedToPlaylist,
             curTrack = track,
-            curTime = timerInteractor.curTime,
+            curTime = timerInteractor.getCurrentTime(),
             isReady = false,
             isPausePlaying = true
         )
@@ -75,36 +64,25 @@ class MediaPlayerViewModel(
     private fun startPlayer() {
         mediaPlayerInteractor.play()
         timerInteractor.startProgressUpdate {
-            _uiStateLiveData.value = UiState(
-                isAddedToFavorites = addedToFavorites,
-                isAddedToPlaylist = addedToPlaylist,
-                curTrack = curTrack,
+            _uiStateLiveData.value = _uiStateLiveData.value?.copy(
                 curTime = it,
-                isReady = true,
                 isPausePlaying = playerState != PlayerState.Playing
             )
         }
         playerState = PlayerState.Playing
-        _uiStateLiveData.value = UiState(
-            isAddedToFavorites = addedToFavorites,
-            isAddedToPlaylist = addedToPlaylist,
-            curTrack = curTrack,
-            curTime = timerInteractor.curTime,
-            isReady = true,
-            isPausePlaying = playerState != PlayerState.Playing)
+        _uiStateLiveData.value = _uiStateLiveData.value?.copy(
+            curTime = timerInteractor.getCurrentTime(),
+            isPausePlaying = playerState != PlayerState.Playing
+        )
     }
 
     private fun pausePlayer() {
         mediaPlayerInteractor.pause()
         timerInteractor.pauseProgressUpdate()
         playerState = PlayerState.Paused
-        _uiStateLiveData.value = UiState(
-            isAddedToFavorites = addedToFavorites,
-            isAddedToPlaylist = addedToPlaylist,
-            curTrack = curTrack,
-            curTime = timerInteractor.curTime,
-            isReady = true,
-            isPausePlaying = playerState != PlayerState.Playing)
+        _uiStateLiveData.value = _uiStateLiveData.value?.copy(
+            isPausePlaying = playerState != PlayerState.Playing
+        )
     }
 
     fun onDestroy() {
@@ -118,60 +96,30 @@ class MediaPlayerViewModel(
 
 
     fun addToFavorites() {
-        addedToFavorites = if (addedToFavorites) {
-            _uiStateLiveData.value = UiState(
-                isAddedToFavorites = false,
-                isAddedToPlaylist = addedToPlaylist,
-                curTrack = curTrack,
-                curTime = timerInteractor.curTime,
-                isReady = true,
-                isPausePlaying = playerState != PlayerState.Playing)
-            false
-        } else {
-            _uiStateLiveData.value = UiState(
-                isAddedToFavorites = true,
-                isAddedToPlaylist = addedToPlaylist,
-                curTrack = curTrack,
-                curTime = timerInteractor.curTime,
-                isReady = true,
-                isPausePlaying = playerState != PlayerState.Playing)
-            true
-        }
+        addedToFavorites = !addedToFavorites
+        _uiStateLiveData.value = _uiStateLiveData.value?.copy(
+            isAddedToFavorites = addedToFavorites
+        )
     }
 
 
     fun addToPlaylist() {
-        addedToPlaylist = if (addedToPlaylist) {
-            _uiStateLiveData.value = UiState(
-                isAddedToFavorites = addedToFavorites,
-                isAddedToPlaylist = false,
-                curTrack = curTrack,
-                curTime = timerInteractor.curTime,
-                isReady = true,
-                isPausePlaying = playerState != PlayerState.Playing)
-            false
-        } else {
-            _uiStateLiveData.value = UiState(
-                isAddedToFavorites = addedToFavorites,
-                isAddedToPlaylist = true,
-                curTrack = curTrack,
-                curTime = timerInteractor.curTime,
-                isReady = true,
-                isPausePlaying = playerState != PlayerState.Playing)
-            true
-        }
+        addedToPlaylist = !addedToPlaylist
+        _uiStateLiveData.value = _uiStateLiveData.value?.copy(
+            isAddedToPlaylist = addedToPlaylist
+        )
     }
 
     companion object {
         fun getViewModelFactory(
             mediaPlayerInteractor: MediaPlayerInteractor,
-            timerInteractor: TimerInteractor
+            playerRepositoryImpl: PlayerRepository
         ): ViewModelProvider.Factory =
             viewModelFactory {
                 initializer {
                     MediaPlayerViewModel(
                         mediaPlayerInteractor,
-                        timerInteractor
+                        playerRepositoryImpl
                     )
                 }
             }

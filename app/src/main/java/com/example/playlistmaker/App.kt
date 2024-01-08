@@ -13,8 +13,7 @@ class App : Application() {
         Creator.setApplication(this)
 
         Creator.provideSettingsInteractor(
-            getSystemService(Context.UI_MODE_SERVICE) as UiModeManager,
-            Creator.provideDarkModeRepository()
+            Creator.provideDarkModeRepository(getSystemService(Context.UI_MODE_SERVICE) as UiModeManager,)
         ).apply {
             updateThemeSetting(getThemeSettings())
         }

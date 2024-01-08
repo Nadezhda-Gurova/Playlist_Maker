@@ -33,20 +33,21 @@ class SettingsViewModel(
     }
 
     fun updateBlackTheme(checked: Boolean) {
-        settingsInteractor.updateThemeSetting(ThemeSettings(checked))
+        val theme = ThemeSettings(checked)
+        settingsInteractor.updateThemeSetting(theme)
         darkThemeLiveData.value = checked
     }
 
     companion object {
         fun getViewModelFactory(
             sharingInteractor: SharingInteractor,
-            settingsInteractor: SettingsInteractor
+            settingsInteractor: SettingsInteractor,
         ): ViewModelProvider.Factory =
             viewModelFactory {
                 initializer {
                     SettingsViewModel(
                         sharingInteractor,
-                        settingsInteractor
+                        settingsInteractor,
                     )
                 }
             }
