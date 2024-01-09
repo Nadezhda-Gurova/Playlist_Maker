@@ -4,6 +4,7 @@ import android.app.UiModeManager
 import android.content.SharedPreferences
 import android.os.Build
 import androidx.appcompat.app.AppCompatDelegate
+import androidx.core.content.edit
 import com.example.playlistmaker.App.Companion.DARK_THEME_TEXT_KEY
 import com.example.playlistmaker.settings.domain.DarkModeRepository
 import com.example.playlistmaker.settings.domain.ThemeSettings
@@ -34,8 +35,6 @@ class DarkModeRepositoryImpl(
             )
         }
 
-        sharedPreferences.edit()
-            .putBoolean(DARK_THEME_TEXT_KEY, themeSettings.isDarkTheme)
-            .apply()
+        sharedPreferences.edit { putBoolean(DARK_THEME_TEXT_KEY, themeSettings.isDarkTheme) }
     }
 }
