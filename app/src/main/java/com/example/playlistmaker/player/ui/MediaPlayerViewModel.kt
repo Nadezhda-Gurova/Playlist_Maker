@@ -97,25 +97,10 @@ class MediaPlayerViewModel(
 
 
     fun addToFavorites() {
-        addedToFavorites = if (addedToFavorites) {
-            _uiStateLiveData.value = UiState(
-                isAddedToFavorites = false,
-                isAddedToPlaylist = addedToPlaylist,
-                curTrack = curTrack,
-                curTime = curTime,
-                isReady = true,
-                isPausePlaying = playerState != PlayerState.Playing)
-            false
-        } else {
-            _uiStateLiveData.value = UiState(
-                isAddedToFavorites = true,
-                isAddedToPlaylist = addedToPlaylist,
-                curTrack = curTrack,
-                curTime = curTime,
-                isReady = true,
-                isPausePlaying = playerState != PlayerState.Playing)
-            true
-        }
+        addedToFavorites = !addedToFavorites
+        _uiStateLiveData.value = _uiStateLiveData.value?.copy(
+            isAddedToFavorites = addedToFavorites
+        )
     }
 
 
