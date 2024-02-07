@@ -15,8 +15,6 @@ import com.example.playlistmaker.search.domain.models.Track
 class MediaPlayerViewModel(
     zeroTime: String
 ) : ViewModel() {
-    private var addedToFavorites = false
-    private var addedToPlaylist = false
 
     private var curTime: String = zeroTime
     private var onUpdateListener: ((String) -> Unit)? = null
@@ -37,8 +35,8 @@ class MediaPlayerViewModel(
         playerPrepare(track.previewUrl)
 
         _uiStateLiveData.value = UiState(
-            isAddedToFavorites = addedToFavorites,
-            isAddedToPlaylist = addedToPlaylist,
+            isAddedToFavorites = false,
+            isAddedToPlaylist = false,
             curTrack = track,
             curTime = getCurrentTime(),
             isReady = false,
@@ -97,17 +95,17 @@ class MediaPlayerViewModel(
 
 
     fun addToFavorites() {
-        addedToFavorites = !addedToFavorites
+        val isAddedToFavorites = _uiStateLiveData.value?.isAddedToFavorites ?: return
         _uiStateLiveData.value = _uiStateLiveData.value?.copy(
-            isAddedToFavorites = addedToFavorites
+            isAddedToFavorites = !isAddedToFavorites
         )
     }
 
 
     fun addToPlaylist() {
-        addedToPlaylist = !addedToPlaylist
+        val isAddedToPlaylist = _uiStateLiveData.value?.isAddedToPlaylist ?: return
         _uiStateLiveData.value = _uiStateLiveData.value?.copy(
-            isAddedToPlaylist = addedToPlaylist
+            isAddedToPlaylist = !isAddedToPlaylist
         )
     }
 

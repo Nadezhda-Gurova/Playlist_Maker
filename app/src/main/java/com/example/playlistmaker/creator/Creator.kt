@@ -2,9 +2,9 @@ package com.example.playlistmaker.creator
 
 import android.app.Application
 import android.app.UiModeManager
+import android.content.Context
 import android.content.Context.MODE_PRIVATE
 import androidx.appcompat.app.AppCompatActivity
-import com.example.playlistmaker.App
 import com.example.playlistmaker.search.data.mapper.TrackMapper
 import com.example.playlistmaker.search.data.network.ITunesRetrofitNetworkClient
 import com.example.playlistmaker.search.data.repository.ITunesNetworkClient
@@ -15,8 +15,8 @@ import com.example.playlistmaker.search.domain.repository.TracksRepository
 import com.example.playlistmaker.search.domain.interactor.SearchInteractor
 import com.example.playlistmaker.search.domain.interactor.SearchHistoryInteractor
 import com.example.playlistmaker.search.domain.util.VIEWED_TRACK
-import com.example.playlistmaker.settings.domain.DarkModeRepository
 import com.example.playlistmaker.settings.data.DarkModeRepositoryImpl
+import com.example.playlistmaker.settings.data.DarkModeRepositoryImpl.Companion.DARK_THEME_MODE
 import com.example.playlistmaker.settings.domain.SettingsInteractor
 import com.example.playlistmaker.settings.domain.SettingsInteractorImpl
 import java.text.SimpleDateFormat
@@ -36,18 +36,12 @@ object Creator {
         )
     }
 
-    fun provideDarkModeRepository(uiModeManager: UiModeManager): DarkModeRepository {
-        return DarkModeRepositoryImpl(
-            application.getSharedPreferences(App.DARK_THEME_MODE, MODE_PRIVATE),
-            uiModeManager
+    fun provideSettingsInteractor(): SettingsInteractor = SettingsInteractorImpl(
+        DarkModeRepositoryImpl(
+            application.getSharedPreferences(DARK_THEME_MODE, MODE_PRIVATE),
+            application.getSystemService(Context.UI_MODE_SERVICE) as UiModeManager
         )
-    }
-
-    fun provideSettingsInteractor(
-        darkModeRepository: DarkModeRepository
-    ): SettingsInteractor {
-        return SettingsInteractorImpl(darkModeRepository)
-    }
+    )
 
     fun provideSearchHistoryInteractor(): SearchHistoryInteractor {
         return SearchHistoryInteractor(provideSearchTrackHistoryRepository())
