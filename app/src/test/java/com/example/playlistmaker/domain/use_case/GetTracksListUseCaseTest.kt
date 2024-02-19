@@ -1,8 +1,9 @@
 package com.example.playlistmaker.domain.use_case
 
 import androidx.core.util.Consumer
-import com.example.playlistmaker.domain.models.Track
-import com.example.playlistmaker.domain.repository.TracksRepository
+import com.example.playlistmaker.search.domain.models.Track
+import com.example.playlistmaker.search.domain.repository.TracksRepository
+import com.example.playlistmaker.search.domain.interactor.SearchInteractor
 import com.example.playlistmaker.util.LoadingState
 
 import org.junit.After
@@ -31,7 +32,7 @@ class GetTracksListUseCaseTest {
         }
 
 
-        val case = GetTracksListUseCase(
+        val case = SearchInteractor(
             tracksRepository = tracksRepositoryStub,
             executorService = ExecutorServiceStub()
         )
@@ -40,6 +41,7 @@ class GetTracksListUseCaseTest {
             lateinit var accepted: LoadingState<List<Track>>
             override fun accept(t: LoadingState<List<Track>>) {
                accepted = t
+                
             }
         }
 
