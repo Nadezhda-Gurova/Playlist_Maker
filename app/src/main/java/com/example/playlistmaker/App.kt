@@ -16,10 +16,5 @@ class App : Application() {
             androidContext(this@App)
             modules(dataModule, repositoryModule, interactorModule, viewModelModule)
         }
-//        Creator.setApplication(this)
-//
-//        Creator.provideSettingsInteractor().apply {
-//            updateThemeSetting(getThemeSettings())
-//        }
     }
 }

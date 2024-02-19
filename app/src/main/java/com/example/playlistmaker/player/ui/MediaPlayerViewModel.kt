@@ -4,12 +4,8 @@ import android.media.MediaPlayer
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.viewmodel.initializer
-import androidx.lifecycle.viewmodel.viewModelFactory
 import android.os.Handler
 import android.os.Looper
-import com.example.playlistmaker.creator.Creator
 import com.example.playlistmaker.search.domain.models.Track
 import java.text.SimpleDateFormat
 
@@ -20,7 +16,6 @@ class MediaPlayerViewModel(
 
     private var curTime: String = zeroTime
     private var onUpdateListener: ((String) -> Unit)? = null
-    //private var format =  Creator.provideSimpleDateFormat()
     private lateinit var curTrack:Track
     private var _uiStateLiveData = MutableLiveData<UiState>()
 
@@ -136,17 +131,6 @@ class MediaPlayerViewModel(
     fun getCurrentTime(): String {
         return curTime
     }
-
-//    companion object {
-//        fun getViewModelFactory(
-//            zeroTime: String
-//        ): ViewModelProvider.Factory =
-//            viewModelFactory {
-//                initializer {
-//                    MediaPlayerViewModel(zeroTime, simpleDateFormat)
-//                }
-//            }
-//    }
 
     fun playerPrepare (url: String){
         player.setDataSource(url)

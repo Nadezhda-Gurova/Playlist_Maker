@@ -9,16 +9,13 @@ import android.widget.EditText
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.isVisible
 import androidx.core.widget.addTextChangedListener
-import androidx.lifecycle.ViewModelProvider
 import com.example.playlistmaker.R
-import com.example.playlistmaker.creator.Creator
 import com.example.playlistmaker.databinding.ActivitySearchBinding
 import com.example.playlistmaker.player.ui.MediaPlayerActivity
 import com.example.playlistmaker.search.domain.models.Track
 import com.example.playlistmaker.util.ui.extentions.hideKeyboard
 import com.example.playlistmaker.search.ui.recyclerview.OnTrackClickListener
 import com.example.playlistmaker.search.ui.recyclerview.TrackAdapter
-import com.example.playlistmaker.settings.ui.SettingsViewModel
 import com.example.playlistmaker.util.LoadingState
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
@@ -28,19 +25,12 @@ class SearchActivity : AppCompatActivity() {
     private val tracks = arrayListOf<Track>()
     private lateinit var trackAdapter: TrackAdapter
     private lateinit var binding: ActivitySearchBinding
-    //private lateinit var viewModel: SearchViewModel
     private val viewModel: SearchViewModel by viewModel()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_search)
         binding = ActivitySearchBinding.bind(findViewById(R.id.root))
-//        viewModel = ViewModelProvider(
-//            this, SearchViewModel.getViewModelFactory(
-//                Creator.provideSearchHistoryInteractor(),
-//                Creator.provideSearchInteractor()
-//            )
-//        )[SearchViewModel::class.java]
 
         viewModel.loadingState.observe(this) { loadingState ->
             renderTracks(loadingState)
