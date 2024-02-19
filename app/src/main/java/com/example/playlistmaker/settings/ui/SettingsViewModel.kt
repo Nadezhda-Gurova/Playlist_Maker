@@ -25,16 +25,16 @@ class SettingsViewModel(
     }
 
 
-    companion object {
-        fun getViewModelFactory(
-            settingsInteractor: SettingsInteractor,
-        ): ViewModelProvider.Factory =
-            viewModelFactory {
-                initializer {
-                    SettingsViewModel(
-                        settingsInteractor,
-                    )
-                }
-            }
-    }
+//    companion object {
+//        fun getViewModelFactory(
+//            settingsInteractor: SettingsInteractor,
+//        ): ViewModelProvider.Factory =
+//            viewModelFactory {
+//                initializer {
+//                    SettingsViewModel(
+//                        settingsInteractor,
+//                    )
+//                }
+//            }
+//    }
 }

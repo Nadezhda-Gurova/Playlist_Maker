@@ -57,20 +57,20 @@ class SearchViewModel(
         }
     }
 
-    companion object {
-        fun getViewModelFactory(
-            searchHistory: SearchHistoryInteractor,
-            listTracks: SearchInteractor
-        ): ViewModelProvider.Factory =
-            viewModelFactory {
-                initializer {
-                    SearchViewModel(
-                        searchHistory,
-                        listTracks
-                    )
-                }
-            }
-    }
+//    companion object {
+//        fun getViewModelFactory(
+//            searchHistory: SearchHistoryInteractor,
+//            listTracks: SearchInteractor
+//        ): ViewModelProvider.Factory =
+//            viewModelFactory {
+//                initializer {
+//                    SearchViewModel(
+//                        searchHistory,
+//                        listTracks
+//                    )
+//                }
+//            }
+//    }
 }
 
 class State(

@@ -10,11 +10,17 @@ import com.example.playlistmaker.R
 import com.example.playlistmaker.databinding.ActivityAudioPlayerBinding
 import com.example.playlistmaker.search.domain.models.Track
 import com.example.playlistmaker.search.ui.SearchActivity.Companion.TRACK_MEDIA
+import com.example.playlistmaker.search.ui.SearchViewModel
+import org.koin.androidx.viewmodel.ext.android.viewModel
+import org.koin.core.parameter.parametersOf
 
 class MediaPlayerActivity : AppCompatActivity()  {
     private lateinit var binding: ActivityAudioPlayerBinding
 
-    private lateinit var viewModel: MediaPlayerViewModel
+    //private lateinit var viewModel: MediaPlayerViewModel
+    private val viewModel: MediaPlayerViewModel by viewModel {
+        parametersOf(getString(R.string.zero_time))
+    }
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -22,10 +28,10 @@ class MediaPlayerActivity : AppCompatActivity()  {
         setContentView(R.layout.activity_audio_player)
         binding = ActivityAudioPlayerBinding.bind(findViewById(R.id.root))
 
-        viewModel = ViewModelProvider(
-            this,
-            MediaPlayerViewModel.getViewModelFactory(getString(R.string.zero_time))
-        )[MediaPlayerViewModel::class.java]
+//        viewModel = ViewModelProvider(
+//            this,
+//            MediaPlayerViewModel.getViewModelFactory(getString(R.string.zero_time))
+//        )[MediaPlayerViewModel::class.java]
 
         initBackButton()
 

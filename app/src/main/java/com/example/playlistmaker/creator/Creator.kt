@@ -23,52 +23,52 @@ import java.text.SimpleDateFormat
 import java.util.Locale
 
 object Creator {
-    private lateinit var application: Application
-
-    fun setApplication(application: Application) {
-        this.application = application
-    }
-
-    fun provideSimpleDateFormat(): SimpleDateFormat {
-        return SimpleDateFormat(
-            "mm:ss",
-            Locale.getDefault()
-        )
-    }
-
-    fun provideSettingsInteractor(): SettingsInteractor = SettingsInteractorImpl(
-        DarkModeRepositoryImpl(
-            application.getSharedPreferences(DARK_THEME_MODE, MODE_PRIVATE),
-            application.getSystemService(Context.UI_MODE_SERVICE) as UiModeManager
-        )
-    )
-
-    fun provideSearchHistoryInteractor(): SearchHistoryInteractor {
-        return SearchHistoryInteractor(provideSearchTrackHistoryRepository())
-    }
-
-    fun provideSearchInteractor(): SearchInteractor {
-        return SearchInteractor(provideTracksRepository())
-    }
-
-    private fun provideSearchTrackHistoryRepository(): SearchTrackHistoryRepository {
-        return TrackHistoryRepositoryImpl(
-            application.getSharedPreferences(
-                VIEWED_TRACK,
-                AppCompatActivity.MODE_PRIVATE
-            )
-        )
-    }
-
-    private fun provideTracksRepository(): TracksRepository {
-        return ITunesRepositoryImpl(provideItunesNetworkClient(), provideMapper())
-    }
-
-    private fun provideMapper(): TrackMapper {
-        return TrackMapper()
-    }
-
-    private fun provideItunesNetworkClient(): ITunesNetworkClient {
-        return ITunesRetrofitNetworkClient()
-    }
+//    private lateinit var application: Application
+//
+//    fun setApplication(application: Application) {
+//        this.application = application
+//    }
+//
+//    fun provideSimpleDateFormat(): SimpleDateFormat {
+//        return SimpleDateFormat(
+//            "mm:ss",
+//            Locale.getDefault()
+//        )
+//    }
+//
+//    fun provideSettingsInteractor(): SettingsInteractor = SettingsInteractorImpl(
+//        DarkModeRepositoryImpl(
+//            application.getSharedPreferences(DARK_THEME_MODE, MODE_PRIVATE),
+//            application.getSystemService(Context.UI_MODE_SERVICE) as UiModeManager
+//        )
+//    )
+//
+//    fun provideSearchHistoryInteractor(): SearchHistoryInteractor {
+//        return SearchHistoryInteractor(provideSearchTrackHistoryRepository())
+//    }
+//
+//    fun provideSearchInteractor(): SearchInteractor {
+//        return SearchInteractor(provideTracksRepository())
+//    }
+//
+//    private fun provideSearchTrackHistoryRepository(): SearchTrackHistoryRepository {
+//        return TrackHistoryRepositoryImpl(
+//            application.getSharedPreferences(
+//                VIEWED_TRACK,
+//                AppCompatActivity.MODE_PRIVATE
+//            )
+//        )
+//    }
+//
+//    private fun provideTracksRepository(): TracksRepository {
+//        return ITunesRepositoryImpl(provideItunesNetworkClient(), provideMapper())
+//    }
+//
+//    private fun provideMapper(): TrackMapper {
+//        return TrackMapper()
+//    }
+//
+//    private fun provideItunesNetworkClient(): ITunesNetworkClient {
+//        return ITunesRetrofitNetworkClient()
+//    }
 }
