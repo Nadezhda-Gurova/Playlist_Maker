@@ -1,21 +1,18 @@
 package com.example.playlistmaker.settings.ui
 
-import android.app.UiModeManager
 import android.content.ActivityNotFoundException
-import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
-import androidx.lifecycle.ViewModelProvider
 import com.example.playlistmaker.R
-import com.example.playlistmaker.creator.Creator
 import com.example.playlistmaker.databinding.ActivitySettingsBinding
 import com.example.playlistmaker.sharing.data.EmailData
+import org.koin.androidx.viewmodel.ext.android.viewModel
 
 class SettingsActivity(
 ) : AppCompatActivity() {
-    private lateinit var viewModel: SettingsViewModel
+    private val viewModel: SettingsViewModel by viewModel()
     private lateinit var binding: ActivitySettingsBinding
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -23,13 +20,6 @@ class SettingsActivity(
         setContentView(R.layout.activity_settings)
 
         binding = ActivitySettingsBinding.bind(findViewById(R.id.root))
-
-        viewModel = ViewModelProvider(
-            this,
-            SettingsViewModel.getViewModelFactory(
-                Creator.provideSettingsInteractor()
-            )
-        )[SettingsViewModel::class.java]
 
         viewModel.darkThemeLiveData().observe(this) { isChecked ->
             binding.blackTheme.isChecked = isChecked

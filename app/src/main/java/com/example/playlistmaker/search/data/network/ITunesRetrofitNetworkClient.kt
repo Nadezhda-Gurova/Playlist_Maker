@@ -3,10 +3,10 @@ package com.example.playlistmaker.search.data.network
 import com.example.playlistmaker.search.data.dto.NetworkResponse
 import com.example.playlistmaker.search.data.repository.ITunesNetworkClient
 
-class ITunesRetrofitNetworkClient : ITunesNetworkClient {
+class ITunesRetrofitNetworkClient(private val imdbApi: IMDbApi) : ITunesNetworkClient {
     override fun getTracks(track: String): NetworkResponse {
         return try {
-            val response = RetrofitClient.api.search(track).execute()
+            val response = imdbApi.search(track).execute()
             val networkResponse = response.body() ?: NetworkResponse()
 
             networkResponse.apply { resultCode = response.code() }

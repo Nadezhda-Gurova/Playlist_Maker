@@ -3,9 +3,6 @@ package com.example.playlistmaker.search.ui
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.viewmodel.initializer
-import androidx.lifecycle.viewmodel.viewModelFactory
 import com.example.playlistmaker.search.domain.interactor.SearchInteractor
 import com.example.playlistmaker.search.domain.models.Track
 import com.example.playlistmaker.search.domain.interactor.SearchHistoryInteractor
@@ -55,21 +52,6 @@ class SearchViewModel(
                 }
             }
         }
-    }
-
-    companion object {
-        fun getViewModelFactory(
-            searchHistory: SearchHistoryInteractor,
-            listTracks: SearchInteractor
-        ): ViewModelProvider.Factory =
-            viewModelFactory {
-                initializer {
-                    SearchViewModel(
-                        searchHistory,
-                        listTracks
-                    )
-                }
-            }
     }
 }
 

@@ -3,9 +3,6 @@ package com.example.playlistmaker.settings.ui
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.viewmodel.initializer
-import androidx.lifecycle.viewmodel.viewModelFactory
 import com.example.playlistmaker.settings.domain.ThemeSettings
 import com.example.playlistmaker.settings.domain.SettingsInteractor
 
@@ -24,17 +21,4 @@ class SettingsViewModel(
         darkThemeLiveData.value = checked
     }
 
-
-    companion object {
-        fun getViewModelFactory(
-            settingsInteractor: SettingsInteractor,
-        ): ViewModelProvider.Factory =
-            viewModelFactory {
-                initializer {
-                    SettingsViewModel(
-                        settingsInteractor,
-                    )
-                }
-            }
-    }
 }
