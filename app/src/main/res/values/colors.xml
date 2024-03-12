@@ -19,6 +19,7 @@
     <color name="search">#AEAFB4</color>
     <color name="text_author">#AEAFB4</color>
     <color name="white">#FFFFFF</color>
+    <color name="media_back_color">#FFFFFF</color>
     <color name="blue">#3772E7</color>
     <color name="text_in_search">#1A1B22</color>
     <color name="text_in_player">#AEAFB4</color>

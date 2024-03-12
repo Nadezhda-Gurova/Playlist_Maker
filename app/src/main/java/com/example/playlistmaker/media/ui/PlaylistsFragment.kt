@@ -6,13 +6,15 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import com.example.playlistmaker.databinding.FragmentPlaylistsBinding
+import org.koin.androidx.viewmodel.ext.android.viewModel
 
-class PlaylistsFragments: Fragment() {
+class PlaylistsFragment: Fragment() {
     companion object {
-        fun newInstance(): PlaylistsFragments {
-            return PlaylistsFragments()
+        fun newInstance(): PlaylistsFragment {
+            return PlaylistsFragment()
         }
 }
+    private val viewModel: PlaylistFragmentViewModel by viewModel()
     private lateinit var binding: FragmentPlaylistsBinding
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,

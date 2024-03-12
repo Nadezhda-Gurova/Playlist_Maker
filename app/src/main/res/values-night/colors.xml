@@ -17,6 +17,7 @@
     <color name="icon_on_main_page_color">#1A1B22</color>
     <color name="light_gray">#FFFFFFFF</color>
     <color name="search">#1A1B22</color>
+    <color name="media_back_color">#1A1B22</color>
     <color name="blue">#3772E7</color>
     <color name="text_in_search">#1A1B22</color>
     <color name="text_author">#FFFFFF</color>
