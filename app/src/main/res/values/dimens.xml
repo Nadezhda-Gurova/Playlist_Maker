@@ -1,4 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <dimen name="nothing_found">19sp</dimen>
+    <dimen name="section_margin_left">34dp</dimen>
+    <dimen name="section_margin_right">34dp</dimen>
 </resources>

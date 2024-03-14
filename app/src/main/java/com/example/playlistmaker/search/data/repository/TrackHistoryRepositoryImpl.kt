@@ -8,7 +8,7 @@ import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 
 class TrackHistoryRepositoryImpl(
-    private val sharedPreferences: SharedPreferences,
+    private val sharedPreferences: SharedPreferences
 ) : SearchTrackHistoryRepository {
     override fun addTrack(track: Track) {
         var tracks = getTracks().toMutableList()

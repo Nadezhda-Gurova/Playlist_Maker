@@ -9,8 +9,8 @@
 
     <ImageView
         android:id="@+id/back_in_search"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="21dp"
+        android:layout_height="14dp"
         android:layout_marginStart="16dp"
         android:layout_marginTop="16dp"
         android:src="@drawable/arrow_back_search"
@@ -19,7 +19,7 @@
         tools:ignore="ContentDescription" />
 
     <TextView
-        android:id="@+id/title_search_page"
+        android:id="@+id/title_media"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="start"
@@ -41,7 +41,7 @@
         android:layout_marginEnd="16dp"
         android:background="@drawable/layout_bg"
         android:orientation="horizontal"
-        app:layout_constraintTop_toBottomOf="@+id/title_search_page">
+        app:layout_constraintTop_toBottomOf="@+id/title_media">
 
         <ImageView
             android:id="@+id/search_in_seach"
