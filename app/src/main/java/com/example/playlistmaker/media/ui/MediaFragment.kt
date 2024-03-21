@@ -1,27 +1,35 @@
 package com.example.playlistmaker.media.ui
 
 import android.os.Bundle
-import androidx.appcompat.app.AppCompatActivity
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
+import androidx.fragment.app.Fragment
 import com.example.playlistmaker.R
-import com.example.playlistmaker.databinding.ActivityMediaBinding
+import com.example.playlistmaker.databinding.FragmentMediaBinding
 import com.google.android.material.tabs.TabLayout
 import com.google.android.material.tabs.TabLayoutMediator
 
-class MediaActivity : AppCompatActivity() {
+class MediaFragment : Fragment()  {
 
-    private lateinit var binding: ActivityMediaBinding
+    private var _binding: FragmentMediaBinding? = null
+    private val binding: FragmentMediaBinding
+        get() = _binding!!
+
     private lateinit var tabMediator: TabLayoutMediator
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        binding = ActivityMediaBinding.inflate(layoutInflater)
-        setContentView(binding.root)
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View {
+        _binding = FragmentMediaBinding.inflate(inflater, container, false)
+        return binding.root
+    }
 
-        binding.backInMedia.setOnClickListener {
-            backToPreviousScreen()
-        }
-
-        binding.viewPager.adapter = MediaAdapter(supportFragmentManager, lifecycle)
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        binding.viewPager.adapter = MediaAdapter(childFragmentManager, lifecycle)
 
         tabMediator = TabLayoutMediator(binding.tabLayout, binding.viewPager) { tab, position ->
             when (position) {
@@ -46,9 +54,10 @@ class MediaActivity : AppCompatActivity() {
         tabMediator.attach()
     }
 
-    override fun onDestroy() {
-        super.onDestroy()
+    override fun onDestroyView() {
+        _binding = null
         tabMediator.detach()
+        super.onDestroyView()
     }
 
     private fun handleTabSelection(position: Int) {
@@ -56,11 +65,6 @@ class MediaActivity : AppCompatActivity() {
             0 -> showFavoriteTracks()
             1 -> showPlaylists()
         }
-    }
-
-
-    private fun backToPreviousScreen() {
-        this.onBackPressedDispatcher.onBackPressed()
     }
 
     private fun showFavoriteTracks() {

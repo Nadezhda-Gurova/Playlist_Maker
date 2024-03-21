@@ -1,4 +1,4 @@
-package com.example.playlistmaker.search.di
+package com.example.playlistmaker.di
 
 import com.example.playlistmaker.search.data.adapter.TrackTypeAdapter
 import com.example.playlistmaker.search.data.dto.TrackTime

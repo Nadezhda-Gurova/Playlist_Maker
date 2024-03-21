@@ -1,4 +1,4 @@
-package com.example.playlistmaker.search.di
+package com.example.playlistmaker.di
 
 import com.example.playlistmaker.player.ui.MediaPlayerViewModel
 import com.example.playlistmaker.search.ui.SearchViewModel

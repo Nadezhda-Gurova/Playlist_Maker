@@ -1,4 +1,4 @@
-package com.example.playlistmaker.search.di
+package com.example.playlistmaker.di
 
 import android.app.UiModeManager
 import android.content.Context

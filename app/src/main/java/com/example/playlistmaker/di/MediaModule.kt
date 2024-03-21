@@ -1,4 +1,4 @@
-package com.example.playlistmaker.search.di
+package com.example.playlistmaker.di
 
 import android.content.Context
 import com.example.playlistmaker.media.data.repository.MediaTracksRepositoryImpl
