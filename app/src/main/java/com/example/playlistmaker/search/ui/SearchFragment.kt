@@ -4,13 +4,14 @@ import android.content.Intent
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
+import android.view.LayoutInflater
 import android.view.View
+import android.view.ViewGroup
 import android.widget.EditText
-import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.isVisible
 import androidx.core.widget.addTextChangedListener
-import com.example.playlistmaker.R
-import com.example.playlistmaker.databinding.ActivitySearchBinding
+import androidx.fragment.app.Fragment
+import com.example.playlistmaker.databinding.FragmentSearchBinding
 import com.example.playlistmaker.player.ui.MediaPlayerActivity
 import com.example.playlistmaker.search.domain.models.Track
 import com.example.playlistmaker.util.ui.extentions.hideKeyboard
@@ -20,33 +21,38 @@ import com.example.playlistmaker.util.LoadingState
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
 
-class SearchActivity : AppCompatActivity() {
+class SearchFragment : Fragment() {
+
+    private var _binding: FragmentSearchBinding? = null
+    private val binding: FragmentSearchBinding
+        get() = _binding!!
 
     private val tracks = arrayListOf<Track>()
     private lateinit var trackAdapter: TrackAdapter
-    private lateinit var binding: ActivitySearchBinding
     private val viewModel: SearchViewModel by viewModel()
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_search)
-        binding = ActivitySearchBinding.bind(findViewById(R.id.root))
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View {
+        _binding = FragmentSearchBinding.inflate(inflater, container, false)
+        return binding.root
+    }
 
-        viewModel.loadingState.observe(this) { loadingState ->
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        viewModel.loadingState.observe(viewLifecycleOwner) { loadingState ->
             renderTracks(loadingState)
         }
 
         val onTrackClickListener = OnTrackClickListener { track ->
             viewModel.addTrack(track)
             if (clickDebounce()) {
-                val intent = Intent(this@SearchActivity, MediaPlayerActivity::class.java)
+                val intent = Intent(requireContext(), MediaPlayerActivity::class.java)
                 intent.putExtra(TRACK_MEDIA, track)
                 startActivity(intent)
             }
-        }
-
-        binding.backInSearch.setOnClickListener {
-            finish()
         }
 
         trackAdapter = TrackAdapter(tracks, onTrackClickListener)
@@ -86,6 +92,11 @@ class SearchActivity : AppCompatActivity() {
             binding.search.hideKeyboard()
             searchWithDebounce(0)
         }
+    }
+
+    override fun onDestroyView() {
+        _binding = null
+        super.onDestroyView()
     }
 
     private var isClickAllowed = true
@@ -199,9 +210,11 @@ class SearchActivity : AppCompatActivity() {
         outState.putString(SEARCH_INPUT, binding.search.text.toString())
     }
 
-    override fun onRestoreInstanceState(savedInstanceState: Bundle) {
-        super.onRestoreInstanceState(savedInstanceState)
-        binding.search.setText(savedInstanceState.getString(SEARCH_INPUT, ""))
+    override fun onViewStateRestored(savedInstanceState: Bundle?) {
+        super.onViewStateRestored(savedInstanceState)
+        if (savedInstanceState != null) {
+            binding.search.setText(savedInstanceState.getString(SEARCH_INPUT, ""))
+        }
     }
 
     companion object {

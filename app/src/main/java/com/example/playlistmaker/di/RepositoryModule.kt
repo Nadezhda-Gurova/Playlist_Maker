@@ -1,4 +1,4 @@
-package com.example.playlistmaker.search.di
+package com.example.playlistmaker.di
 
 import com.example.playlistmaker.search.data.repository.ITunesRepositoryImpl
 import com.example.playlistmaker.search.data.repository.TrackHistoryRepositoryImpl
