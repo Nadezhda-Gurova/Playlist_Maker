@@ -8,7 +8,7 @@ import com.bumptech.glide.Glide
 import com.example.playlistmaker.R
 import com.example.playlistmaker.databinding.ActivityAudioPlayerBinding
 import com.example.playlistmaker.search.domain.models.Track
-import com.example.playlistmaker.search.ui.SearchActivity.Companion.TRACK_MEDIA
+import com.example.playlistmaker.search.ui.SearchFragment.Companion.TRACK_MEDIA
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import org.koin.core.parameter.parametersOf
 
@@ -31,7 +31,6 @@ class MediaPlayerActivity : AppCompatActivity()  {
         } else {
             intent.getSerializableExtra(TRACK_MEDIA) as? Track
         }
-
         requireNotNull(track) { "No track provided" }
 
         viewModel.uiStateLiveData.observe(this) {

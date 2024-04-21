@@ -1,4 +1,4 @@
-package com.example.playlistmaker.search.di
+package com.example.playlistmaker.di
 
 import com.example.playlistmaker.media.ui.FavoriteTracksViewModel
 import org.koin.androidx.viewmodel.dsl.viewModel
