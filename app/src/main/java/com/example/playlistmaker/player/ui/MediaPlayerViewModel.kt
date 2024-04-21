@@ -4,22 +4,24 @@ import android.media.MediaPlayer
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import android.os.Handler
-import android.os.Looper
+import androidx.lifecycle.viewModelScope
 import com.example.playlistmaker.search.domain.models.Track
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.isActive
+import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 
 class MediaPlayerViewModel(
-    zeroTime: String,
+    val zeroTime: String,
     private val simpleDateFormat: SimpleDateFormat
 ) : ViewModel() {
 
     private var curTime: String = zeroTime
     private var onUpdateListener: ((String) -> Unit)? = null
-    private lateinit var curTrack:Track
+    private lateinit var curTrack: Track
     private var _uiStateLiveData = MutableLiveData<UiState>()
-
-    private val handler = Handler(Looper.getMainLooper())
+    private var timerJob: Job? = null
 
     private val player = MediaPlayer()
     val uiStateLiveData: LiveData<UiState> get() = _uiStateLiveData
@@ -74,7 +76,7 @@ class MediaPlayerViewModel(
 
     private fun pausePlayer() {
         player.pause()
-        pauseProgressUpdate()
+       timerJob?.cancel()
         playerState = PlayerState.Paused
         _uiStateLiveData.value = _uiStateLiveData.value?.copy(
             isPausePlaying = playerState != PlayerState.Playing
@@ -83,7 +85,6 @@ class MediaPlayerViewModel(
 
     fun onDestroy() {
         player.release()
-        pauseProgressUpdate()
     }
 
     fun onPause() {
@@ -108,22 +109,16 @@ class MediaPlayerViewModel(
 
     fun startProgressUpdate(onUpdate: (String) -> Unit) {
         onUpdateListener = onUpdate
-        handler.postDelayed(progressUpdateRunnable, 300L)
+        progressUpdate()
     }
 
-    fun pauseProgressUpdate() {
-        handler.removeCallbacks(progressUpdateRunnable)
-    }
 
-    private val progressUpdateRunnable = object : Runnable {
-        override fun run() {
-            if (player.isPlaying) {
+    private fun progressUpdate() {
+        timerJob = viewModelScope.launch {
+            while (player.isPlaying && this.isActive) {
                 curTime = simpleDateFormat.format(player.currentPosition)
                 onUpdateListener?.invoke(curTime)
-                handler.postDelayed(this, 300L)
-            } else {
-                curTime = zeroTime
-                onUpdateListener?.invoke(zeroTime)
+                delay(300L)
             }
         }
     }
@@ -132,7 +127,7 @@ class MediaPlayerViewModel(
         return curTime
     }
 
-    fun playerPrepare (url: String){
+    fun playerPrepare(url: String) {
         player.setDataSource(url)
         player.prepareAsync()
         player.setOnPreparedListener {
@@ -145,6 +140,8 @@ class MediaPlayerViewModel(
             playerState = PlayerState.Inited
             _uiStateLiveData.value = _uiStateLiveData.value?.copy(
                 isReady = true,
+                curTime = zeroTime,
+                isPausePlaying = true
             )
         }
     }

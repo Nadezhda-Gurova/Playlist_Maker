@@ -1,6 +1,7 @@
 package com.example.playlistmaker.main.ui
 
 import android.os.Bundle
+import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
 import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.setupWithNavController
@@ -31,4 +32,26 @@ class RootActivity : AppCompatActivity() {
 //            }
 //        }
     }
+
+    override fun onStart() {
+        super.onStart()
+        Log.d("###" + javaClass.name, "onStart")
+    }
+
+    override fun onResume() {
+        Log.d("###" + javaClass.name, "onResume")
+        super.onResume()
+    }
+
+    override fun onPause() {
+        Log.d("###" + javaClass.name, "onPause")
+        super.onPause()
+    }
+
+    override fun onStop() {
+        Log.d("###" + javaClass.name, "onStop")
+        super.onStop()
+    }
+
+
 }

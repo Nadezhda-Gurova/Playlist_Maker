@@ -3,10 +3,12 @@ package com.example.playlistmaker.search.ui
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.example.playlistmaker.search.domain.interactor.SearchInteractor
 import com.example.playlistmaker.search.domain.models.Track
 import com.example.playlistmaker.search.domain.interactor.SearchHistoryInteractor
 import com.example.playlistmaker.util.LoadingState
+import kotlinx.coroutines.launch
 
 class SearchViewModel(
     private val searchHistoryInteractor: SearchHistoryInteractor,
@@ -37,19 +39,52 @@ class SearchViewModel(
         lastQuery = query
         if (query.isEmpty()) {
             showHistory()
-        } else {
-            searchInteractor.execute(query) {
+        }
+        viewModelScope.launch {
+            searchInteractor.execute(query).collect { res ->
                 if (query == lastQuery) {
-                    when (it) {
-                        is LoadingState.Success -> {
-                            _loadingState.postValue(LoadingState.Success(State(it.data, false)))
-                        }
-
-                        is LoadingState.Error -> {
-                            _loadingState.postValue(LoadingState.Error(it.message))
-                        }
-                    }
+                    processResult(res)
                 }
+            }
+//            val result = searchInteractor.execute(query)
+//            if (query == lastQuery) {
+//                when (result) {
+//                    is LoadingState.Success ->  {
+//                        _loadingState.postValue(LoadingState.Success(State(result.data, false)))
+//                    }
+//
+//                    is LoadingState.Error -> {
+//                        _loadingState.postValue(LoadingState.Error(result.message))
+//                    }
+//                }
+//            }
+        }
+
+//        searchInteractor.execute(query) {
+//            if (query == lastQuery) {
+//                when (it) {
+//                    is LoadingState.Success -> {
+//                        _loadingState.postValue(LoadingState.Success(State(it.data, false)))
+//                    }
+//
+//                    is LoadingState.Error -> {
+//                        _loadingState.postValue(LoadingState.Error(it.message))
+//                    }
+//                }
+//            }
+//        }
+//    }
+    }
+
+    private fun processResult(res: LoadingState<List<Track>>) {
+
+        when (res) {
+            is LoadingState.Success -> {
+                _loadingState.postValue(LoadingState.Success(State(res.data, false)))
+            }
+
+            is LoadingState.Error -> {
+                _loadingState.postValue(LoadingState.Error(res.message))
             }
         }
     }
