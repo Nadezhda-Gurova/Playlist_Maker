@@ -51,7 +51,7 @@ class SearchFragment : Fragment() {
             SEARCH_DEBOUNCE_DELAY,
             viewLifecycleOwner.lifecycleScope,
             true
-        ){
+        ) {
             searchWithDebounce()
         }
 
@@ -108,7 +108,7 @@ class SearchFragment : Fragment() {
         binding.badConnectionButton.setOnClickListener {
             hideYouSearched()
             binding.search.hideKeyboard()
-            searchWithDebounce(0)
+            searchWithDebounce()
         }
     }
 
@@ -117,34 +117,13 @@ class SearchFragment : Fragment() {
         super.onDestroyView()
     }
 
-//    private var isClickAllowed = true
-
-//    private fun clickDebounce(): Boolean {
-//        val current = isClickAllowed
-//        if (isClickAllowed) {
-//            isClickAllowed = false
-//            handler.postDelayed({ isClickAllowed = true }, CLICK_DEBOUNCE_DELAY)
-//        }
-//        return current
-//    }
-
-    private val searchRunnable =
-        Runnable { viewModel.searchTrack(binding.search.text.toString()) }
-
-    //    private val handler = Handler(Looper.getMainLooper())
-    private fun searchWithDebounce(delay: Long = SEARCH_DEBOUNCE_DELAY) {
+    private fun searchWithDebounce() {
         trackAdapter.clearTracks()
         hideYouSearched()
         hideNothingFound()
         binding.loader.isVisible = true
-        lifecycleScope.launch {
-            delay(delay)
-            viewModel.searchTrack(binding.search.text.toString())}
-
-//        handler.removeCallbacks(searchRunnable)
-//        handler.postDelayed(searchRunnable, delay)
+        viewModel.searchTrack(binding.search.text.toString())
     }
-
 
     private fun showNothingFound(text: String, view: EditText?) {
         if (text.isEmpty()) {

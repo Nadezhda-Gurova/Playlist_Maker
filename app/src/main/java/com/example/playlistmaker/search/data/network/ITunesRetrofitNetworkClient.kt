@@ -10,7 +10,6 @@ class ITunesRetrofitNetworkClient(private val imdbApi: IMDbApi) : ITunesNetworkC
         return withContext(Dispatchers.IO) {
             try {
                 val response = imdbApi.search(track)
-//                val networkResponse = response.body() ?: NetworkResponse()
                 response.apply { resultCode = 200 }
             } catch (ex: Exception) {
                 NetworkResponse().apply { resultCode = 400 }

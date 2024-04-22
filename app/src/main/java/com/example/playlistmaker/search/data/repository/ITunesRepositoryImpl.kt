@@ -14,10 +14,12 @@ class ITunesRepositoryImpl(
 ) : TracksRepository {
     override fun getTracks(track: String): Flow<LoadingState<List<Track>>> = flow {
         val itunesResponse = itunesNetworkClient.getTracks(track)
-        when (itunesResponse) {
-            is ITunesResponse -> LoadingState.Success(mapper.map(itunesResponse))
+        when (itunesResponse.resultCode) {
+            200 -> {
+                emit(LoadingState.Success(mapper.map(itunesResponse as ITunesResponse)))
+            }
             else -> {
-                LoadingState.Error("Ошибка сервера")
+                emit(LoadingState.Error("Ошибка сервера"))
             }
         }
     }

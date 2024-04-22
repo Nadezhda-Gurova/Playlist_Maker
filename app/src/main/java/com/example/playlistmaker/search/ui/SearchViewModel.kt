@@ -35,45 +35,20 @@ class SearchViewModel(
         searchHistoryInteractor.clear()
     }
 
+
     fun searchTrack(query: String) {
         lastQuery = query
         if (query.isEmpty()) {
             showHistory()
-        }
-        viewModelScope.launch {
-            searchInteractor.execute(query).collect { res ->
-                if (query == lastQuery) {
-                    processResult(res)
+        } else {
+            viewModelScope.launch {
+                searchInteractor.execute(query).collect { res ->
+                    if (query == lastQuery) {
+                        processResult(res)
+                    }
                 }
             }
-//            val result = searchInteractor.execute(query)
-//            if (query == lastQuery) {
-//                when (result) {
-//                    is LoadingState.Success ->  {
-//                        _loadingState.postValue(LoadingState.Success(State(result.data, false)))
-//                    }
-//
-//                    is LoadingState.Error -> {
-//                        _loadingState.postValue(LoadingState.Error(result.message))
-//                    }
-//                }
-//            }
         }
-
-//        searchInteractor.execute(query) {
-//            if (query == lastQuery) {
-//                when (it) {
-//                    is LoadingState.Success -> {
-//                        _loadingState.postValue(LoadingState.Success(State(it.data, false)))
-//                    }
-//
-//                    is LoadingState.Error -> {
-//                        _loadingState.postValue(LoadingState.Error(it.message))
-//                    }
-//                }
-//            }
-//        }
-//    }
     }
 
     private fun processResult(res: LoadingState<List<Track>>) {
