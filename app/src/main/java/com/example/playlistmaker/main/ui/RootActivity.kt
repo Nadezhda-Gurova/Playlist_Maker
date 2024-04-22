@@ -1,7 +1,6 @@
 package com.example.playlistmaker.main.ui
 
 import android.os.Bundle
-import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
 import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.setupWithNavController
@@ -20,38 +19,5 @@ class RootActivity : AppCompatActivity() {
         val navController = navHostFragment.navController
 
         binding.bottomNavigationView.setupWithNavController(navController)
-
-//        navController.addOnDestinationChangedListener { _, destination, _ ->
-//            when (destination.id) {
-//                R.id.detailsFragment, R.id.moviesCastFragment -> {
-//                    binding.bottomNavigationView.visibility = View.GONE
-//                }
-//                else -> {
-//                    binding.bottomNavigationView.visibility = View.VISIBLE
-//                }
-//            }
-//        }
     }
-
-    override fun onStart() {
-        super.onStart()
-        Log.d("###" + javaClass.name, "onStart")
-    }
-
-    override fun onResume() {
-        Log.d("###" + javaClass.name, "onResume")
-        super.onResume()
-    }
-
-    override fun onPause() {
-        Log.d("###" + javaClass.name, "onPause")
-        super.onPause()
-    }
-
-    override fun onStop() {
-        Log.d("###" + javaClass.name, "onStop")
-        super.onStop()
-    }
-
-
 }
