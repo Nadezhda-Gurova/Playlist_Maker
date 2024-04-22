@@ -1,7 +1,6 @@
 package com.example.playlistmaker.media.ui
 
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -75,26 +74,6 @@ class MediaFragment : Fragment()  {
 
     private fun showPlaylists() {
         // Логика для отображения раздела "Плейлисты"
-    }
-
-    override fun onStart() {
-        super.onStart()
-        Log.d("###" + javaClass.name, "onStart")
-    }
-
-    override fun onResume() {
-        Log.d("###" + javaClass.name, "onResume")
-        super.onResume()
-    }
-
-    override fun onPause() {
-        Log.d("###" + javaClass.name, "onPause")
-        super.onPause()
-    }
-
-    override fun onStop() {
-        Log.d("###" + javaClass.name, "onStop")
-        super.onStop()
     }
 }
 
