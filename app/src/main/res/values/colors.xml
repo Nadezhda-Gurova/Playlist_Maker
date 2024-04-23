@@ -27,4 +27,5 @@
     <color name="progress_bar">#3772E7</color>
     <color name="bottom_nav_icon">#3772E7</color>
     <color name="bott_nav_text">#1A1B22</color>
+    <color name="custom_cursor_color">#3772E7</color>
 </resources>

@@ -107,7 +107,7 @@ class MediaPlayerViewModel(
         )
     }
 
-    fun startProgressUpdate(onUpdate: (String) -> Unit) {
+    private fun startProgressUpdate(onUpdate: (String) -> Unit) {
         onUpdateListener = onUpdate
         progressUpdate()
     }
@@ -123,11 +123,11 @@ class MediaPlayerViewModel(
         }
     }
 
-    fun getCurrentTime(): String {
+    private fun getCurrentTime(): String {
         return curTime
     }
 
-    fun playerPrepare(url: String) {
+    private fun playerPrepare(url: String) {
         player.setDataSource(url)
         player.prepareAsync()
         player.setOnPreparedListener {
