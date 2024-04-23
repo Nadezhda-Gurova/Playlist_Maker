@@ -2,8 +2,6 @@ package com.example.playlistmaker.search.ui
 
 import android.content.Intent
 import android.os.Bundle
-import android.os.Handler
-import android.os.Looper
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -11,6 +9,7 @@ import android.widget.EditText
 import androidx.core.view.isVisible
 import androidx.core.widget.addTextChangedListener
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.lifecycleScope
 import com.example.playlistmaker.databinding.FragmentSearchBinding
 import com.example.playlistmaker.player.ui.MediaPlayerActivity
 import com.example.playlistmaker.search.domain.models.Track
@@ -18,6 +17,7 @@ import com.example.playlistmaker.util.ui.extentions.hideKeyboard
 import com.example.playlistmaker.search.ui.recyclerview.OnTrackClickListener
 import com.example.playlistmaker.search.ui.recyclerview.TrackAdapter
 import com.example.playlistmaker.util.LoadingState
+import com.example.playlistmaker.util.debounce
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
 
@@ -30,6 +30,8 @@ class SearchFragment : Fragment() {
     private val tracks = arrayListOf<Track>()
     private lateinit var trackAdapter: TrackAdapter
     private val viewModel: SearchViewModel by viewModel()
+    private lateinit var clickDebounce: (Track) -> Unit
+    private lateinit var searchDebounce: (Unit) -> Unit
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -42,17 +44,32 @@ class SearchFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+        searchDebounce = debounce(
+            SEARCH_DEBOUNCE_DELAY,
+            viewLifecycleOwner.lifecycleScope,
+            true
+        ) {
+            searchWithDebounce()
+        }
+
+        clickDebounce = debounce(
+            CLICK_DEBOUNCE_DELAY,
+            viewLifecycleOwner.lifecycleScope,
+            false
+        ) { track ->
+            val intent = Intent(requireContext(), MediaPlayerActivity::class.java)
+            intent.putExtra(TRACK_MEDIA, track)
+            startActivity(intent)
+        }
+
         viewModel.loadingState.observe(viewLifecycleOwner) { loadingState ->
             renderTracks(loadingState)
         }
 
         val onTrackClickListener = OnTrackClickListener { track ->
             viewModel.addTrack(track)
-            if (clickDebounce()) {
-                val intent = Intent(requireContext(), MediaPlayerActivity::class.java)
-                intent.putExtra(TRACK_MEDIA, track)
-                startActivity(intent)
-            }
+            clickDebounce(track)
         }
 
         trackAdapter = TrackAdapter(tracks, onTrackClickListener)
@@ -68,7 +85,6 @@ class SearchFragment : Fragment() {
             hideNothingFound()
             trackAdapter.clearTracks()
             viewModel.clearHistory()
-            handler.removeCallbacks(searchRunnable)
         }
 
         viewModel.searchTrack("")
@@ -90,7 +106,7 @@ class SearchFragment : Fragment() {
         binding.badConnectionButton.setOnClickListener {
             hideYouSearched()
             binding.search.hideKeyboard()
-            searchWithDebounce(0)
+            searchWithDebounce()
         }
     }
 
@@ -99,28 +115,12 @@ class SearchFragment : Fragment() {
         super.onDestroyView()
     }
 
-    private var isClickAllowed = true
-
-    private fun clickDebounce(): Boolean {
-        val current = isClickAllowed
-        if (isClickAllowed) {
-            isClickAllowed = false
-            handler.postDelayed({ isClickAllowed = true }, CLICK_DEBOUNCE_DELAY)
-        }
-        return current
-    }
-
-    private val searchRunnable =
-        Runnable { viewModel.searchTrack(binding.search.text.toString()) }
-
-    private val handler = Handler(Looper.getMainLooper())
-    private fun searchWithDebounce(delay: Long = SEARCH_DEBOUNCE_DELAY) {
+    private fun searchWithDebounce() {
         trackAdapter.clearTracks()
         hideYouSearched()
         hideNothingFound()
         binding.loader.isVisible = true
-        handler.removeCallbacks(searchRunnable)
-        handler.postDelayed(searchRunnable, delay)
+        viewModel.searchTrack(binding.search.text.toString())
     }
 
     private fun showNothingFound(text: String, view: EditText?) {
