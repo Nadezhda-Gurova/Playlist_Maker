@@ -4,11 +4,13 @@ import android.os.Build
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.isVisible
+import androidx.lifecycle.viewModelScope
 import com.bumptech.glide.Glide
 import com.example.playlistmaker.R
 import com.example.playlistmaker.databinding.ActivityAudioPlayerBinding
 import com.example.playlistmaker.search.domain.models.Track
 import com.example.playlistmaker.search.ui.SearchFragment.Companion.TRACK_MEDIA
+import kotlinx.coroutines.launch
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import org.koin.core.parameter.parametersOf
 
@@ -74,11 +76,13 @@ class MediaPlayerActivity : AppCompatActivity()  {
         }
 
         binding.addToPlaylist.setOnClickListener {
-            viewModel.addToPlaylist()
+            viewModel.onPlaylistClicked()
         }
 
         binding.addToFavorites.setOnClickListener {
-            viewModel.addToFavorites()
+            viewModel.viewModelScope.launch {
+                viewModel.onFavoriteClicked()
+            }
         }
     }
 
@@ -86,7 +90,7 @@ class MediaPlayerActivity : AppCompatActivity()  {
         binding.nameOfSong.text = track.trackName
         binding.authorOfSong.text = track.artistName
         binding.durationMinutes.text = track.trackTime
-        binding.albumYear.text = track.releaseDate.substring(0, 4)
+        binding.albumYear.text = track.releaseDate?.substring(0, 4)
         binding.albumCountry.text = track.country
         binding.albumName.text = track.collectionName
         binding.albumGenre.text = track.primaryGenreName

@@ -1,14 +1,17 @@
 package com.example.playlistmaker.search.data.repository
 
 import android.content.SharedPreferences
+import com.example.playlistmaker.media.data.db.AppDatabase
 import com.example.playlistmaker.search.domain.models.Track
 import com.example.playlistmaker.search.domain.repository.SearchTrackHistoryRepository
 import com.example.playlistmaker.search.domain.util.VIEWED_TRACKS
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
+import kotlinx.coroutines.runBlocking
 
 class TrackHistoryRepositoryImpl(
-    private val sharedPreferences: SharedPreferences
+    private val sharedPreferences: SharedPreferences,
+    private val appDatabase: AppDatabase,
 ) : SearchTrackHistoryRepository {
     override fun addTrack(track: Track) {
         var tracks = getTracks().toMutableList()
@@ -34,7 +37,13 @@ class TrackHistoryRepositoryImpl(
     }
 
     override fun getTracks(): List<Track> {
-        return createTracksFromJson(sharedPreferences.getString(VIEWED_TRACKS, null))
+        val favoriteTrackIds = runBlocking {
+            appDatabase.favoriteDao().getTracksId()
+        }
+        val updateFavorite = updateIsFavorite(
+            createTracksFromJson(sharedPreferences.getString(VIEWED_TRACKS, null)),
+            favoriteTrackIds)
+        return updateFavorite
     }
 
     private fun createJsonFromTracks(tracks: List<Track>): String {

@@ -3,24 +3,44 @@ package com.example.playlistmaker.media.ui
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import com.example.playlistmaker.media.domain.interactor.MediaTracksInteractor
+import androidx.lifecycle.viewModelScope
+import com.example.playlistmaker.media.domain.interactor.FavoriteInteractor
 import com.example.playlistmaker.search.domain.models.Track
+import kotlinx.coroutines.launch
 
 class FavoriteTracksViewModel(
-    private val mediaTracksInteractor: MediaTracksInteractor,
-    ): ViewModel() {
-    private val _loadingState = MutableLiveData<List<Track>>()
-    val loadingState: LiveData<List<Track>> = _loadingState
+    private val favoriteInteractor: FavoriteInteractor,
+) : ViewModel() {
+    private val _favoriteTracksLoadingState = MutableLiveData<FavoriteTracksState>()
 
-    fun addTrack(track: Track) {
-        mediaTracksInteractor.addTrack(track)
+    val favoriteTracksLoadingState: LiveData<FavoriteTracksState> = _favoriteTracksLoadingState
+
+    init {
+        viewModelScope.launch {
+            favoriteInteractor.getTracks().collect { track ->
+                processResult(track)
+            }
+        }
     }
 
-    fun clearHistory(track: Track) {
-        mediaTracksInteractor.clearTrack(track)
+    private fun processResult(tracks: List<Track>) {
+        if (tracks.isEmpty()) {
+           renderState(FavoriteTracksState.Empty(""))
+        } else {
+            renderState(FavoriteTracksState.Content(tracks))
+        }
     }
 
-    fun getTracks(){
-        _loadingState.value = mediaTracksInteractor.getTracks()
+    private fun renderState(state: FavoriteTracksState) {
+        _favoriteTracksLoadingState.postValue(state)
+    }
+
+
+    suspend fun addTrack(track: Track) {
+        favoriteInteractor.addTrack(track)
+    }
+
+    suspend fun deleteTrack(track: Track) {
+        favoriteInteractor.deleteTrack(track)
     }
 }

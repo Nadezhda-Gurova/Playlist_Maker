@@ -32,7 +32,6 @@ class SearchFragment : Fragment() {
     private val viewModel: SearchViewModel by viewModel()
     private lateinit var clickDebounce: (Track) -> Unit
     private lateinit var searchDebounce: (Unit) -> Unit
-
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,

@@ -3,6 +3,8 @@ package com.example.playlistmaker.di
 import android.app.UiModeManager
 import android.content.Context
 import android.content.Context.MODE_PRIVATE
+import com.example.playlistmaker.media.domain.impl.FavoriteInteractorImpl
+import com.example.playlistmaker.media.domain.interactor.FavoriteInteractor
 import com.example.playlistmaker.search.domain.interactor.SearchHistoryInteractor
 import com.example.playlistmaker.search.domain.interactor.SearchInteractor
 import com.example.playlistmaker.settings.data.DarkModeRepositoryImpl
@@ -37,5 +39,9 @@ val interactorModule = module {
 
     single<SettingsInteractor> {
         SettingsInteractorImpl(get())
+    }
+
+    single<FavoriteInteractor> {
+        FavoriteInteractorImpl(get())
     }
 }

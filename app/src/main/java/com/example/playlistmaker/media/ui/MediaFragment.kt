@@ -5,6 +5,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
+import androidx.navigation.fragment.findNavController
 import com.example.playlistmaker.R
 import com.example.playlistmaker.databinding.FragmentMediaBinding
 import com.google.android.material.tabs.TabLayout
@@ -68,8 +69,10 @@ class MediaFragment : Fragment()  {
     }
 
     private fun showFavoriteTracks() {
-        // Логика для отображения раздела "Избранные треки"
-
+//        childFragmentManager.beginTransaction().replace(
+//            R.id.favoriteTracksFragment,
+//            FavoriteTracksFragment()
+//        ).commit()
     }
 
     private fun showPlaylists() {
