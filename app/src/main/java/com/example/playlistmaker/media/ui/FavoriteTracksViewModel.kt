@@ -6,6 +6,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.playlistmaker.media.domain.interactor.FavoriteInteractor
 import com.example.playlistmaker.search.domain.models.Track
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
 class FavoriteTracksViewModel(
@@ -17,7 +18,7 @@ class FavoriteTracksViewModel(
 
     init {
         viewModelScope.launch {
-            favoriteInteractor.getTracks().collect { track ->
+            favoriteInteractor.getTracks().collectLatest { track ->
                 processResult(track)
             }
         }
@@ -36,11 +37,12 @@ class FavoriteTracksViewModel(
     }
 
 
-    suspend fun addTrack(track: Track) {
-        favoriteInteractor.addTrack(track)
+     fun addTrack(track: Track) {
+        viewModelScope.launch {  favoriteInteractor.addTrack(track) }
+
     }
 
-    suspend fun deleteTrack(track: Track) {
-        favoriteInteractor.deleteTrack(track)
+     fun deleteTrack(track: Track) {
+        viewModelScope.launch {  favoriteInteractor.deleteTrack(track)}
     }
 }

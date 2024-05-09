@@ -34,7 +34,6 @@ class MediaPlayerViewModel(
         curTrack = track
 
         playerPrepare(track.previewUrl)
-
         _uiStateLiveData.value = UiState(
             isAddedToFavorites = curTrack.favorite,
             isAddedToPlaylist = false,
@@ -78,7 +77,7 @@ class MediaPlayerViewModel(
 
     private fun pausePlayer() {
         player.pause()
-       timerJob?.cancel()
+        timerJob?.cancel()
         playerState = PlayerState.Paused
         _uiStateLiveData.value = _uiStateLiveData.value?.copy(
             isPausePlaying = playerState != PlayerState.Playing
@@ -95,18 +94,11 @@ class MediaPlayerViewModel(
 
 
     suspend fun onFavoriteClicked() {
-//        val curFavorite = curTrack.favorite
-//        if (!curFavorite){
-//            favoriteInteractor.addTrack(curTrack)
-//        }
-//        else{
-//            favoriteInteractor.deleteTrack(curTrack)
-//        }
         val isAddedToFavorites = _uiStateLiveData.value?.isAddedToFavorites ?: return
-        if (!isAddedToFavorites){
+        if (!isAddedToFavorites) {
             favoriteInteractor.addTrack(curTrack)
-        }
-        else{
+
+        } else {
             favoriteInteractor.deleteTrack(curTrack)
         }
         _uiStateLiveData.value = _uiStateLiveData.value?.copy(

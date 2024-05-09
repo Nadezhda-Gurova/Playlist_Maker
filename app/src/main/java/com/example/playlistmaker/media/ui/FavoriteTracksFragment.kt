@@ -8,7 +8,6 @@ import android.view.ViewGroup
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
-import androidx.lifecycle.viewModelScope
 import com.example.playlistmaker.databinding.FragmentFavoriteTracksBinding
 import com.example.playlistmaker.player.ui.MediaPlayerActivity
 import com.example.playlistmaker.search.domain.models.Track
@@ -16,7 +15,6 @@ import com.example.playlistmaker.search.ui.SearchFragment
 import com.example.playlistmaker.search.ui.recyclerview.OnTrackClickListener
 import com.example.playlistmaker.search.ui.recyclerview.TrackAdapter
 import com.example.playlistmaker.util.debounce
-import kotlinx.coroutines.launch
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
 class FavoriteTracksFragment : Fragment() {
@@ -55,15 +53,6 @@ class FavoriteTracksFragment : Fragment() {
         }
 
         val onTrackClickListener = OnTrackClickListener { track ->
-            viewModel.viewModelScope.launch {
-                if (track.favorite) {
-                    viewModel.addTrack(track)
-                } else {
-                    viewModel.deleteTrack(track)
-                }
-            }
-
-//            viewModel.addTrack(track)
             clickDebounce(track)
         }
 
@@ -87,6 +76,7 @@ class FavoriteTracksFragment : Fragment() {
             }
 
             is FavoriteTracksState.Empty -> {
+                trackAdapter.clearTracks()
                 hideNothingAdded(true)
             }
 

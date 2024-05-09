@@ -13,7 +13,8 @@ data class Track(
     val primaryGenreName: String,
     val country: String,
     val previewUrl: String,
-    val favorite: Boolean = false
+    val favorite: Boolean = false,
+    val timestamp: Long = 0L,
 ) : Serializable {
 
     fun getCoverArtwork(): String {
