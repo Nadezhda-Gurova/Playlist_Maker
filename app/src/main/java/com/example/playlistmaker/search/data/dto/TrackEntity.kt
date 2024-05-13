@@ -10,7 +10,7 @@ data class TrackEntity(
     val trackTime: TrackTime, // Продолжительность трека
     val artworkUrl100: String, // Ссылка на изображение обложки
     val collectionName: String?,
-    val releaseDate: String,
+    val releaseDate: String?,
     val primaryGenreName: String,
     val country: String,
     val previewUrl: String

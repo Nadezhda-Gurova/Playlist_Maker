@@ -3,7 +3,6 @@ package com.example.playlistmaker.media.data.repository
 import android.content.SharedPreferences
 import com.example.playlistmaker.media.domain.repository.MediaTracksRepository
 import com.example.playlistmaker.search.domain.models.Track
-import com.example.playlistmaker.search.domain.util.VIEWED_TRACKS
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 

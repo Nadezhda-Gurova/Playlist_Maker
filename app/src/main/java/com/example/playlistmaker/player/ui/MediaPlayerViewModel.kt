@@ -5,6 +5,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.playlistmaker.media.domain.interactor.FavoriteInteractor
 import com.example.playlistmaker.search.domain.models.Track
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
@@ -14,7 +15,8 @@ import java.text.SimpleDateFormat
 
 class MediaPlayerViewModel(
     val zeroTime: String,
-    private val simpleDateFormat: SimpleDateFormat
+    private val simpleDateFormat: SimpleDateFormat,
+    private val favoriteInteractor: FavoriteInteractor
 ) : ViewModel() {
 
     private var curTime: String = zeroTime
@@ -32,9 +34,8 @@ class MediaPlayerViewModel(
         curTrack = track
 
         playerPrepare(track.previewUrl)
-
         _uiStateLiveData.value = UiState(
-            isAddedToFavorites = false,
+            isAddedToFavorites = curTrack.favorite,
             isAddedToPlaylist = false,
             curTrack = track,
             curTime = getCurrentTime(),
@@ -76,7 +77,7 @@ class MediaPlayerViewModel(
 
     private fun pausePlayer() {
         player.pause()
-       timerJob?.cancel()
+        timerJob?.cancel()
         playerState = PlayerState.Paused
         _uiStateLiveData.value = _uiStateLiveData.value?.copy(
             isPausePlaying = playerState != PlayerState.Playing
@@ -92,15 +93,20 @@ class MediaPlayerViewModel(
     }
 
 
-    fun addToFavorites() {
+    suspend fun onFavoriteClicked() {
         val isAddedToFavorites = _uiStateLiveData.value?.isAddedToFavorites ?: return
+        if (!isAddedToFavorites) {
+            favoriteInteractor.addTrack(curTrack)
+
+        } else {
+            favoriteInteractor.deleteTrack(curTrack)
+        }
         _uiStateLiveData.value = _uiStateLiveData.value?.copy(
             isAddedToFavorites = !isAddedToFavorites
         )
     }
 
-
-    fun addToPlaylist() {
+    fun onPlaylistClicked() {
         val isAddedToPlaylist = _uiStateLiveData.value?.isAddedToPlaylist ?: return
         _uiStateLiveData.value = _uiStateLiveData.value?.copy(
             isAddedToPlaylist = !isAddedToPlaylist

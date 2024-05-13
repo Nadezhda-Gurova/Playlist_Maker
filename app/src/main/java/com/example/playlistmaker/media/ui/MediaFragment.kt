@@ -68,8 +68,6 @@ class MediaFragment : Fragment()  {
     }
 
     private fun showFavoriteTracks() {
-        // Логика для отображения раздела "Избранные треки"
-
     }
 
     private fun showPlaylists() {

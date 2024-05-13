@@ -4,15 +4,15 @@ import com.example.playlistmaker.media.domain.repository.MediaTracksRepository
 import com.example.playlistmaker.search.domain.models.Track
 
 class MediaTracksInteractor(private val mediaRepository: MediaTracksRepository) {
-    fun addTrack(track: Track){
+    fun addTrack(track: Track) {
         mediaRepository.addTrack(track)
     }
 
-    fun clearTrack(track: Track){
+    fun clearTrack(track: Track) {
         mediaRepository.clearTrack(track)
     }
 
-    fun getTracks(): List<Track>{
+    fun getTracks(): List<Track> {
         return mediaRepository.getTracks()
     }
 }
