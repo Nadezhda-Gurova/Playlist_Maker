@@ -68,10 +68,6 @@ class MediaFragment : Fragment()  {
     }
 
     private fun showFavoriteTracks() {
-//        childFragmentManager.beginTransaction().replace(
-//            R.id.favoriteTracksFragment,
-//            FavoriteTracksFragment()
-//        ).commit()
     }
 
     private fun showPlaylists() {

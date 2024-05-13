@@ -18,7 +18,10 @@ import retrofit2.converter.gson.GsonConverterFactory
 val dataModule = module {
 
     single {
-        Room.databaseBuilder(androidContext(), AppDatabase::class.java, "database.db")
+        Room.databaseBuilder(
+            context = androidContext(),
+            klass = AppDatabase::class.java,
+            name = "database.db")
             .build()
     }
 
@@ -27,7 +30,8 @@ val dataModule = module {
             .baseUrl("https://itunes.apple.com")
             .addConverterFactory(
                 GsonConverterFactory.create(
-                    get())
+                    get()
+                )
             )
             .build()
     }

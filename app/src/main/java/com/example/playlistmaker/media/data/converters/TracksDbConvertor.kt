@@ -6,31 +6,33 @@ import com.example.playlistmaker.search.domain.models.Track
 class TracksDbConvertor {
     fun map(track: Track): FavoriteTrackEntity {
         return FavoriteTrackEntity(
-            track.trackId,
-            track.trackName,
-            track.artistName,
-            track.trackTime,
-            track.artworkUrl100,
-            track.collectionName,
-            track.releaseDate,
-            track.primaryGenreName,
-            track.country,
-            track.previewUrl,
+            trackId = track.trackId,
+            trackName = track.trackName,
+            artistName = track.artistName,
+            trackTime = track.trackTime,
+            artworkUrl100 = track.artworkUrl100,
+            collectionName = track.collectionName,
+            releaseDate = track.releaseDate,
+            primaryGenreName = track.primaryGenreName,
+            country = track.country,
+            previewUrl = track.previewUrl,
             favorite = true
         )
     }
 
     fun map(track: FavoriteTrackEntity): Track {
-        return Track(track.trackId,
-            track.trackName,
-            track.artistName,
-            track.trackTime,
-            track.artworkUrl100,
-            track.collectionName,
-            track.releaseDate,
-            track.primaryGenreName,
-            track.country,
-            track.previewUrl,
-            favorite = true)
+        return Track(
+            trackId = track.trackId,
+            trackName = track.trackName,
+            artistName = track.artistName,
+            trackTime = track.trackTime,
+            artworkUrl100 = track.artworkUrl100,
+            collectionName = track.collectionName,
+            releaseDate = track.releaseDate,
+            primaryGenreName = track.primaryGenreName,
+            country = track.country,
+            previewUrl = track.previewUrl,
+            favorite = true
+        )
     }
 }

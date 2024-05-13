@@ -89,4 +89,9 @@ class FavoriteTracksFragment : Fragment() {
         binding.noPlaylistCreated.isVisible = visible
     }
 
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
+
+    }
 }
