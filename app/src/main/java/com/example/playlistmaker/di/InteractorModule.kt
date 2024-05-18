@@ -4,7 +4,9 @@ import android.app.UiModeManager
 import android.content.Context
 import android.content.Context.MODE_PRIVATE
 import com.example.playlistmaker.media.domain.impl.FavoriteInteractorImpl
+import com.example.playlistmaker.media.domain.impl.PlaylistInteractorImpl
 import com.example.playlistmaker.media.domain.interactor.FavoriteInteractor
+import com.example.playlistmaker.media.domain.interactor.PlaylistMakerInteractor
 import com.example.playlistmaker.search.domain.interactor.SearchHistoryInteractor
 import com.example.playlistmaker.search.domain.interactor.SearchInteractor
 import com.example.playlistmaker.settings.data.DarkModeRepositoryImpl
@@ -29,7 +31,7 @@ val interactorModule = module {
         androidContext().getSharedPreferences(DARK_THEME_MODE, MODE_PRIVATE)
     }
 
-    single{
+    single {
         androidContext().getSystemService(Context.UI_MODE_SERVICE) as UiModeManager
     }
 
@@ -44,4 +46,9 @@ val interactorModule = module {
     single<FavoriteInteractor> {
         FavoriteInteractorImpl(get())
     }
+
+    single<PlaylistMakerInteractor> {
+        PlaylistInteractorImpl(get())
+    }
+
 }

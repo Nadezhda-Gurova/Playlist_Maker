@@ -18,11 +18,15 @@
     </fragment>
     <fragment
         android:id="@+id/mediaFragment"
-        android:name="com.example.playlistmaker.media.ui.MediaFragment"
+        android:name="com.example.playlistmaker.media.ui.media.MediaFragment"
         android:label="MediaFragment" >
         <action
             android:id="@+id/action_mediaFragment_to_mediaPlayerActivity"
             app:destination="@id/mediaPlayerActivity" />
+        <!-- Новое действие для перехода к PlaylistMakerFragment -->
+        <action
+            android:id="@+id/action_mediaFragment_to_playlistMakerFragment"
+            app:destination="@id/playlistMakerFragment" />
     </fragment>
     <activity
         android:id="@+id/mediaPlayerActivity"
@@ -30,10 +34,18 @@
         android:label="MediaPlayerActivity" />
     <fragment
         android:id="@+id/favoriteTracksFragment"
-        android:name="com.example.playlistmaker.media.ui.FavoriteTracksFragment"
+        android:name="com.example.playlistmaker.media.ui.favorite.FavoriteTracksFragment"
         android:label="FavoriteTracksFragment" />
     <fragment
         android:id="@+id/playlistsFragment"
-        android:name="com.example.playlistmaker.media.ui.PlaylistsFragment"
-        android:label="PlaylistsFragment" />
+        android:name="com.example.playlistmaker.media.ui.playlist.PlaylistsFragment"
+        android:label="PlaylistsFragment" >
+        <action
+            android:id="@+id/action_playlistsFragment_to_playlistMakerFragment"
+            app:destination="@id/playlistMakerFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/playlistMakerFragment"
+        android:name="com.example.playlistmaker.media.ui.playlist_maker.PlaylistMakerFragment"
+        android:label="PlaylistMakerFragment" />
 </navigation>

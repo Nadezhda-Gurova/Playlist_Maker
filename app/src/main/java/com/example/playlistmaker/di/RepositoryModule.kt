@@ -2,7 +2,9 @@ package com.example.playlistmaker.di
 
 import com.example.playlistmaker.media.data.repository.FavoriteTracksRepositoryImp
 import com.example.playlistmaker.media.data.converters.TracksDbConvertor
+import com.example.playlistmaker.media.data.repository.PlaylistMakerRepositoryImpl
 import com.example.playlistmaker.media.domain.repository.FavoriteTracksRepository
+import com.example.playlistmaker.media.domain.repository.PlaylistMakerRepository
 import com.example.playlistmaker.search.data.repository.ITunesRepositoryImpl
 import com.example.playlistmaker.search.data.repository.TrackHistoryRepositoryImpl
 import com.example.playlistmaker.search.domain.repository.SearchTrackHistoryRepository
@@ -25,5 +27,5 @@ val repositoryModule = module {
 
     factory { TracksDbConvertor() }
 
-
+    single<PlaylistMakerRepository> { PlaylistMakerRepositoryImpl(get()) }
 }

@@ -5,6 +5,7 @@ import com.example.playlistmaker.di.dataModule
 import com.example.playlistmaker.di.favoriteTracksModule
 import com.example.playlistmaker.di.interactorModule
 import com.example.playlistmaker.di.mediaModule
+import com.example.playlistmaker.di.playlistMakerModule
 import com.example.playlistmaker.di.playlistsModule
 import com.example.playlistmaker.di.repositoryModule
 import com.example.playlistmaker.di.viewModelModule
@@ -17,7 +18,16 @@ class App : Application() {
         super.onCreate()
         startKoin {
             androidContext(this@App)
-            modules(dataModule, repositoryModule, interactorModule, viewModelModule, mediaModule, favoriteTracksModule, playlistsModule)
+            modules(
+                dataModule,
+                repositoryModule,
+                interactorModule,
+                viewModelModule,
+                mediaModule,
+                favoriteTracksModule,
+                playlistsModule,
+                playlistMakerModule
+                )
         }
     }
 }

@@ -2,6 +2,7 @@ package com.example.playlistmaker.di
 
 import androidx.room.Room
 import com.example.playlistmaker.media.data.db.AppDatabase
+import com.example.playlistmaker.media.data.db.PlaylistsAppDatabase
 import com.example.playlistmaker.search.data.adapter.TrackTypeAdapter
 import com.example.playlistmaker.search.data.dto.TrackTime
 import com.example.playlistmaker.search.data.mapper.TrackMapper
@@ -22,6 +23,14 @@ val dataModule = module {
             context = androidContext(),
             klass = AppDatabase::class.java,
             name = "database.db")
+            .build()
+    }
+
+    single {
+        Room.databaseBuilder(
+            context = androidContext(),
+            klass = PlaylistsAppDatabase::class.java,
+            name = "playlistbase.db")
             .build()
     }
 
