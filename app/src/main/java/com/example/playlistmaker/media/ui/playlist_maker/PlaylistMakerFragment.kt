@@ -98,36 +98,75 @@ class PlaylistMakerFragment : Fragment() {
         if (parent is OnPlaylistCreatedListener) {
             parent.onPlaylistCreated(playlistName)
         } else {
-            Log.e("PlaylistMakerFragment", "Parent fragment is not implementing OnPlaylistCreatedListener")
+            Log.e(
+                "PlaylistMakerFragment",
+                "Parent fragment is not implementing OnPlaylistCreatedListener"
+            )
         }
         requireActivity().onBackPressedDispatcher.onBackPressed()
     }
-
-
-
 
     private fun activateCreateButton(s: CharSequence?) {
         val button = binding.createButton
         button.isEnabled = !s.isNullOrBlank()
     }
 
+//    private fun saveImageToPrivateStorage(uri: Uri) {
+//        //создаём экземпляр класса File, который указывает на нужный каталог
+//        val filePath =
+//            File(context?.getExternalFilesDir(Environment.DIRECTORY_PICTURES), "myalbum")
+//        //создаем каталог, если он не создан
+//        if (!filePath.exists()) {
+//            filePath.mkdirs()
+//        }
+//        //создаём экземпляр класса File, который указывает на файл внутри каталога
+//        val file = File(filePath, "first_cover.jpg")
+//        // создаём входящий поток байтов из выбранной картинки
+//        val inputStream = context?.contentResolver?.openInputStream(uri)
+//        // создаём исходящий поток байтов в созданный выше файл
+//        val outputStream = FileOutputStream(file)
+//        // записываем картинку с помощью BitmapFactory
+//        BitmapFactory
+//            .decodeStream(inputStream)
+//            .compress(Bitmap.CompressFormat.JPEG, 30, outputStream)
+//    }
+
     private fun saveImageToPrivateStorage(uri: Uri) {
-        //создаём экземпляр класса File, который указывает на нужный каталог
-        val filePath =
-            File(context?.getExternalFilesDir(Environment.DIRECTORY_PICTURES), "myalbum")
-        //создаем каталог, если он не создан
+        // Создаём экземпляр класса File, который указывает на нужный каталог
+        val filePath = File(context?.getExternalFilesDir(Environment.DIRECTORY_PICTURES), "myalbum")
+
+        // Создаём каталог, если он не создан
         if (!filePath.exists()) {
             filePath.mkdirs()
         }
-        //создаём экземпляр класса File, который указывает на файл внутри каталога
+
+        // Создаём экземпляр класса File, который указывает на файл внутри каталога
         val file = File(filePath, "first_cover.jpg")
-        // создаём входящий поток байтов из выбранной картинки
+
+        // Создаём входящий поток байтов из выбранной картинки
         val inputStream = context?.contentResolver?.openInputStream(uri)
-        // создаём исходящий поток байтов в созданный выше файл
-        val outputStream = FileOutputStream(file)
-        // записываем картинку с помощью BitmapFactory
-        BitmapFactory
-            .decodeStream(inputStream)
-            .compress(Bitmap.CompressFormat.JPEG, 30, outputStream)
+
+        // Декодируем поток в Bitmap
+        val bitmap = BitmapFactory.decodeStream(inputStream)
+
+        // Проверяем, что Bitmap не равен null
+        if (bitmap != null) {
+            // Создаём исходящий поток байтов в созданный выше файл
+            val outputStream = FileOutputStream(file)
+
+            // Записываем картинку с помощью Bitmap.compress
+            bitmap.compress(Bitmap.CompressFormat.JPEG, 30, outputStream)
+
+            // Закрываем потоки
+            outputStream.close()
+            inputStream?.close()
+        } else {
+            Log.e("saveImageToPrivateStorage", "Failed to decode Bitmap from Uri")
+        }
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
     }
 }

@@ -1,8 +1,8 @@
 package com.example.playlistmaker.media.domain.impl
 
-import com.example.playlistmaker.media.data.db.entity.PlaylistEntity
 import com.example.playlistmaker.media.domain.interactor.PlaylistMakerInteractor
 import com.example.playlistmaker.media.domain.repository.PlaylistMakerRepository
+import com.example.playlistmaker.media.ui.playlist.recyclerview.Playlist
 import com.google.gson.Gson
 import kotlinx.coroutines.flow.StateFlow
 
@@ -10,7 +10,7 @@ class PlaylistInteractorImpl(private val playlistRepository: PlaylistMakerReposi
     PlaylistMakerInteractor {
 
     override suspend fun createPlaylist(name: String, description: String, imagePath: String) {
-        val playlist = PlaylistEntity(
+        val playlist = Playlist(
             name = name,
             description = description,
             imagePath = imagePath,
@@ -20,7 +20,7 @@ class PlaylistInteractorImpl(private val playlistRepository: PlaylistMakerReposi
         playlistRepository.insertPlaylist(playlist)
     }
 
-    override suspend fun updatePlaylist(playlist: PlaylistEntity) {
+    override suspend fun updatePlaylist(playlist: Playlist) {
         playlistRepository.updatePlaylist(playlist)
     }
 
@@ -34,11 +34,11 @@ class PlaylistInteractorImpl(private val playlistRepository: PlaylistMakerReposi
         }
     }
 
-    override suspend fun getAllPlaylists(): StateFlow<List<PlaylistEntity>> {
+    override suspend fun getAllPlaylists(): StateFlow<List<Playlist>> {
         return playlistRepository.getAllPlaylists()
     }
 
-    override suspend fun getPlaylistById(playlistId: Int): PlaylistEntity? {
+    override suspend fun getPlaylistById(playlistId: Int): Playlist? {
         return playlistRepository.getPlaylistById(playlistId)
     }
 

@@ -8,13 +8,14 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import com.example.playlistmaker.R
 import com.example.playlistmaker.databinding.FragmentMediaBinding
-import com.example.playlistmaker.media.ui.playlist.PLaylistViewModel
+import com.example.playlistmaker.media.ui.playlist_maker.PlaylistMakerViewModel
+import com.example.playlistmaker.media.ui.playlist_maker.PlaylistsState
 import com.google.android.material.tabs.TabLayout
 import com.google.android.material.tabs.TabLayoutMediator
 
-class MediaFragment : Fragment()  {
+class MediaFragment : Fragment() {
 
-    private val mediaViewModel: PLaylistViewModel by activityViewModels()
+    private val mediaViewModel: PlaylistMakerViewModel by activityViewModels()
 
     private var _binding: FragmentMediaBinding? = null
     private val binding: FragmentMediaBinding
@@ -42,13 +43,6 @@ class MediaFragment : Fragment()  {
 
             }
         }
-
-//        mediaViewModel.playlistCreatedEvent.observe(viewLifecycleOwner) { playlistName ->
-//            // Обновление интерфейса с учетом созданного плейлиста
-//            binding.toast.isVisible = true
-//            val message = getString(R.string.playlist_created_message, playlistName)
-//            binding.toast.text = message
-//        }
 
 
 
@@ -84,6 +78,7 @@ class MediaFragment : Fragment()  {
     }
 
     private fun showPlaylists() {
+
         // Логика для отображения раздела "Плейлисты"
     }
 
@@ -91,6 +86,7 @@ class MediaFragment : Fragment()  {
 //        TODO("Not yet implemented")
 //    }
 ////
+
 
 }
 

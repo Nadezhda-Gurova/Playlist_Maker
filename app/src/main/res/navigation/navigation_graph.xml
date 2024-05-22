@@ -31,7 +31,8 @@
     <activity
         android:id="@+id/mediaPlayerActivity"
         android:name="com.example.playlistmaker.player.ui.MediaPlayerActivity"
-        android:label="MediaPlayerActivity" />
+        android:label="MediaPlayerActivity"
+        />
     <fragment
         android:id="@+id/favoriteTracksFragment"
         android:name="com.example.playlistmaker.media.ui.favorite.FavoriteTracksFragment"

@@ -6,6 +6,8 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.playlistmaker.media.domain.interactor.FavoriteInteractor
+import com.example.playlistmaker.media.domain.interactor.PlaylistMakerInteractor
+import com.example.playlistmaker.media.ui.playlist.recyclerview.Playlist
 import com.example.playlistmaker.search.domain.models.Track
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
@@ -16,7 +18,8 @@ import java.text.SimpleDateFormat
 class MediaPlayerViewModel(
     val zeroTime: String,
     private val simpleDateFormat: SimpleDateFormat,
-    private val favoriteInteractor: FavoriteInteractor
+    private val favoriteInteractor: FavoriteInteractor,
+    private val playlistMakerInteractor: PlaylistMakerInteractor
 ) : ViewModel() {
 
     private var curTime: String = zeroTime
@@ -28,7 +31,18 @@ class MediaPlayerViewModel(
     private val player = MediaPlayer()
     val uiStateLiveData: LiveData<UiState> get() = _uiStateLiveData
 
+    private val _playlists = MutableLiveData<List<Playlist>>()
+    val playlists: LiveData<List<Playlist>> get() = _playlists
+
     private var playerState: PlayerState = PlayerState.NotInited
+
+    fun fetchPlaylists() {
+        viewModelScope.launch {
+            playlistMakerInteractor.getAllPlaylists().collect { playlists ->
+                _playlists.postValue(playlists)
+            }
+        }
+    }
 
     fun loadTrackData(track: Track) {
         curTrack = track

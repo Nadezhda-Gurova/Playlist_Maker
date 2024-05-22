@@ -2,30 +2,79 @@ package com.example.playlistmaker.player.ui
 
 import android.os.Build
 import android.os.Bundle
+import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.isVisible
 import androidx.lifecycle.viewModelScope
 import com.bumptech.glide.Glide
 import com.example.playlistmaker.R
 import com.example.playlistmaker.databinding.ActivityAudioPlayerBinding
+import com.example.playlistmaker.media.ui.playlist.recyclerview.OnPlaylistsClickListener
+import com.example.playlistmaker.media.ui.playlist.recyclerview.Playlist
+import com.example.playlistmaker.media.ui.playlist_maker.PlaylistMakerFragment
+import com.example.playlistmaker.player.ui.recyclerview.MediaPlayerAdapter
 import com.example.playlistmaker.search.domain.models.Track
 import com.example.playlistmaker.search.ui.SearchFragment.Companion.TRACK_MEDIA
+import com.google.android.material.bottomsheet.BottomSheetBehavior
 import kotlinx.coroutines.launch
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import org.koin.core.parameter.parametersOf
 
-class MediaPlayerActivity : AppCompatActivity()  {
+class MediaPlayerActivity : AppCompatActivity() {
     private lateinit var binding: ActivityAudioPlayerBinding
     private val viewModel: MediaPlayerViewModel by viewModel {
         parametersOf(getString(R.string.zero_time))
     }
+    private val playlists = arrayListOf<Playlist>()
+    private lateinit var playlistAdapter: MediaPlayerAdapter
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_audio_player)
-        binding = ActivityAudioPlayerBinding.bind(findViewById(R.id.root))
+        binding = ActivityAudioPlayerBinding.bind(findViewById(R.id.root1))
 
+        binding.newPlaylist.setOnClickListener {
+            binding.fragmentContainer.visibility = View.VISIBLE
+            supportFragmentManager.beginTransaction()
+                .replace(R.id.fragment_container, PlaylistMakerFragment())
+                .addToBackStack(null)
+                .commit()
+        }
+
+        val onPlaylistClickListener = OnPlaylistsClickListener { playlist ->
+//            viewModel.addTrack(track)
+//            clickDebounce(track)
+        }
+
+        playlistAdapter = MediaPlayerAdapter(playlists, onPlaylistClickListener)
+        binding.recyclerView.adapter = playlistAdapter
+
+        val bottomSheetBehavior = BottomSheetBehavior.from(binding.playlistsBottomSheet).apply {
+            state = BottomSheetBehavior.STATE_HIDDEN
+        }
+
+        bottomSheetBehavior.addBottomSheetCallback(object :
+            BottomSheetBehavior.BottomSheetCallback() {
+
+            override fun onStateChanged(bottomSheet: View, newState: Int) {
+
+                when (newState) {
+                    BottomSheetBehavior.STATE_HIDDEN -> {
+                        binding.overlay.visibility = View.GONE
+                    }
+
+                    else -> {
+                        binding.overlay.visibility = View.VISIBLE
+
+                    }
+                }
+            }
+
+            override fun onSlide(bottomSheet: View, slideOffset: Float) {
+                binding.overlay.alpha = slideOffset
+            }
+        })
         initBackButton()
 
         val track: Track? = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
@@ -34,6 +83,10 @@ class MediaPlayerActivity : AppCompatActivity()  {
             intent.getSerializableExtra(TRACK_MEDIA) as? Track
         }
         requireNotNull(track) { "No track provided" }
+
+        viewModel.playlists.observe(this) { playlist ->
+            playlistAdapter.updatePlaylists(playlist)
+        }
 
         viewModel.uiStateLiveData.observe(this) {
             setTrackData(it.curTrack)
@@ -76,6 +129,7 @@ class MediaPlayerActivity : AppCompatActivity()  {
         }
 
         binding.addToPlaylist.setOnClickListener {
+            bottomSheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
             viewModel.onPlaylistClicked()
         }
 
@@ -117,4 +171,7 @@ class MediaPlayerActivity : AppCompatActivity()  {
         super.onPause()
         viewModel.onPause()
     }
+
+
 }
+

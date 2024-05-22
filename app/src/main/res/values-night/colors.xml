@@ -33,4 +33,6 @@
     <color name="back_toast_media">#FFFFFF</color>
     <color name="back_toast_text">#1A1B22</color>
     <color name="text_in_playlist_maker_media">#FFFFFF</color>
+    <color name="back_in_bottomsheet">#1A1B22</color>
+    <color name="rectangle">#FFFFFF</color>
 </resources>
