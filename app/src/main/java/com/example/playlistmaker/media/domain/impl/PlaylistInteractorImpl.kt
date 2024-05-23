@@ -3,7 +3,7 @@ package com.example.playlistmaker.media.domain.impl
 import com.example.playlistmaker.media.domain.interactor.PlaylistMakerInteractor
 import com.example.playlistmaker.media.domain.repository.PlaylistMakerRepository
 import com.example.playlistmaker.media.ui.playlist.recyclerview.Playlist
-import com.google.gson.Gson
+import com.example.playlistmaker.search.domain.models.Track
 import kotlinx.coroutines.flow.StateFlow
 
 class PlaylistInteractorImpl(private val playlistRepository: PlaylistMakerRepository) :
@@ -14,7 +14,7 @@ class PlaylistInteractorImpl(private val playlistRepository: PlaylistMakerReposi
             name = name,
             description = description,
             imagePath = imagePath,
-            trackIds = Gson().toJson(emptyList<Int>()),
+            trackIds = emptyList(),
             trackCount = 0
         )
         playlistRepository.insertPlaylist(playlist)
@@ -24,25 +24,19 @@ class PlaylistInteractorImpl(private val playlistRepository: PlaylistMakerReposi
         playlistRepository.updatePlaylist(playlist)
     }
 
-
-    override suspend fun updateTrackIds(playlistId: Int, trackIds: List<Int>) {
-        val playlist = playlistRepository.getPlaylistById(playlistId)
-        if (playlist != null) {
-            playlist.trackIds = Gson().toJson(trackIds)
-            playlist.trackCount = trackIds.size
-            playlistRepository.updatePlaylist(playlist)
-        }
-    }
-
     override suspend fun getAllPlaylists(): StateFlow<List<Playlist>> {
         return playlistRepository.getAllPlaylists()
     }
 
-    override suspend fun getPlaylistById(playlistId: Int): Playlist? {
-        return playlistRepository.getPlaylistById(playlistId)
-    }
-
     override suspend fun deletePlaylistById(playlistId: Int) {
         playlistRepository.deletePlaylistById(playlistId)
+    }
+
+    override suspend fun addTrackToPlaylist(track: Track, playlist: Playlist) {
+        playlistRepository.addTrackToPlaylist(track, playlist)
+    }
+
+    override suspend fun removeTrackFromPlaylist(track: Track, playlist: Playlist) {
+        playlistRepository.removeTrackFromPlaylist(track, playlist)
     }
 }

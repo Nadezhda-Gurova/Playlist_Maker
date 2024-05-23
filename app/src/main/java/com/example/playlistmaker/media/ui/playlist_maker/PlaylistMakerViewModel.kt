@@ -8,6 +8,8 @@ import kotlinx.coroutines.launch
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import com.example.playlistmaker.media.ui.playlist.recyclerview.Playlist
+import com.example.playlistmaker.player.ui.AddTrackStatus
+import com.example.playlistmaker.search.domain.models.Track
 import kotlinx.coroutines.flow.collectLatest
 
 class PlaylistMakerViewModel(private val playlistInteractor: PlaylistMakerInteractor) :
@@ -42,7 +44,6 @@ class PlaylistMakerViewModel(private val playlistInteractor: PlaylistMakerIntera
             playlistInteractor.createPlaylist(name, description, imagePath)
         }
     }
-
 //    fun updateTrackIds(playlistId: Int, trackIds: List<Int>) {
 //        viewModelScope.launch {
 //            try {

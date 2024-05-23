@@ -3,13 +3,13 @@ package com.example.playlistmaker.player.ui
 import android.os.Build
 import android.os.Bundle
 import android.view.View
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.isVisible
 import androidx.lifecycle.viewModelScope
 import com.bumptech.glide.Glide
 import com.example.playlistmaker.R
 import com.example.playlistmaker.databinding.ActivityAudioPlayerBinding
-import com.example.playlistmaker.media.ui.playlist.recyclerview.OnPlaylistsClickListener
 import com.example.playlistmaker.media.ui.playlist.recyclerview.Playlist
 import com.example.playlistmaker.media.ui.playlist_maker.PlaylistMakerFragment
 import com.example.playlistmaker.player.ui.recyclerview.MediaPlayerAdapter
@@ -25,7 +25,7 @@ class MediaPlayerActivity : AppCompatActivity() {
     private val viewModel: MediaPlayerViewModel by viewModel {
         parametersOf(getString(R.string.zero_time))
     }
-    private val playlists = arrayListOf<Playlist>()
+
     private lateinit var playlistAdapter: MediaPlayerAdapter
 
 
@@ -41,14 +41,6 @@ class MediaPlayerActivity : AppCompatActivity() {
                 .addToBackStack(null)
                 .commit()
         }
-
-        val onPlaylistClickListener = OnPlaylistsClickListener { playlist ->
-//            viewModel.addTrack(track)
-//            clickDebounce(track)
-        }
-
-        playlistAdapter = MediaPlayerAdapter(playlists, onPlaylistClickListener)
-        binding.recyclerView.adapter = playlistAdapter
 
         val bottomSheetBehavior = BottomSheetBehavior.from(binding.playlistsBottomSheet).apply {
             state = BottomSheetBehavior.STATE_HIDDEN
@@ -84,8 +76,38 @@ class MediaPlayerActivity : AppCompatActivity() {
         }
         requireNotNull(track) { "No track provided" }
 
+        playlistAdapter = MediaPlayerAdapter(arrayListOf()) { playlist ->
+            viewModel.addTrackToPlaylist(track, playlist)
+        }
+        binding.recyclerView.adapter = playlistAdapter
+
         viewModel.playlists.observe(this) { playlist ->
             playlistAdapter.updatePlaylists(playlist)
+        }
+        // В методе, где вы обрабатываете результат добавления трека в плейлист
+        viewModel.addTrackStatus.observe(this) { status ->
+            when (status) {
+                is AddTrackStatus.Success -> {
+                    Toast.makeText(this, "Трек успешно добавлен в плейлист", Toast.LENGTH_SHORT)
+                        .show()
+                }
+
+                is AddTrackStatus.AlreadyExists -> {
+                    Toast.makeText(this, "Трек уже присутствует в плейлисте", Toast.LENGTH_SHORT)
+                        .show()
+                }
+
+                is AddTrackStatus.Error -> {
+                    Toast.makeText(
+                        this,
+                        "Ошибка при добавлении трека в плейлист",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
+                // Другие возможные статусы
+                AddTrackStatus.DoesNotExist -> TODO()
+                AddTrackStatus.Removed -> TODO()
+            }
         }
 
         viewModel.uiStateLiveData.observe(this) {
@@ -163,7 +185,8 @@ class MediaPlayerActivity : AppCompatActivity() {
 
     private fun initBackButton() {
         binding.backButton.setOnClickListener {
-            finish()
+//            finish()
+            onBackPressedDispatcher.onBackPressed()
         }
     }
 

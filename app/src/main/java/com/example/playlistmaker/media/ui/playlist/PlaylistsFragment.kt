@@ -59,7 +59,6 @@ class PlaylistsFragment : Fragment(), OnPlaylistCreatedListener {
 
         viewModel.playlists.observe(viewLifecycleOwner) { playlistState ->
             renderPlaylists(playlistState)
-
         }
     }
 

@@ -49,14 +49,18 @@ class PlaylistMakerFragment : Fragment() {
             }.setNegativeButton("Завершить") { dialog, which ->
                 // сохраняем изменения и выходим
                 // save()
-                requireActivity().onBackPressedDispatcher.onBackPressed()
+                dialog.dismiss()
+                navigateBack()
+
+//                requireActivity().onBackPressedDispatcher.onBackPressed()
             }
 
         binding.backButton.setOnClickListener {
             if (binding.name.text.toString().isNotBlank()) {
                 confirmDialog.show()
             } else {
-                requireActivity().onBackPressedDispatcher.onBackPressed()
+//                requireActivity().onBackPressedDispatcher.onBackPressed()
+                navigateBack()
             }
         }
 
@@ -92,6 +96,11 @@ class PlaylistMakerFragment : Fragment() {
 
         }
     }
+
+    private fun navigateBack() {
+        requireActivity().supportFragmentManager.popBackStack()
+    }
+
     private fun createPlaylistAndNavigateBack() {
         val playlistName = binding.name.text.toString()
         val parent = parentFragment
@@ -103,12 +112,12 @@ class PlaylistMakerFragment : Fragment() {
                 "Parent fragment is not implementing OnPlaylistCreatedListener"
             )
         }
-        requireActivity().onBackPressedDispatcher.onBackPressed()
+//        requireActivity().onBackPressedDispatcher.onBackPressed()
+        navigateBack()
     }
 
     private fun activateCreateButton(s: CharSequence?) {
-        val button = binding.createButton
-        button.isEnabled = !s.isNullOrBlank()
+        binding.createButton.isEnabled = !s.isNullOrBlank()
     }
 
 //    private fun saveImageToPrivateStorage(uri: Uri) {

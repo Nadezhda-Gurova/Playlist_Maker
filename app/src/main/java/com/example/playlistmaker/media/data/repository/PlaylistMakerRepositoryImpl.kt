@@ -2,57 +2,77 @@ package com.example.playlistmaker.media.data.repository
 
 import com.example.playlistmaker.media.data.converters.PlaylistsDbConvertor
 import com.example.playlistmaker.media.data.db.PlaylistsAppDatabase
+import com.example.playlistmaker.media.data.db.PlaylistsTracksDatabase
+import com.example.playlistmaker.media.data.converters.PlaylistsTracksDbConverter
 import com.example.playlistmaker.media.data.db.entity.PlaylistEntity
+import com.example.playlistmaker.media.data.db.entity.PlaylistTrackEntity
 import com.example.playlistmaker.media.domain.repository.PlaylistMakerRepository
 import com.example.playlistmaker.media.ui.playlist.recyclerview.Playlist
+import com.example.playlistmaker.search.domain.models.Track
 import com.google.gson.Gson
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 
 class PlaylistMakerRepositoryImpl(
     private val appDatabase: PlaylistsAppDatabase,
+    private val playlistsTracksDatabase: PlaylistsTracksDatabase,
     private val playlistsDbConvertor: PlaylistsDbConvertor,
-) :
-    PlaylistMakerRepository {
+    private val playlistsTracksDbConverter: PlaylistsTracksDbConverter
+) : PlaylistMakerRepository {
 
-    private var _flow = MutableStateFlow<List<Playlist>>(emptyList())
-    private val flow: StateFlow<List<Playlist>> = _flow
+    private val flow = MutableStateFlow<List<Playlist>>(emptyList())
 
     override suspend fun insertPlaylist(playlist: Playlist) {
         val entity = convertFromPlaylist(playlist)
         val curTime = System.currentTimeMillis()
         appDatabase.playlistsDao()
-            .insert(entity.copy(timestamp = curTime, trackCount = playlist.trackCount))
-        _flow.emit(
-            listOf(
-                playlist.copy(trackCount = playlist.trackCount)
-            ) + flow.value
-        )
+            .insert(entity.copy(timestamp = curTime))
+        flow.emit(flow.value + listOf(playlist))
     }
+
+    override suspend fun addTrackToPlaylist(track: Track, playlist: Playlist) {
+        val ids = playlist.trackIds.toMutableList().apply { add(track.trackId) }
+        val count = ids.size
+        val playlist = playlist.copy(trackIds = ids, trackCount = count)
+
+        playlistsTracksDatabase.playlistsTracksDao()
+            .insertTrack(convertFromTrackToPlaylistTrackEntity(track))
+        updatePlaylist(playlist)
+    }
+
 
     override suspend fun updatePlaylist(playlist: Playlist) {
         appDatabase.playlistsDao().update(convertFromPlaylist(playlist))
-    }
-
-    override suspend fun updateTrackIds(playlistId: Int, trackIds: List<Int>) {
-        val trackIdsJson = Gson().toJson(trackIds)
-        appDatabase.playlistsDao().updateTrackIds(playlistId = playlistId, trackIds = trackIdsJson)
+        val currentLists = flow.value.toMutableList()
+        val index = currentLists.indexOfFirst { it.id == playlist.id }
+        if (index != -1) {
+            currentLists[index] = playlist
+        }
+        flow.emit(currentLists)
     }
 
     override suspend fun getAllPlaylists(): StateFlow<List<Playlist>> {
         val playlists = appDatabase.playlistsDao().getAllPlaylists()
         val sortedPlaylists = playlists.sortedByDescending { it.timestamp }
-        _flow.emit(convertFromPlaylistsEntity(sortedPlaylists))
+        flow.emit(convertFromPlaylistsEntity(sortedPlaylists))
         return flow
-    }
-
-    override suspend fun getPlaylistById(playlistId: Int): Playlist? {
-        return appDatabase.playlistsDao().getPlaylistById(playlistId)
-            ?.let { playlistsDbConvertor.map(it) }
     }
 
     override suspend fun deletePlaylistById(playlistId: Int) {
         appDatabase.playlistsDao().deletePlaylistById(playlistId)
+    }
+
+
+    private fun convertFromTrackToPlaylistTrackEntity(track: Track): PlaylistTrackEntity {
+        return playlistsTracksDbConverter.map(track)
+    }
+
+    override suspend fun removeTrackFromPlaylist(track: Track, playlist: Playlist) {
+//        playlist.trackIds.toMutableList().remove(track.trackId)
+//        playlist.trackCount--
+//        appDatabase.playlistsDao().update(convertFromPlaylist(playlist))
+//        playlistsTracksDatabase.playlistsTracksDao()
+//            .deleteTrack(track.trackId)
     }
 
     private fun convertFromPlaylistsEntity(playlistEntities: List<PlaylistEntity>): List<Playlist> {

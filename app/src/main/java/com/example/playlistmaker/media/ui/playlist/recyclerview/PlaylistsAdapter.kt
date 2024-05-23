@@ -7,7 +7,7 @@ import com.example.playlistmaker.databinding.ItemPlaylistBinding
 
 class PlaylistsAdapter(
     private var playlists: MutableList<Playlist>,
-    private val onPlaylistClickListener: OnPlaylistsClickListener
+    private val onPlaylistClickListener: OnPlaylistsClickListener,
 ) : RecyclerView.Adapter<PlaylistViewHolder>() {
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): PlaylistViewHolder {
         val binding =
@@ -26,14 +26,13 @@ class PlaylistsAdapter(
         }
     }
 
-
     fun clearPlaylists() {
-//        playlists.clear()
+       playlists.clear()
         notifyDataSetChanged()
     }
 
     fun replacePlaylists(newPlaylists: List<Playlist>) {
-//        playlists.clear()
+      playlists.clear()
         playlists.addAll(newPlaylists)
         notifyDataSetChanged()
     }
