@@ -10,7 +10,6 @@ import androidx.lifecycle.viewModelScope
 import com.bumptech.glide.Glide
 import com.example.playlistmaker.R
 import com.example.playlistmaker.databinding.ActivityAudioPlayerBinding
-import com.example.playlistmaker.media.ui.playlist.recyclerview.Playlist
 import com.example.playlistmaker.media.ui.playlist_maker.PlaylistMakerFragment
 import com.example.playlistmaker.player.ui.recyclerview.MediaPlayerAdapter
 import com.example.playlistmaker.search.domain.models.Track
@@ -20,7 +19,7 @@ import kotlinx.coroutines.launch
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import org.koin.core.parameter.parametersOf
 
-class MediaPlayerActivity : AppCompatActivity() {
+class MediaPlayerActivity : AppCompatActivity(), PreviousFragmentCallBack {
     private lateinit var binding: ActivityAudioPlayerBinding
     private val viewModel: MediaPlayerViewModel by viewModel {
         parametersOf(getString(R.string.zero_time))
@@ -195,6 +194,9 @@ class MediaPlayerActivity : AppCompatActivity() {
         viewModel.onPause()
     }
 
-
+    override fun removePreviousFragment() {
+        binding.fragmentContainer.visibility = View.GONE
+    }
 }
+
 

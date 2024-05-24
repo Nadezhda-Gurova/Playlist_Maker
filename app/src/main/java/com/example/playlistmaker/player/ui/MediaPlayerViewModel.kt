@@ -1,6 +1,7 @@
 package com.example.playlistmaker.player.ui
 
 import android.media.MediaPlayer
+import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -11,6 +12,7 @@ import com.example.playlistmaker.media.ui.playlist.recyclerview.Playlist
 import com.example.playlistmaker.search.domain.models.Track
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
@@ -42,7 +44,8 @@ class MediaPlayerViewModel(
 
     init {
         viewModelScope.launch {
-            playlistMakerInteractor.getAllPlaylists().collect { playlists ->
+            playlistMakerInteractor.getAllPlaylists()
+            playlistMakerInteractor.state.collectLatest { playlists ->
                 _playlists.postValue(playlists)
             }
         }

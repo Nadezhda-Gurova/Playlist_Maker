@@ -14,6 +14,7 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.widget.addTextChangedListener
 import androidx.fragment.app.Fragment
 import com.example.playlistmaker.databinding.FragmentPlaylistCreationBinding
+import com.example.playlistmaker.player.ui.PreviousFragmentCallBack
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import java.io.File
@@ -98,7 +99,8 @@ class PlaylistMakerFragment : Fragment() {
     }
 
     private fun navigateBack() {
-        requireActivity().supportFragmentManager.popBackStack()
+//        requireActivity().supportFragmentManager.popBackStack()
+        requireActivity().onBackPressedDispatcher.onBackPressed()
     }
 
     private fun createPlaylistAndNavigateBack() {
@@ -177,5 +179,9 @@ class PlaylistMakerFragment : Fragment() {
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
+        val callback = requireActivity()
+        if (callback is PreviousFragmentCallBack) {
+            callback.removePreviousFragment()
+        }
     }
 }

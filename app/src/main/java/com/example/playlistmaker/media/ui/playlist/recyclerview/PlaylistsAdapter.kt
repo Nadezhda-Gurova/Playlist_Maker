@@ -6,7 +6,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.playlistmaker.databinding.ItemPlaylistBinding
 
 class PlaylistsAdapter(
-    private var playlists: MutableList<Playlist>,
+    private var playlists: List<Playlist>,
     private val onPlaylistClickListener: OnPlaylistsClickListener,
 ) : RecyclerView.Adapter<PlaylistViewHolder>() {
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): PlaylistViewHolder {
@@ -26,14 +26,13 @@ class PlaylistsAdapter(
         }
     }
 
-    fun clearPlaylists() {
-       playlists.clear()
-        notifyDataSetChanged()
-    }
+//    fun clearPlaylists() {
+//       playlists.clear()
+//        notifyDataSetChanged()
+//    }
 
     fun replacePlaylists(newPlaylists: List<Playlist>) {
-      playlists.clear()
-        playlists.addAll(newPlaylists)
+        playlists = newPlaylists
         notifyDataSetChanged()
     }
 }

@@ -9,7 +9,6 @@ import androidx.fragment.app.activityViewModels
 import com.example.playlistmaker.R
 import com.example.playlistmaker.databinding.FragmentMediaBinding
 import com.example.playlistmaker.media.ui.playlist_maker.PlaylistMakerViewModel
-import com.example.playlistmaker.media.ui.playlist_maker.PlaylistsState
 import com.google.android.material.tabs.TabLayout
 import com.google.android.material.tabs.TabLayoutMediator
 

@@ -36,4 +36,5 @@
     <color name="text_in_playlist_maker_media">#1A1B22</color>
     <color name="back_in_bottomsheet">#FFFFFF</color>
     <color name="rectangle">#E6E8EB</color>
+    <color name="night_color_rectangle">#FFFFFF</color>
 </resources>

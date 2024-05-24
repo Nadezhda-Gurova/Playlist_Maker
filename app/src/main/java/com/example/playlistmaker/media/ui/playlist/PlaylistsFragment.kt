@@ -15,7 +15,6 @@ import com.example.playlistmaker.media.ui.playlist.recyclerview.Playlist
 import com.example.playlistmaker.media.ui.playlist.recyclerview.PlaylistsAdapter
 import com.example.playlistmaker.media.ui.playlist_maker.OnPlaylistCreatedListener
 import com.example.playlistmaker.media.ui.playlist_maker.PlaylistMakerViewModel
-import com.example.playlistmaker.media.ui.playlist_maker.PlaylistsState
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
 class PlaylistsFragment : Fragment(), OnPlaylistCreatedListener {
@@ -24,7 +23,7 @@ class PlaylistsFragment : Fragment(), OnPlaylistCreatedListener {
     private val binding: FragmentPlaylistsBinding
         get() = _binding!!
 
-    private val playlists  = arrayListOf<Playlist>()
+    private val playlists = arrayListOf<Playlist>()
     private val viewModel: PlaylistMakerViewModel by viewModel()
     private lateinit var playlistAdapter: PlaylistsAdapter
 
@@ -39,6 +38,7 @@ class PlaylistsFragment : Fragment(), OnPlaylistCreatedListener {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        viewModel.onRestore()
 
         // Установка слушателя нажатий на кнопку newPlaylist
         binding.newPlaylist.setOnClickListener {
@@ -62,17 +62,15 @@ class PlaylistsFragment : Fragment(), OnPlaylistCreatedListener {
         }
     }
 
-    private fun renderPlaylists(loadingState: PlaylistsState) {
-        when (loadingState) {
-            is PlaylistsState.Content -> {
-                nothingAddedVisability(false)
-                playlistAdapter.clearPlaylists()
-                playlistAdapter.replacePlaylists(loadingState.playlists)
+    private fun renderPlaylists(curPlaylists: List<Playlist>) {
+        when (curPlaylists.isEmpty()) {
+            true -> {
+                nothingAddedVisability(true)
             }
 
-            is PlaylistsState.Empty -> {
-               playlistAdapter.clearPlaylists()
-                nothingAddedVisability(true)
+            false -> {
+                nothingAddedVisability(false)
+                playlistAdapter.replacePlaylists(curPlaylists)
             }
         }
     }
@@ -83,6 +81,7 @@ class PlaylistsFragment : Fragment(), OnPlaylistCreatedListener {
     }
 
     override fun onDestroyView() {
+        viewModel.onDestroy()
         super.onDestroyView()
         _binding = null
     }

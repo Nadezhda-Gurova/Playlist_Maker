@@ -8,6 +8,7 @@ import kotlinx.coroutines.flow.StateFlow
 
 class PlaylistInteractorImpl(private val playlistRepository: PlaylistMakerRepository) :
     PlaylistMakerInteractor {
+    override val state: StateFlow<List<Playlist>> = playlistRepository.state
 
     override suspend fun createPlaylist(name: String, description: String, imagePath: String) {
         val playlist = Playlist(
@@ -24,8 +25,12 @@ class PlaylistInteractorImpl(private val playlistRepository: PlaylistMakerReposi
         playlistRepository.updatePlaylist(playlist)
     }
 
-    override suspend fun getAllPlaylists(): StateFlow<List<Playlist>> {
+    override suspend fun getAllPlaylists() {
         return playlistRepository.getAllPlaylists()
+    }
+
+    override suspend fun invalidateState() {
+        playlistRepository.invalidateState()
     }
 
     override suspend fun deletePlaylistById(playlistId: Int) {

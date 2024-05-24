@@ -9,9 +9,7 @@ import com.example.playlistmaker.media.data.db.entity.PlaylistTrackEntity
 import com.example.playlistmaker.media.domain.repository.PlaylistMakerRepository
 import com.example.playlistmaker.media.ui.playlist.recyclerview.Playlist
 import com.example.playlistmaker.search.domain.models.Track
-import com.google.gson.Gson
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
 
 class PlaylistMakerRepositoryImpl(
     private val appDatabase: PlaylistsAppDatabase,
@@ -20,14 +18,14 @@ class PlaylistMakerRepositoryImpl(
     private val playlistsTracksDbConverter: PlaylistsTracksDbConverter
 ) : PlaylistMakerRepository {
 
-    private val flow = MutableStateFlow<List<Playlist>>(emptyList())
+    override val state = MutableStateFlow<List<Playlist>>(emptyList())
 
     override suspend fun insertPlaylist(playlist: Playlist) {
         val entity = convertFromPlaylist(playlist)
         val curTime = System.currentTimeMillis()
         appDatabase.playlistsDao()
             .insert(entity.copy(timestamp = curTime))
-        flow.emit(flow.value + listOf(playlist))
+        state.emit(state.value + listOf(playlist))
     }
 
     override suspend fun addTrackToPlaylist(track: Track, playlist: Playlist) {
@@ -43,19 +41,22 @@ class PlaylistMakerRepositoryImpl(
 
     override suspend fun updatePlaylist(playlist: Playlist) {
         appDatabase.playlistsDao().update(convertFromPlaylist(playlist))
-        val currentLists = flow.value.toMutableList()
+        val currentLists = state.value.toMutableList()
         val index = currentLists.indexOfFirst { it.id == playlist.id }
         if (index != -1) {
             currentLists[index] = playlist
         }
-        flow.emit(currentLists)
+        state.emit(currentLists)
     }
 
-    override suspend fun getAllPlaylists(): StateFlow<List<Playlist>> {
+    override suspend fun getAllPlaylists() {
         val playlists = appDatabase.playlistsDao().getAllPlaylists()
         val sortedPlaylists = playlists.sortedByDescending { it.timestamp }
-        flow.emit(convertFromPlaylistsEntity(sortedPlaylists))
-        return flow
+        state.emit(convertFromPlaylistsEntity(sortedPlaylists))
+    }
+
+    override suspend fun invalidateState() {
+        state.emit(emptyList())
     }
 
     override suspend fun deletePlaylistById(playlistId: Int) {

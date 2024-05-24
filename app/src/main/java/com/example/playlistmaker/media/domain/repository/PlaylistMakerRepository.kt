@@ -5,10 +5,12 @@ import com.example.playlistmaker.search.domain.models.Track
 import kotlinx.coroutines.flow.StateFlow
 
 interface PlaylistMakerRepository {
+    val state: StateFlow<List<Playlist>>
     suspend fun insertPlaylist(playlist: Playlist)
     suspend fun updatePlaylist(playlist: Playlist)
-    suspend fun getAllPlaylists(): StateFlow<List<Playlist>>
+    suspend fun getAllPlaylists()
     suspend fun deletePlaylistById(playlistId: Int)
     suspend fun addTrackToPlaylist(track: Track, playlist: Playlist)
     suspend fun removeTrackFromPlaylist(track: Track, playlist: Playlist)
+    suspend fun invalidateState()
 }
