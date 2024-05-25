@@ -5,6 +5,6 @@ data class Playlist(
     val name: String,
     val description: String,
     val imagePath: String,
-    var trackIds: List<Int>, // This will store the JSON string of track IDs
+    var trackIds: List<Int>,
     var trackCount: Int,
 )

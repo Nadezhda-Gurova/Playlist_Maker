@@ -85,11 +85,10 @@
         <item name="android:backgroundTint">@color/white</item>
     </style>
 
-    <style name="TextInputLayoutAppearance" parent="Theme.MaterialComponents.Light.NoActionBar">
-        <!-- Customize your theme here. -->
-        <item name="colorPrimary">@color/custom_cursor_color</item>
-        <item name="colorPrimaryDark">@color/night_color_rectangle</item>
-        <item name="colorAccent">@color/custom_cursor_color</item>
+    <style name="TextInputStyle" parent="Widget.MaterialComponents.TextInputLayout.OutlinedBox">
+        <item name="boxStrokeColor">@color/text_input_layout_stroke_color</item>
+        <item name="android:textColorHint">@color/text_color_hint</item>
+        <item name="hintTextColor">@color/custom_cursor_color</item>
     </style>
 
 </resources>

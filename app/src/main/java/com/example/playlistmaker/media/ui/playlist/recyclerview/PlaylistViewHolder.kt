@@ -13,7 +13,7 @@ class PlaylistViewHolder(private val binding: ItemPlaylistBinding): RecyclerView
             .load(playlist.imagePath)
             .centerCrop()
             .placeholder(R.drawable.placeholder2)
-            .transform(RoundedCorners(itemView.resources.getDimensionPixelSize(R.dimen.round_corner)))
+            .transform(RoundedCorners(itemView.resources.getDimensionPixelSize(R.dimen.search_field)))
             .into(binding.album)
         binding.description.text = playlist.name
         binding.numberOfTracks.text = playlist.trackCount.toString()

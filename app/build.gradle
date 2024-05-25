@@ -38,6 +38,8 @@ android {
 }
 
 dependencies {
+    implementation 'androidx.cardview:cardview:1.0.0'
+    implementation 'androidx.recyclerview:recyclerview:1.2.1'
     implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core-jvm:1.7.3"
     implementation("androidx.room:room-runtime:2.6.1") // библиотека Room
     kapt("androidx.room:room-compiler:2.6.1") // Kotlin-кодогенератор

@@ -7,7 +7,6 @@ import com.example.playlistmaker.media.data.db.entity.PlaylistEntity
 
 
 @Database(version = 1, entities = [PlaylistEntity::class])
-//@TypeConverters(Converters::class)
 abstract class PlaylistsAppDatabase: RoomDatabase() {
     abstract fun playlistsDao(): PlaylistDao
 }

@@ -83,7 +83,7 @@ class MediaPlayerActivity : AppCompatActivity(), PreviousFragmentCallBack {
         viewModel.playlists.observe(this) { playlist ->
             playlistAdapter.updatePlaylists(playlist)
         }
-        // В методе, где вы обрабатываете результат добавления трека в плейлист
+
         viewModel.addTrackStatus.observe(this) { status ->
             when (status) {
                 is AddTrackStatus.Success -> {
@@ -103,9 +103,9 @@ class MediaPlayerActivity : AppCompatActivity(), PreviousFragmentCallBack {
                         Toast.LENGTH_SHORT
                     ).show()
                 }
-                // Другие возможные статусы
-                AddTrackStatus.DoesNotExist -> TODO()
-                AddTrackStatus.Removed -> TODO()
+                AddTrackStatus.DoesNotExist -> {}
+                AddTrackStatus.Removed -> {}
+                else -> {}
             }
         }
 
@@ -184,7 +184,6 @@ class MediaPlayerActivity : AppCompatActivity(), PreviousFragmentCallBack {
 
     private fun initBackButton() {
         binding.backButton.setOnClickListener {
-//            finish()
             onBackPressedDispatcher.onBackPressed()
         }
     }

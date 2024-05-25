@@ -1,5 +1,6 @@
 package com.example.playlistmaker.media.ui.playlist
 
+import android.graphics.Rect
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -8,6 +9,7 @@ import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.GridLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.example.playlistmaker.R
 import com.example.playlistmaker.databinding.FragmentPlaylistsBinding
 import com.example.playlistmaker.media.ui.playlist.recyclerview.OnPlaylistsClickListener
@@ -40,21 +42,17 @@ class PlaylistsFragment : Fragment(), OnPlaylistCreatedListener {
         super.onViewCreated(view, savedInstanceState)
         viewModel.onRestore()
 
-        // Установка слушателя нажатий на кнопку newPlaylist
         binding.newPlaylist.setOnClickListener {
             findNavController().navigate(R.id.action_mediaFragment_to_playlistMakerFragment)
         }
 
-        val onPlaylistClickListener = OnPlaylistsClickListener { playlist ->
-//            viewModel.addPlaylist(playlist)
-//            clickDebounce(track)
-        }
+        val onPlaylistClickListener = OnPlaylistsClickListener {}
 
         playlistAdapter = PlaylistsAdapter(playlists, onPlaylistClickListener)
         binding.recyclerView.layoutManager = GridLayoutManager(
-            requireContext(), /*Количество столбцов*/
+            requireContext(),
             2
-        ) //ориентация по умолчанию — вертикальная
+        )
         binding.recyclerView.adapter = playlistAdapter
 
         viewModel.playlists.observe(viewLifecycleOwner) { playlistState ->

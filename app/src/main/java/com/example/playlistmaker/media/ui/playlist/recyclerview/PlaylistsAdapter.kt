@@ -26,11 +26,6 @@ class PlaylistsAdapter(
         }
     }
 
-//    fun clearPlaylists() {
-//       playlists.clear()
-//        notifyDataSetChanged()
-//    }
-
     fun replacePlaylists(newPlaylists: List<Playlist>) {
         playlists = newPlaylists
         notifyDataSetChanged()

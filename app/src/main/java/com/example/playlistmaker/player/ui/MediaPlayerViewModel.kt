@@ -1,7 +1,6 @@
 package com.example.playlistmaker.player.ui
 
 import android.media.MediaPlayer
-import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -36,7 +35,6 @@ class MediaPlayerViewModel(
     private val _playlists = MutableLiveData<List<Playlist>>()
     val playlists: LiveData<List<Playlist>> get() = _playlists
 
-    // LiveData для передачи статуса добавления трека в плейлист
     private val _addTrackStatus = MutableLiveData<AddTrackStatus>()
     val addTrackStatus: LiveData<AddTrackStatus> get() = _addTrackStatus
 
@@ -172,58 +170,6 @@ class MediaPlayerViewModel(
             )
         }
     }
-
-//    // Метод для проверки присутствия трека в плейлисте
-//    fun checkIfTrackExistsInPlaylist(trackId: Int, playlistId: List<Int>) {
-//        // Проверяем, есть ли трек уже в плейлисте
-//        val trackExists = playlistMakerInteractor.checkIfTrackExistsInPlaylist(trackId, playlistId)
-//        if (trackExists) {
-//            // Если трек уже есть в плейлисте, передаем сообщение об этом в UI
-//            _addTrackStatus.postValue(AddTrackStatus.AlreadyExists)
-//        } else {
-//            // Если трека нет в плейлисте, начинаем процесс добавления
-//            addToPlaylist(trackId, playlistId)
-//        }
-//    }
-
-    // Метод для добавления трека в плейлист
-//    private fun addToPlaylist(track: Track, playlist: Playlist) {
-//        // Передаем информацию о треке и плейлисте в интерактор
-//        viewModelScope.launch {
-//            try {
-//                val isSuccess = playlistMakerInteractor.addTrackToPlaylist(track, playlist)
-//                if (isSuccess) {
-//                    // Если трек успешно добавлен, передаем статус в UI
-//                    _addTrackStatus.postValue(AddTrackStatus.Success)
-//                } else {
-//                    // Если произошла ошибка при добавлении, передаем статус в UI
-//                    _addTrackStatus.postValue(AddTrackStatus.ErrorAddingTrack)
-//                }
-//            } catch (e: Exception) {
-//                // Если произошла ошибка при добавлении, передаем статус в UI
-//                _addTrackStatus.postValue(AddTrackStatus.ErrorAddingTrack)
-//            }
-//        }
-//    }
-//     fun addTrackToPlaylist(track: Track, playlist: Playlist) {
-//        if (playlist.trackIds.contains(track.trackId)) {
-//            _addTrackStatus.postValue(AddTrackStatus.AlreadyExists)
-//        } else {
-//            viewModelScope.launch {
-//                try {
-//                    // Передаем трек и плейлист в интерактор для добавления
-//                    val isSuccess = playlistMakerInteractor.addTrackToPlaylist(track, playlist)
-//                    if (isSuccess) {
-//                        _addTrackStatus.postValue(AddTrackStatus.TrackAddedSuccessfully)
-//                    } else {
-//                        _addTrackStatus.postValue(AddTrackStatus.ErrorAddingTrack)
-//                    }
-//                } catch (e: Exception) {
-//                    _addTrackStatus.postValue(AddTrackStatus.ErrorAddingTrack)
-//                }
-//            }
-//        }
-//    }
 
     fun addTrackToPlaylist(track: Track, playlist: Playlist) {
         if (playlist.trackIds.contains(track.trackId)) {

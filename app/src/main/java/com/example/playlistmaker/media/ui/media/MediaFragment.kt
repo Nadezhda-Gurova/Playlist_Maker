@@ -77,15 +77,7 @@ class MediaFragment : Fragment() {
     }
 
     private fun showPlaylists() {
-
         // Логика для отображения раздела "Плейлисты"
     }
-
-//    override fun onPlaylistCreated(playlistName: String) {
-//        TODO("Not yet implemented")
-//    }
-////
-
-
 }
 
