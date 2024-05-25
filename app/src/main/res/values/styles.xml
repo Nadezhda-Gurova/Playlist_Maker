@@ -87,8 +87,8 @@
 
     <style name="TextInputStyle" parent="Widget.MaterialComponents.TextInputLayout.OutlinedBox">
         <item name="boxStrokeColor">@color/text_input_layout_stroke_color</item>
-        <item name="android:textColorHint">@color/text_color_hint</item>
-        <item name="hintTextColor">@color/custom_cursor_color</item>
+        <item name="android:textColorHint">@color/text_in_playlists_creation</item>
+        <item name="hintTextColor">@color/text_input_layout_stroke_color</item>
     </style>
 
 </resources>
