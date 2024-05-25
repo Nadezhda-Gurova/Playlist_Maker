@@ -8,19 +8,6 @@
     android:background="@color/white"
     android:orientation="vertical">
 
-
-<!--    <androidx.fragment.app.FragmentContainerView-->
-<!--        android:id="@+id/fragment_container"-->
-<!--        android:name="androidx.navigation.fragment.NavHostFragment"-->
-<!--        android:layout_width="match_parent"-->
-<!--        android:layout_height="match_parent"-->
-<!--        app:defaultNavHost="true"-->
-<!--        app:navGraph="@navigation/navigation_graph"-->
-<!--        app:layout_constraintBottom_toTopOf="@id/bottomNavigationView"-->
-<!--        app:layout_constraintEnd_toEndOf="parent"-->
-<!--        app:layout_constraintStart_toStartOf="parent"-->
-<!--        app:layout_constraintTop_toTopOf="parent" />-->
-
     <ScrollView xmlns:tools="http://schemas.android.com/tools"
         android:id="@+id/root123"
         android:layout_width="match_parent"
@@ -221,7 +208,6 @@
                     app:layout_constraintGuide_percent="0.5"
                     app:layout_constraintTag="guideline_vertical_center" />
 
-                <!-- Barrier по центру по вертикали -->
                 <androidx.constraintlayout.widget.Barrier
                     android:id="@+id/barrier_center_vertical"
                     android:layout_width="wrap_content"
@@ -444,7 +430,6 @@
             app:layout_constrainedHeight="true" />
     </LinearLayout>
 
-    <!-- activity_audio_player.xml -->
     <androidx.fragment.app.FragmentContainerView
         android:id="@+id/fragment_container"
         android:visibility="gone"

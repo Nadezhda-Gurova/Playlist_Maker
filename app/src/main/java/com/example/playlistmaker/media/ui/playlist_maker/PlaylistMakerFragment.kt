@@ -145,7 +145,7 @@ class PlaylistMakerFragment : Fragment() {
         _binding = null
         val callback = requireActivity()
         if (callback is PreviousFragmentCallBack) {
-            callback.removePreviousFragment()
+            callback.onPreviousFragmentCreation()
         }
     }
 }

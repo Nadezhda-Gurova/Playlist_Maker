@@ -180,7 +180,7 @@ class MediaPlayerViewModel(
         viewModelScope.launch {
             try {
                 playlistMakerInteractor.addTrackToPlaylist(track, playlist)
-                _addTrackStatus.value = AddTrackStatus.Success
+                _addTrackStatus.value = AddTrackStatus.Success(playlist)
             } catch (e: Exception) {
                 _addTrackStatus.value = AddTrackStatus.Error(e)
             }
@@ -214,7 +214,7 @@ private sealed class PlayerState {
 }
 
 sealed class AddTrackStatus {
-    data object Success : AddTrackStatus()
+    data class Success(val playlist: Playlist) : AddTrackStatus()
     data object AlreadyExists : AddTrackStatus()
     data object Removed : AddTrackStatus()
     data object DoesNotExist : AddTrackStatus()

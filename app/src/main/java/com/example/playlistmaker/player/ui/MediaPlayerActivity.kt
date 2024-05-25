@@ -87,7 +87,8 @@ class MediaPlayerActivity : AppCompatActivity(), PreviousFragmentCallBack {
         viewModel.addTrackStatus.observe(this) { status ->
             when (status) {
                 is AddTrackStatus.Success -> {
-                    Toast.makeText(this, "Трек успешно добавлен в плейлист", Toast.LENGTH_SHORT)
+                    bottomSheetBehavior.state = BottomSheetBehavior.STATE_HIDDEN
+                    Toast.makeText(this, "Добавлено в плейлист ${status.playlist.name}", Toast.LENGTH_SHORT)
                         .show()
                 }
 
@@ -103,6 +104,7 @@ class MediaPlayerActivity : AppCompatActivity(), PreviousFragmentCallBack {
                         Toast.LENGTH_SHORT
                     ).show()
                 }
+
                 AddTrackStatus.DoesNotExist -> {}
                 AddTrackStatus.Removed -> {}
                 else -> {}
@@ -193,7 +195,7 @@ class MediaPlayerActivity : AppCompatActivity(), PreviousFragmentCallBack {
         viewModel.onPause()
     }
 
-    override fun removePreviousFragment() {
+    override fun onPreviousFragmentCreation() {
         binding.fragmentContainer.visibility = View.GONE
     }
 }
