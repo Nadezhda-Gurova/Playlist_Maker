@@ -59,6 +59,19 @@ class PlaylistMakerRepositoryImpl(
         state.emit(emptyList())
     }
 
+    override suspend fun getPlaylistById(playlistId: Int): Playlist {
+        return playlistsDbConvertor.map(appDatabase.playlistsDao().getPlaylistById(playlistId))
+    }
+
+//    override suspend fun getAllTracks(): List<Track> {
+//        val allTracksEntities = playlistsTracksDatabase.playlistsTracksDao().getTracksById()
+//        return allTracksEntities.map { playlistsTracksDbConverter.map(it) }
+//    }
+    override suspend fun getTracksByIds(trackIds: List<Int>): List<Track> {
+        val trackEntities = playlistsTracksDatabase.playlistsTracksDao().getTracksById(trackIds)
+        return trackEntities.map { playlistsTracksDbConverter.map(it) }
+    }
+
     override suspend fun deletePlaylistById(playlistId: Int) {
         appDatabase.playlistsDao().deletePlaylistById(playlistId)
     }

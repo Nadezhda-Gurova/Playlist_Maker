@@ -22,7 +22,10 @@ class PlaylistsAdapter(
     override fun onBindViewHolder(holder: PlaylistViewHolder, position: Int) {
         holder.bind(playlists[position])
         holder.itemView.setOnClickListener {
-            onPlaylistClickListener.onPlaylistClick(playlists[holder.adapterPosition])
+            val playlistId = playlists.getOrNull(holder.bindingAdapterPosition)?.id
+            playlistId?.let { id ->
+                onPlaylistClickListener.onPlaylistClick(id)
+            }
         }
     }
 

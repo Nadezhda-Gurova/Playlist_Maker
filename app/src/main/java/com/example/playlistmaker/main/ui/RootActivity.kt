@@ -24,11 +24,14 @@ class RootActivity : AppCompatActivity(), BottomNavigationVisibility {
         binding.bottomNavigationView.setupWithNavController(navController)
 
         navController.addOnDestinationChangedListener { _, destination, _ ->
-            binding.bottomNavigationView.visibility = if (destination.id == R.id.playlistMakerFragment) {
-                View.GONE
-            } else {
-                View.VISIBLE
-            }
+            binding.bottomNavigationView.visibility =
+                if (destination.id == R.id.playlistMakerFragment ||
+                    destination.id == R.id.playlistDetailsFragment
+                ) {
+                    View.GONE
+                } else {
+                    View.VISIBLE
+                }
         }
     }
 

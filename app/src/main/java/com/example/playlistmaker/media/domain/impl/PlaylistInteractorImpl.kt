@@ -33,6 +33,18 @@ class PlaylistInteractorImpl(private val playlistRepository: PlaylistMakerReposi
         playlistRepository.invalidateState()
     }
 
+    override suspend fun getPlaylistById(playlistId: Int): Playlist {
+        return playlistRepository.getPlaylistById(playlistId)
+    }
+
+    override suspend fun getTracksByIds(trackIds: List<Int>): List<Track> {
+        return playlistRepository.getTracksByIds(trackIds)
+    }
+
+//    override suspend fun getAllTracks(): List<Track> {
+//        return playlistRepository.getAllTracks()
+//    }
+
     override suspend fun deletePlaylistById(playlistId: Int) {
         playlistRepository.deletePlaylistById(playlistId)
     }
