@@ -38,4 +38,5 @@
     <color name="night_color_rectangle">#FFFFFF</color>
     <color name="text_in_playlists_creation">#FFFFFF</color>
     <color name="custom_color">#FFFFFF</color>
+    <color name="dot">#1A1B22</color>
 </resources>

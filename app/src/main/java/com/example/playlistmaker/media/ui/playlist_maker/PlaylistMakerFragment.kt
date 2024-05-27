@@ -14,7 +14,9 @@ import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.widget.addTextChangedListener
 import androidx.fragment.app.Fragment
+import com.example.playlistmaker.R
 import com.example.playlistmaker.databinding.FragmentPlaylistCreationBinding
+import com.example.playlistmaker.player.ui.PlaylistCreationListener
 import com.example.playlistmaker.player.ui.PreviousFragmentCallBack
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import org.koin.androidx.viewmodel.ext.android.viewModel
@@ -43,11 +45,11 @@ class PlaylistMakerFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         confirmDialog = MaterialAlertDialogBuilder(requireContext())
-            .setTitle("Завершить создание плейлиста?")
-            .setMessage("Все несохраненные данные будут потеряны")
-            .setNeutralButton("Отмена") { dialog, which ->
+            .setTitle(getString(R.string.сomplete_playlist_creation))
+            .setMessage(getString(R.string.unsaved_data_warning))
+            .setNeutralButton(getString(R.string.cancel)) { dialog, which ->
                 dialog.dismiss()
-            }.setNegativeButton("Завершить") { dialog, which ->
+            }.setNegativeButton(getString(R.string.cancel)) { dialog, which ->
                 dialog.dismiss()
                 navigateBack()
             }
@@ -86,8 +88,10 @@ class PlaylistMakerFragment : Fragment() {
                 description = binding.description.text.toString(),
                 imagePath = curUri
             )
-            createPlaylistAndNavigateBack()
 
+            viewModel.playlistCreationCompleted.observe(viewLifecycleOwner) {
+                createPlaylistAndNavigateBack()
+            }
         }
     }
 
@@ -97,16 +101,10 @@ class PlaylistMakerFragment : Fragment() {
 
     private fun createPlaylistAndNavigateBack() {
         val playlistName = binding.name.text.toString()
-        val parent = parentFragment
-        if (parent is OnPlaylistCreatedListener) {
-            parent.onPlaylistCreated(playlistName)
-        } else {
-            Log.e(
-                "PlaylistMakerFragment",
-                "Parent fragment is not implementing OnPlaylistCreatedListener"
-            )
+        val callback = requireActivity()
+        if (callback is PlaylistCreationListener) {
+            callback.onPlaylistCreated()
         }
-
         Toast.makeText(
             requireContext(),
             "Плейлист $playlistName создан",
@@ -122,7 +120,6 @@ class PlaylistMakerFragment : Fragment() {
 
     private fun saveImageToPrivateStorage(uri: Uri) {
         val filePath = File(context?.getExternalFilesDir(Environment.DIRECTORY_PICTURES), "myalbum")
-
         if (!filePath.exists()) {
             filePath.mkdirs()
         }

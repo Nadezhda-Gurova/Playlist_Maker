@@ -1,8 +1,8 @@
 package com.example.playlistmaker.media.data.converters
 
 import com.example.playlistmaker.media.data.db.entity.PlaylistEntity
+import com.google.gson.Gson
 import com.google.gson.JsonSyntaxException
-import org.junit.Assert.*
 
 import org.junit.Test
 
@@ -10,7 +10,7 @@ class PlaylistsDbConvertorTest {
     
     @Test
     fun `wrong tracks id format `() {
-        val playlistsTracksDbConverter = PlaylistsDbConvertor()
+        val playlistsTracksDbConverter = PlaylistsDbConvertor(Gson())
 
         val playlistEntity = PlaylistEntity(
             name = "name",
@@ -29,7 +29,7 @@ class PlaylistsDbConvertorTest {
 
     @Test
     fun `proper ids format`() {
-        val playlistsTracksDbConverter = PlaylistsDbConvertor()
+        val playlistsTracksDbConverter = PlaylistsDbConvertor(Gson())
 
         val playlistEntity = PlaylistEntity(
             name = "name",

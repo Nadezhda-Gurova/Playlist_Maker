@@ -46,4 +46,10 @@
     <string name="description">Описание</string>
     <string name="create_button">Создать</string>
     <string name="playlist_created_message">Плейлист %1$s создан</string>
+    <string name="minutes">минут</string>
+    <string name="tracks_count">треков</string>
+    <string name="сomplete_playlist_creation">Завершить создание плейлиста?</string>
+    <string name="unsaved_data_warning">Все несохраненные данные будут потеряны</string>
+    <string name="cancel">Отмена</string>
+    <string name="complete">Завершить</string>
 </resources>

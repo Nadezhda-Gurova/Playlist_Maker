@@ -11,6 +11,7 @@ import com.example.playlistmaker.search.data.repository.ITunesRepositoryImpl
 import com.example.playlistmaker.search.data.repository.TrackHistoryRepositoryImpl
 import com.example.playlistmaker.search.domain.repository.SearchTrackHistoryRepository
 import com.example.playlistmaker.search.domain.repository.TracksRepository
+import com.google.gson.Gson
 import org.koin.dsl.module
 
 val repositoryModule = module {
@@ -29,7 +30,7 @@ val repositoryModule = module {
 
     factory { TracksDbConvertor() }
 
-    factory { PlaylistsDbConvertor() }
+    factory { PlaylistsDbConvertor(Gson()) }
 
     factory { PlaylistsTracksDbConverter() }
 

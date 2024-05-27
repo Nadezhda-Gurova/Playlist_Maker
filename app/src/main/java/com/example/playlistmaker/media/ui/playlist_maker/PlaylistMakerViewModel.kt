@@ -13,6 +13,9 @@ import kotlinx.coroutines.flow.collectLatest
 class PlaylistMakerViewModel(private val playlistInteractor: PlaylistMakerInteractor) :
     ViewModel() {
 
+    private val _playlistCreationCompleted = MutableLiveData<Unit>()
+    val playlistCreationCompleted: LiveData<Unit> get() = _playlistCreationCompleted
+
     private val _playlists = MutableLiveData<List<Playlist>>()
     val playlists: LiveData<List<Playlist>> get() = _playlists
 
@@ -27,6 +30,7 @@ class PlaylistMakerViewModel(private val playlistInteractor: PlaylistMakerIntera
     fun createPlaylist(name: String, description: String, imagePath: String) {
         viewModelScope.launch {
             playlistInteractor.createPlaylist(name, description, imagePath)
+            _playlistCreationCompleted.postValue(Unit)
         }
     }
 

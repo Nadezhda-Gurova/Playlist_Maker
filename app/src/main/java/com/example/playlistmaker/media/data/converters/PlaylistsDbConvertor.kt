@@ -5,7 +5,7 @@ import com.example.playlistmaker.media.ui.playlist.recyclerview.Playlist
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 
-class PlaylistsDbConvertor {
+class PlaylistsDbConvertor(private val gson: Gson) {
     fun map(playlistEntity: PlaylistEntity): Playlist {
         return Playlist(
             id = playlistEntity.id,
@@ -29,11 +29,11 @@ class PlaylistsDbConvertor {
     }
 
     private fun convertTrackIdsToJson(trackIds: List<Int>): String {
-        return Gson().toJson(trackIds)
+        return gson.toJson(trackIds)
     }
 
     private fun convertJsonToTrackIds(trackIds: String): List<Int> {
         val listType = object : TypeToken<List<Int>>() {}.type
-        return Gson().fromJson(trackIds, listType)
+        return gson.fromJson(trackIds, listType)
     }
 }

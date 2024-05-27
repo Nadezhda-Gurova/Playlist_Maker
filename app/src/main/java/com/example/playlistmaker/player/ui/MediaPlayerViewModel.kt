@@ -74,6 +74,7 @@ class MediaPlayerViewModel(
             }
 
             PlayerState.NotInited -> {}
+            else -> {}
         }
     }
 
@@ -200,6 +201,12 @@ class MediaPlayerViewModel(
             } catch (e: Exception) {
                 _addTrackStatus.value = AddTrackStatus.Error(e)
             }
+        }
+    }
+
+    fun onRestorePlaylists() {
+        viewModelScope.launch {
+            playlistMakerInteractor.getAllPlaylists()
         }
     }
 

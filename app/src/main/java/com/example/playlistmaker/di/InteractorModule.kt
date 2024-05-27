@@ -15,7 +15,10 @@ import com.example.playlistmaker.settings.domain.DarkModeRepository
 import com.example.playlistmaker.settings.domain.SettingsInteractor
 import com.example.playlistmaker.settings.domain.SettingsInteractorImpl
 import org.koin.android.ext.koin.androidContext
+import org.koin.core.qualifier.named
 import org.koin.dsl.module
+
+private const val DARK_THEME_SHARED_PREF = "dark-theme-shared-pref"
 
 val interactorModule = module {
 
@@ -27,8 +30,8 @@ val interactorModule = module {
         SearchInteractor(get())
     }
 
-    single {
-        androidContext().getSharedPreferences(DARK_THEME_MODE, MODE_PRIVATE)
+    single(named(DARK_THEME_SHARED_PREF)) {
+        androidContext().applicationContext.getSharedPreferences(DARK_THEME_MODE, MODE_PRIVATE)
     }
 
     single {
@@ -36,7 +39,7 @@ val interactorModule = module {
     }
 
     single<DarkModeRepository> {
-        DarkModeRepositoryImpl(get(), get())
+        DarkModeRepositoryImpl(get(named(DARK_THEME_SHARED_PREF)), get())
     }
 
     single<SettingsInteractor> {

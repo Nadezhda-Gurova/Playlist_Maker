@@ -19,7 +19,7 @@ import kotlinx.coroutines.launch
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import org.koin.core.parameter.parametersOf
 
-class MediaPlayerActivity : AppCompatActivity(), PreviousFragmentCallBack {
+class MediaPlayerActivity : AppCompatActivity(), PreviousFragmentCallBack, PlaylistCreationListener {
     private lateinit var binding: ActivityAudioPlayerBinding
     private val viewModel: MediaPlayerViewModel by viewModel {
         parametersOf(getString(R.string.zero_time))
@@ -32,6 +32,7 @@ class MediaPlayerActivity : AppCompatActivity(), PreviousFragmentCallBack {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_audio_player)
         binding = ActivityAudioPlayerBinding.bind(findViewById(R.id.root1))
+
 
         binding.newPlaylist.setOnClickListener {
             binding.fragmentContainer.visibility = View.VISIBLE
@@ -49,16 +50,10 @@ class MediaPlayerActivity : AppCompatActivity(), PreviousFragmentCallBack {
             BottomSheetBehavior.BottomSheetCallback() {
 
             override fun onStateChanged(bottomSheet: View, newState: Int) {
-
-                when (newState) {
-                    BottomSheetBehavior.STATE_HIDDEN -> {
-                        binding.overlay.visibility = View.GONE
-                    }
-
-                    else -> {
-                        binding.overlay.visibility = View.VISIBLE
-
-                    }
+                binding.overlay.visibility = if (newState == BottomSheetBehavior.STATE_HIDDEN) {
+                    View.GONE
+                } else {
+                    View.VISIBLE
                 }
             }
 
@@ -88,7 +83,11 @@ class MediaPlayerActivity : AppCompatActivity(), PreviousFragmentCallBack {
             when (status) {
                 is AddTrackStatus.Success -> {
                     bottomSheetBehavior.state = BottomSheetBehavior.STATE_HIDDEN
-                    Toast.makeText(this, "Добавлено в плейлист ${status.playlist.name}", Toast.LENGTH_SHORT)
+                    Toast.makeText(
+                        this,
+                        "Добавлено в плейлист ${status.playlist.name}",
+                        Toast.LENGTH_SHORT
+                    )
                         .show()
                 }
 
@@ -104,9 +103,6 @@ class MediaPlayerActivity : AppCompatActivity(), PreviousFragmentCallBack {
                         Toast.LENGTH_SHORT
                     ).show()
                 }
-
-                AddTrackStatus.DoesNotExist -> {}
-                AddTrackStatus.Removed -> {}
                 else -> {}
             }
         }
@@ -197,6 +193,10 @@ class MediaPlayerActivity : AppCompatActivity(), PreviousFragmentCallBack {
 
     override fun onPreviousFragmentCreation() {
         binding.fragmentContainer.visibility = View.GONE
+    }
+
+    override fun onPlaylistCreated() {
+        viewModel.onRestorePlaylists()
     }
 }
 

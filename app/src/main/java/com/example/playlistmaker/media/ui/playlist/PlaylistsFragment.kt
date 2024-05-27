@@ -1,6 +1,5 @@
 package com.example.playlistmaker.media.ui.playlist
 
-import android.graphics.Rect
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -9,17 +8,15 @@ import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.GridLayoutManager
-import androidx.recyclerview.widget.RecyclerView
 import com.example.playlistmaker.R
 import com.example.playlistmaker.databinding.FragmentPlaylistsBinding
 import com.example.playlistmaker.media.ui.playlist.recyclerview.OnPlaylistsClickListener
 import com.example.playlistmaker.media.ui.playlist.recyclerview.Playlist
 import com.example.playlistmaker.media.ui.playlist.recyclerview.PlaylistsAdapter
-import com.example.playlistmaker.media.ui.playlist_maker.OnPlaylistCreatedListener
 import com.example.playlistmaker.media.ui.playlist_maker.PlaylistMakerViewModel
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
-class PlaylistsFragment : Fragment(), OnPlaylistCreatedListener {
+class PlaylistsFragment : Fragment() {
 
     private var _binding: FragmentPlaylistsBinding? = null
     private val binding: FragmentPlaylistsBinding
@@ -61,16 +58,8 @@ class PlaylistsFragment : Fragment(), OnPlaylistCreatedListener {
     }
 
     private fun renderPlaylists(curPlaylists: List<Playlist>) {
-        when (curPlaylists.isEmpty()) {
-            true -> {
-                nothingAddedVisability(true)
-            }
-
-            false -> {
-                nothingAddedVisability(false)
-                playlistAdapter.replacePlaylists(curPlaylists)
-            }
-        }
+        nothingAddedVisability(curPlaylists.isEmpty())
+        if (curPlaylists.isNotEmpty()) playlistAdapter.replacePlaylists(curPlaylists)
     }
 
     fun nothingAddedVisability(visible: Boolean) {
@@ -82,11 +71,5 @@ class PlaylistsFragment : Fragment(), OnPlaylistCreatedListener {
         viewModel.onDestroy()
         super.onDestroyView()
         _binding = null
-    }
-
-    override fun onPlaylistCreated(playlistName: String) {
-//        binding.toast.isVisible = true
-//        val message = getString(R.string.playlist_created_message, playlistName)
-//        binding.toast.text = message
     }
 }

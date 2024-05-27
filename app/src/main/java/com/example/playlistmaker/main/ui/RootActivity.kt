@@ -7,8 +7,9 @@ import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.setupWithNavController
 import com.example.playlistmaker.R
 import com.example.playlistmaker.databinding.ActivityRootBinding
+import com.example.playlistmaker.search.ui.BottomNavigationVisibility
 
-class RootActivity : AppCompatActivity() {
+class RootActivity : AppCompatActivity(), BottomNavigationVisibility {
     private lateinit var binding: ActivityRootBinding
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -23,15 +24,15 @@ class RootActivity : AppCompatActivity() {
         binding.bottomNavigationView.setupWithNavController(navController)
 
         navController.addOnDestinationChangedListener { _, destination, _ ->
-            when (destination.id) {
-                R.id.playlistMakerFragment -> {
-                    binding.bottomNavigationView.visibility = View.GONE
-                }
-
-                else -> {
-                    binding.bottomNavigationView.visibility = View.VISIBLE
-                }
+            binding.bottomNavigationView.visibility = if (destination.id == R.id.playlistMakerFragment) {
+                View.GONE
+            } else {
+                View.VISIBLE
             }
         }
+    }
+
+    override fun setBottomNavigationVisibility(isVisible: Boolean) {
+        binding.bottomNavigationView.visibility = if (isVisible) View.VISIBLE else View.GONE
     }
 }
