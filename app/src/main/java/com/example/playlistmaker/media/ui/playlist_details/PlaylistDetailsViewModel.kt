@@ -6,6 +6,8 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.playlistmaker.media.domain.interactor.PlaylistMakerInteractor
 import com.example.playlistmaker.media.ui.playlist.recyclerview.Playlist
+import com.example.playlistmaker.search.data.dto.TrackTime
+import com.example.playlistmaker.search.domain.models.Track
 import kotlinx.coroutines.launch
 
 class PlaylistDetailsViewModel(
@@ -15,17 +17,25 @@ class PlaylistDetailsViewModel(
     private val _uiStateLiveData = MutableLiveData<PlaylistUIState>()
     val uiStateLiveData: LiveData<PlaylistUIState> get() = _uiStateLiveData
 
+    private val _tracksLiveData = MutableLiveData<List<Track>>()
+    val tracksLiveData: LiveData<List<Track>> = _tracksLiveData
+
+    private lateinit var currentPlaylist: Playlist
+
     fun loadPlaylist(playlistId: Int) {
         viewModelScope.launch {
             val playlist = playlistInteractor.getPlaylistById(playlistId)
+            currentPlaylist = playlist
             val tracks = playlistInteractor.getTracksByIds(playlist.trackIds)
-            val uiState = setPlaylistData(playlist)
+            val trackTimes = tracks.map { TrackTime(it.trackTime) }
+            val totalDuration = calculateTotalDuration(trackTimes)
+            val uiState = setPlaylistData(playlist, totalDuration)
             _uiStateLiveData.postValue(uiState)
+            _tracksLiveData.postValue(tracks)
         }
     }
 
-    private fun setPlaylistData(playlist: Playlist): PlaylistUIState {
-        val totalDuration = calculateTotalDuration(playlist.trackIds)
+    private fun setPlaylistData(playlist: Playlist, totalDuration: String): PlaylistUIState {
         val uiState = PlaylistUIState(
             name = playlist.name,
             description = playlist.description,
@@ -37,11 +47,25 @@ class PlaylistDetailsViewModel(
         return uiState
     }
 
-    private fun calculateTotalDuration(tracks: List<Int>): String {
-//        val totalDurationMillis = tracks.sumOf { it.trackTimeMillis }
-//        val totalMinutes = totalDurationMillis / 60000
-//        return SimpleDateFormat("mm", Locale.getDefault()).format(totalMinutes * 60000)
-        return ""
+    private fun calculateTotalDuration(tracks: List<TrackTime>): String {
+        val totalDurationMillis = tracks.sumOf { parseTimeToMillis(it.time) }
+        val totalMinutes = totalDurationMillis / 60000
+        return totalMinutes.toString()
+    }
+
+    private fun parseTimeToMillis(timeString: String): Long {
+        val parts = timeString.split(":")
+        val minutes = parts[0].toLong() * 60000
+        val seconds = parts[1].toLong() * 1000
+        return minutes + seconds
+    }
+
+    fun deleteTrackFromPlaylist(track: Track) {
+        viewModelScope.launch {
+            playlistInteractor.deleteTrackFromPlaylist(currentPlaylist, track)
+            val updatedTracks = playlistInteractor.getTracksByIds(currentPlaylist.trackIds)
+            _tracksLiveData.postValue(updatedTracks)
+        }
     }
 
 }

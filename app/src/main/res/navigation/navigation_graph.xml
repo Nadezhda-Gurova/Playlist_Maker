@@ -11,7 +11,7 @@
     <fragment
         android:id="@+id/searchFragment"
         android:name="com.example.playlistmaker.search.ui.SearchFragment"
-        android:label="SearchFragment" >
+        android:label="SearchFragment">
         <action
             android:id="@+id/action_searchFragment_to_mediaPlayerActivity"
             app:destination="@id/mediaPlayerActivity" />
@@ -19,7 +19,7 @@
     <fragment
         android:id="@+id/mediaFragment"
         android:name="com.example.playlistmaker.media.ui.media.MediaFragment"
-        android:label="MediaFragment" >
+        android:label="MediaFragment">
         <action
             android:id="@+id/action_mediaFragment_to_mediaPlayerActivity"
             app:destination="@id/mediaPlayerActivity" />
@@ -27,12 +27,19 @@
         <action
             android:id="@+id/action_mediaFragment_to_playlistMakerFragment"
             app:destination="@id/playlistMakerFragment" />
+        <action
+            android:id="@+id/action_mediaFragment_to_playlistDetailsFragment"
+            app:destination="@id/playlistDetailsFragment">
+            <argument
+                android:name="trackId"
+                app:argType="integer" />
+        </action>
+
     </fragment>
     <activity
         android:id="@+id/mediaPlayerActivity"
         android:name="com.example.playlistmaker.player.ui.MediaPlayerActivity"
-        android:label="MediaPlayerActivity"
-        />
+        android:label="MediaPlayerActivity" />
     <fragment
         android:id="@+id/favoriteTracksFragment"
         android:name="com.example.playlistmaker.media.ui.favorite.FavoriteTracksFragment"
@@ -40,17 +47,17 @@
     <fragment
         android:id="@+id/playlistsFragment"
         android:name="com.example.playlistmaker.media.ui.playlist.PlaylistsFragment"
-        android:label="PlaylistsFragment" >
+        android:label="PlaylistsFragment">
         <action
             android:id="@+id/action_playlistsFragment_to_playlistMakerFragment"
             app:destination="@id/playlistMakerFragment" />
-        <action
-            android:id="@+id/action_playlistsFragment_to_playlistDetailsFragment"
-            app:destination="@id/playlistDetailsFragment">
-            <argument
-                android:name="trackId"
-                app:argType="integer" />
-        </action>
+        <!--        <action-->
+        <!--            android:id="@+id/action_playlistsFragment_to_playlistDetailsFragment"-->
+        <!--            app:destination="@id/playlistDetailsFragment">-->
+        <!--            <argument-->
+        <!--                android:name="trackId"-->
+        <!--                app:argType="integer" />-->
+        <!--        </action>-->
     </fragment>
     <fragment
         android:id="@+id/playlistMakerFragment"

@@ -1,5 +1,6 @@
 package com.example.playlistmaker.media.ui.playlist
 
+import android.adservices.adid.AdId
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -10,7 +11,9 @@ import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.GridLayoutManager
 import com.example.playlistmaker.R
 import com.example.playlistmaker.databinding.FragmentPlaylistsBinding
-import com.example.playlistmaker.media.ui.playlist.recyclerview.OnPlaylistsClickListener
+import com.example.playlistmaker.media.ui.media.MediaFragment
+import com.example.playlistmaker.media.ui.media.MediaFragmentDirections
+import com.example.playlistmaker.media.ui.playlist.recyclerview.OnPlaylistClickListener2
 import com.example.playlistmaker.media.ui.playlist.recyclerview.Playlist
 import com.example.playlistmaker.media.ui.playlist.recyclerview.PlaylistsAdapter
 import com.example.playlistmaker.media.ui.playlist_maker.PlaylistMakerViewModel
@@ -43,11 +46,12 @@ class PlaylistsFragment : Fragment() {
             findNavController().navigate(R.id.action_mediaFragment_to_playlistMakerFragment)
         }
 
-        val onPlaylistClickListener = OnPlaylistsClickListener { playlistId ->
+        val onPlaylistClickListener = OnPlaylistClickListener2 { playlistId ->
             val action =
-                PlaylistsFragmentDirections.actionPlaylistsFragmentToPlaylistDetailsFragment(
-                    playlistId
-                )
+               MediaFragmentDirections.actionMediaFragmentToPlaylistDetailsFragment(playlistId)
+//                PlaylistsFragmentDirections.actionPlaylistsFragmentToPlaylistDetailsFragment(
+//                    playlistId
+//                )
             findNavController().navigate(action)
         }
 

@@ -10,7 +10,8 @@ import com.example.playlistmaker.search.domain.models.Track
 
 class TrackAdapter(
     private val data: MutableList<Track>,
-    private val onTrackClickListener: OnTrackClickListener
+    private val onTrackClickListener: OnTrackClickListener,
+    private val onTrackLongClickListener: OnTrackLongClickListener? = null
 ) : RecyclerView.Adapter<TrackViewHolder>() {
 
     override fun onCreateViewHolder(
@@ -24,6 +25,10 @@ class TrackAdapter(
     override fun onBindViewHolder(holder: TrackViewHolder, position: Int) {
         holder.bind(data[position])
         holder.itemView.setOnClickListener { onTrackClickListener.onTrackClick(data[holder.adapterPosition]) }
+        holder.itemView.setOnLongClickListener {
+            onTrackLongClickListener?.onTrackLongClick(holder, holder.adapterPosition)
+            true
+        }
     }
 
 
@@ -36,10 +41,19 @@ class TrackAdapter(
         notifyDataSetChanged()
     }
 
+    fun removeTrack(position: Int) {
+        data.removeAt(position)
+        notifyItemRemoved(position)
+    }
+
     fun replaceTracks(addedTracks: List<Track>) {
         data.clear()
         data.addAll(addedTracks)
         notifyDataSetChanged()
+    }
+
+    fun getData(): MutableList<Track> {
+        return data
     }
 
 }

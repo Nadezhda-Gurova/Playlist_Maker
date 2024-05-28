@@ -1,5 +1,6 @@
 package com.example.playlistmaker.di
 
+import com.example.playlistmaker.media.ui.playlist_details.PlaylistDetailsViewModel
 import com.example.playlistmaker.player.ui.MediaPlayerViewModel
 import com.example.playlistmaker.search.ui.SearchViewModel
 import com.example.playlistmaker.settings.ui.SettingsViewModel
@@ -18,10 +19,11 @@ val viewModelModule = module {
         SettingsViewModel(get())
     }
 
-    viewModel {
-        (zeroTime: String) ->
+    viewModel { (zeroTime: String) ->
         MediaPlayerViewModel(zeroTime, get(), get(), get())
     }
+
+    viewModel { PlaylistDetailsViewModel(get()) }
 
     single {
         SimpleDateFormat(
