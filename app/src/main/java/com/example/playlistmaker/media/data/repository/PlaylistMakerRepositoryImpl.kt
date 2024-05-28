@@ -82,26 +82,44 @@ class PlaylistMakerRepositoryImpl(
     }
 
 
-    override suspend fun deleteTrackFromPlaylist(playlist: Playlist, track: Track) {
-        val updatedTrackIds = playlist.trackIds.toMutableList().apply { remove(track.trackId) }
-        val updatedPlaylist =
-            playlist.copy(trackIds = updatedTrackIds, trackCount = updatedTrackIds.size)
+//    override suspend fun deleteTrackFromPlaylist(playlist: Playlist, track: Track) {
+//        val updatedTrackIds = playlist.trackIds.toMutableList().apply { remove(track.trackId) }
+//        val updatedPlaylist =
+//            playlist.copy(trackIds = updatedTrackIds, trackCount = updatedTrackIds.size)
+//
+//        val currentLists = state.value.toMutableList()
+//        var k = 0
+//        for (i in currentLists) {
+//            if (track.trackId in i.trackIds) {
+//                k++
+//            }
+//        }
+//        if (k == 1) {
+//            playlistsTracksDatabase.playlistsTracksDao().deleteTrack(track.trackId)
+//        }
+//        updatePlaylist(updatedPlaylist)
+//    }
 
-        appDatabase.playlistsDao().update(convertFromPlaylist(updatedPlaylist))
-        removeTrackIfNotInAnyPlaylist(track.trackId)
+    override suspend fun deleteTrackFromPlaylist(playlist: Playlist, track: Track) {
+        // Обновляем список идентификаторов треков, исключив удаляемый трек
+        val updatedTrackIds = playlist.trackIds.toMutableList().apply { remove(track.trackId) }
+        val updatedPlaylist = playlist.copy(trackIds = updatedTrackIds, trackCount = updatedTrackIds.size)
+
+        // Получаем текущие списки плейлистов из состояния
+        val currentPlaylists = state.value.toMutableList()
+
+        // Проверяем, сколько раз трек присутствует в плейлистах
+        val count = currentPlaylists.count { track.trackId in it.trackIds }
+
+        // Если трек присутствует только в одном плейлисте, удаляем его из базы данных
+        if (count == 1) {
+            playlistsTracksDatabase.playlistsTracksDao().deleteTrack(track.trackId)
+        }
+
+        // Обновляем плейлист с обновленными данными
         updatePlaylist(updatedPlaylist)
     }
 
-    private suspend fun removeTrackIfNotInAnyPlaylist(trackId: Int) {
-        val allPlaylists = appDatabase.playlistsDao().getAllPlaylists()
-        val trackInAnyPlaylist = allPlaylists.any { playlistEntity ->
-            trackId.toString() !in playlistEntity.trackIds.map { it.toString()  }
-        }
-
-        if (trackInAnyPlaylist) {
-            playlistsTracksDatabase.playlistsTracksDao().deleteTrack(trackId)
-        }
-    }
 
     private fun convertFromPlaylistsEntity(playlistEntities: List<PlaylistEntity>): List<Playlist> {
         return playlistEntities.map { entity -> playlistsDbConvertor.map(entity) }

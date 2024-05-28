@@ -1,6 +1,5 @@
 package com.example.playlistmaker.media.ui.playlist
 
-import android.adservices.adid.AdId
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -11,7 +10,6 @@ import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.GridLayoutManager
 import com.example.playlistmaker.R
 import com.example.playlistmaker.databinding.FragmentPlaylistsBinding
-import com.example.playlistmaker.media.ui.media.MediaFragment
 import com.example.playlistmaker.media.ui.media.MediaFragmentDirections
 import com.example.playlistmaker.media.ui.playlist.recyclerview.OnPlaylistClickListener2
 import com.example.playlistmaker.media.ui.playlist.recyclerview.Playlist
