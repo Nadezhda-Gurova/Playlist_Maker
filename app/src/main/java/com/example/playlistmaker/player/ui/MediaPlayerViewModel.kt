@@ -6,9 +6,12 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.playlistmaker.media.domain.interactor.FavoriteInteractor
+import com.example.playlistmaker.media.domain.interactor.PlaylistMakerInteractor
+import com.example.playlistmaker.media.ui.playlist.recyclerview.Playlist
 import com.example.playlistmaker.search.domain.models.Track
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
@@ -16,7 +19,8 @@ import java.text.SimpleDateFormat
 class MediaPlayerViewModel(
     val zeroTime: String,
     private val simpleDateFormat: SimpleDateFormat,
-    private val favoriteInteractor: FavoriteInteractor
+    private val favoriteInteractor: FavoriteInteractor,
+    private val playlistMakerInteractor: PlaylistMakerInteractor
 ) : ViewModel() {
 
     private var curTime: String = zeroTime
@@ -28,7 +32,22 @@ class MediaPlayerViewModel(
     private val player = MediaPlayer()
     val uiStateLiveData: LiveData<UiState> get() = _uiStateLiveData
 
+    private val _playlists = MutableLiveData<List<Playlist>>()
+    val playlists: LiveData<List<Playlist>> get() = _playlists
+
+    private val _addTrackStatus = MutableLiveData<AddTrackStatus>()
+    val addTrackStatus: LiveData<AddTrackStatus> get() = _addTrackStatus
+
     private var playerState: PlayerState = PlayerState.NotInited
+
+    init {
+        viewModelScope.launch {
+            playlistMakerInteractor.getAllPlaylists()
+            playlistMakerInteractor.state.collectLatest { playlists ->
+                _playlists.postValue(playlists)
+            }
+        }
+    }
 
     fun loadTrackData(track: Track) {
         curTrack = track
@@ -55,6 +74,7 @@ class MediaPlayerViewModel(
             }
 
             PlayerState.NotInited -> {}
+            else -> {}
         }
     }
 
@@ -152,6 +172,45 @@ class MediaPlayerViewModel(
         }
     }
 
+    fun addTrackToPlaylist(track: Track, playlist: Playlist) {
+        if (playlist.trackIds.contains(track.trackId)) {
+            _addTrackStatus.value = AddTrackStatus.AlreadyExists
+            return
+        }
+
+        viewModelScope.launch {
+            try {
+                playlistMakerInteractor.addTrackToPlaylist(track, playlist)
+                _addTrackStatus.value = AddTrackStatus.Success(playlist)
+            } catch (e: Exception) {
+                _addTrackStatus.value = AddTrackStatus.Error(e)
+            }
+        }
+    }
+
+    fun removeTrackFromPlaylist(track: Track, playlist: Playlist) {
+        if (!playlist.trackIds.contains(track.trackId)) {
+            _addTrackStatus.value = AddTrackStatus.DoesNotExist
+            return
+        }
+
+        viewModelScope.launch {
+            try {
+                playlistMakerInteractor.removeTrackFromPlaylist(track, playlist)
+                _addTrackStatus.value = AddTrackStatus.Removed
+            } catch (e: Exception) {
+                _addTrackStatus.value = AddTrackStatus.Error(e)
+            }
+        }
+    }
+
+    fun onRestorePlaylists() {
+        viewModelScope.launch {
+            playlistMakerInteractor.getAllPlaylists()
+        }
+    }
+
+
 }
 
 private sealed class PlayerState {
@@ -159,4 +218,12 @@ private sealed class PlayerState {
     object Inited : PlayerState()
     object Playing : PlayerState()
     object Paused : PlayerState()
+}
+
+sealed class AddTrackStatus {
+    data class Success(val playlist: Playlist) : AddTrackStatus()
+    data object AlreadyExists : AddTrackStatus()
+    data object Removed : AddTrackStatus()
+    data object DoesNotExist : AddTrackStatus()
+    data class Error(val error: Throwable) : AddTrackStatus()
 }

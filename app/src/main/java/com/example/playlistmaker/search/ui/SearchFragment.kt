@@ -1,5 +1,6 @@
 package com.example.playlistmaker.search.ui
 
+import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -32,6 +33,20 @@ class SearchFragment : Fragment() {
     private val viewModel: SearchViewModel by viewModel()
     private lateinit var clickDebounce: (Track) -> Unit
     private lateinit var searchDebounce: (Unit) -> Unit
+    private var bottomNavigationVisibility: BottomNavigationVisibility? = null
+
+    override fun onAttach(context: Context) {
+        super.onAttach(context)
+        if (context is BottomNavigationVisibility) {
+            bottomNavigationVisibility = context
+        }
+    }
+
+    override fun onDetach() {
+        super.onDetach()
+        bottomNavigationVisibility = null
+    }
+
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -77,6 +92,8 @@ class SearchFragment : Fragment() {
         binding.clearSearch.setOnClickListener {
             binding.search.setText("")
             binding.clearSearch.hideKeyboard()
+            bottomNavigationVisibility?.setBottomNavigationVisibility(true)
+            viewModel.searchTrack("")
         }
 
         binding.cleanHistoryButton.setOnClickListener {
@@ -95,12 +112,20 @@ class SearchFragment : Fragment() {
             if (isShowHistory) {
                 viewModel.searchTrack("")
             }
+            bottomNavigationVisibility?.setBottomNavigationVisibility(empty)
 
             binding.clearSearch.isVisible = !empty
             if (!empty) {
                 searchWithDebounce()
             }
+            if (empty && binding.search.hasFocus()) {
+                bottomNavigationVisibility?.setBottomNavigationVisibility(false)
+            }
         })
+
+        binding.search.setOnFocusChangeListener { _, hasFocus ->
+            bottomNavigationVisibility?.setBottomNavigationVisibility(!hasFocus || !binding.search.text.isNullOrEmpty())
+        }
 
         binding.badConnectionButton.setOnClickListener {
             hideYouSearched()
@@ -173,6 +198,7 @@ class SearchFragment : Fragment() {
                         hideNothingFound()
                         hideYouSearched()
                         replaceTracks(loadingState)
+                        bottomNavigationVisibility?.setBottomNavigationVisibility(true)
                     }
                 }
             }

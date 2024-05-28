@@ -19,11 +19,13 @@ class DarkModeRepositoryImpl(
 
     override fun save(themeSettings: ThemeSettings) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-            if (themeSettings.isDarkTheme) {
-                uiModeManager.setApplicationNightMode(UiModeManager.MODE_NIGHT_YES)
-            } else {
-                uiModeManager.setApplicationNightMode(UiModeManager.MODE_NIGHT_NO)
-            }
+            uiModeManager.setApplicationNightMode(
+                if (themeSettings.isDarkTheme) {
+                    UiModeManager.MODE_NIGHT_YES
+                } else {
+                    UiModeManager.MODE_NIGHT_NO
+                }
+            )
         } else {
             AppCompatDelegate.setDefaultNightMode(
                 if (themeSettings.isDarkTheme) {

@@ -1,16 +1,20 @@
-package com.example.playlistmaker.media.ui
+package com.example.playlistmaker.media.ui.media
 
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.activityViewModels
 import com.example.playlistmaker.R
 import com.example.playlistmaker.databinding.FragmentMediaBinding
+import com.example.playlistmaker.media.ui.playlist_maker.PlaylistMakerViewModel
 import com.google.android.material.tabs.TabLayout
 import com.google.android.material.tabs.TabLayoutMediator
 
-class MediaFragment : Fragment()  {
+class MediaFragment : Fragment() {
+
+    private val mediaViewModel: PlaylistMakerViewModel by activityViewModels()
 
     private var _binding: FragmentMediaBinding? = null
     private val binding: FragmentMediaBinding
@@ -38,6 +42,8 @@ class MediaFragment : Fragment()  {
 
             }
         }
+
+
 
         binding.tabLayout.addOnTabSelectedListener(object : TabLayout.OnTabSelectedListener {
             override fun onTabSelected(tab: TabLayout.Tab) {

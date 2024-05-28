@@ -20,7 +20,7 @@ val viewModelModule = module {
 
     viewModel {
         (zeroTime: String) ->
-        MediaPlayerViewModel(zeroTime, get(), get())
+        MediaPlayerViewModel(zeroTime, get(), get(), get())
     }
 
     single {
