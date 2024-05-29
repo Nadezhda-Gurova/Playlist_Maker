@@ -29,9 +29,9 @@ class PlaylistInteractorImpl(private val playlistRepository: PlaylistMakerReposi
         return playlistRepository.getAllPlaylists()
     }
 
-    override suspend fun invalidateState() {
-        playlistRepository.invalidateState()
-    }
+//    override suspend fun invalidateState() {
+//        playlistRepository.invalidateState()
+//    }
 
     override suspend fun getPlaylistById(playlistId: Int): Playlist {
         return playlistRepository.getPlaylistById(playlistId)

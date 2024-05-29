@@ -74,7 +74,7 @@ class PlaylistDetailsFragment : Fragment() {
                     if (newState == BottomSheetBehavior.STATE_HIDDEN) {
                         View.GONE
                     } else {
-                        View.VISIBLE
+                        View.GONE
                     }
             }
 

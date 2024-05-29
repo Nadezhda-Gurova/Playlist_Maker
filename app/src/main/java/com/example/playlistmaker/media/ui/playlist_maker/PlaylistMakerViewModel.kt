@@ -36,7 +36,7 @@ open class PlaylistMakerViewModel(private val playlistInteractor: PlaylistMakerI
 
     fun onDestroy() {
         viewModelScope.launch {
-            playlistInteractor.invalidateState()
+//            playlistInteractor.invalidateState()
         }
     }
 

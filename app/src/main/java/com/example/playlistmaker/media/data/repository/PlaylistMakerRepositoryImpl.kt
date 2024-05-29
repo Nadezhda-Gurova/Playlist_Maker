@@ -54,10 +54,10 @@ class PlaylistMakerRepositoryImpl(
         val sortedPlaylists = playlists.sortedByDescending { it.timestamp }
         state.emit(convertFromPlaylistsEntity(sortedPlaylists))
     }
-
-    override suspend fun invalidateState() {
-        state.emit(emptyList())
-    }
+//
+//    override suspend fun invalidateState() {
+//        state.emit(emptyList())
+//    }
 
     override suspend fun getPlaylistById(playlistId: Int): Playlist {
         return playlistsDbConvertor.map(appDatabase.playlistsDao().getPlaylistById(playlistId))
@@ -117,8 +117,7 @@ class PlaylistMakerRepositoryImpl(
         if (count == 1) {
             playlistsTracksDatabase.playlistsTracksDao().deleteTrack(track.trackId)
         }
-
-        // Обновляем плейлист с обновленными данными
+        appDatabase.playlistsDao().update(convertFromPlaylist(updatedPlaylist))
         updatePlaylist(updatedPlaylist)
     }
 
