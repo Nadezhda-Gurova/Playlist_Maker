@@ -45,6 +45,28 @@ class PlaylistInteractorImpl(private val playlistRepository: PlaylistMakerReposi
         playlistRepository.deleteTrackFromPlaylist(playlist, track)
     }
 
+    override suspend fun editPlaylist(
+        playlistId: Int,
+        name: String,
+        description: String,
+        imagePath: String
+    ): Playlist {
+        // Получаем существующий плейлист по его идентификатору
+        val existingPlaylist = getPlaylistById(playlistId)
+
+        // Создаем новый плейлист, обновляя поля
+        val updatedPlaylist = existingPlaylist.copy(
+            name = name,
+            description = description,
+            imagePath = imagePath
+        )
+
+        // Обновляем информацию о плейлисте в базе данных
+        updatePlaylist(updatedPlaylist)
+        return updatedPlaylist
+    }
+
+
     override suspend fun deletePlaylistById(playlistId: Int) {
         playlistRepository.deletePlaylistById(playlistId)
     }

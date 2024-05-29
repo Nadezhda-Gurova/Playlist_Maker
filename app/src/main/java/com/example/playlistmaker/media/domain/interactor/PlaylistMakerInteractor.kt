@@ -16,4 +16,5 @@ interface PlaylistMakerInteractor {
     suspend fun getPlaylistById(playlistId: Int): Playlist
     suspend fun getTracksByIds(trackIds: List<Int>): List<Track>
     suspend fun deleteTrackFromPlaylist(playlist: Playlist, track: Track)
+    suspend fun editPlaylist(playlistId: Int, name: String, description: String, imagePath: String):  Playlist
 }

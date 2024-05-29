@@ -66,5 +66,20 @@
     <fragment
         android:id="@+id/playlistDetailsFragment"
         android:name="com.example.playlistmaker.media.ui.playlist_details.PlaylistDetailsFragment"
-        android:label="PlaylistDetailsFragment" />
+        android:label="PlaylistDetailsFragment">
+        <action
+            android:id="@+id/action_playlistDetailsFragment_to_mediaFragment"
+            app:destination="@id/mediaFragment" />
+                <action
+            android:id="@+id/action_playlistDetailsFragment_to_editPlaylistFragment"
+            app:destination="@id/editPlaylistFragment">
+            <argument
+                android:name="playlistId"
+                app:argType="integer" />
+        </action>
+    </fragment>
+    <fragment
+        android:id="@+id/editPlaylistFragment"
+        android:name="com.example.playlistmaker.media.ui.playlist_edit.EditPlaylistFragment"
+        android:label="EditPlaylistFragment" />
 </navigation>

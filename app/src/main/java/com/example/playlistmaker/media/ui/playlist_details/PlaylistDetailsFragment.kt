@@ -8,11 +8,11 @@ import android.view.ViewGroup
 import android.widget.Toast
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
+import androidx.navigation.fragment.findNavController
 import com.bumptech.glide.Glide
 import com.example.playlistmaker.R
 import com.example.playlistmaker.databinding.FragmentPlaylistDetailsBinding
 import com.example.playlistmaker.player.ui.MediaPlayerActivity
-import com.example.playlistmaker.search.domain.models.Track
 import com.example.playlistmaker.search.ui.SearchFragment
 import com.example.playlistmaker.search.ui.recyclerview.OnTrackClickListener
 import com.example.playlistmaker.search.ui.recyclerview.OnTrackLongClickListener
@@ -29,6 +29,7 @@ class PlaylistDetailsFragment : Fragment() {
 
     private val viewModel: PlaylistDetailsViewModel by viewModel()
     private lateinit var trackAdapter: TrackAdapter
+    private var _playlistId: Int = -1
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -40,15 +41,16 @@ class PlaylistDetailsFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        val trackId = requireArguments().getInt("trackId")
-        viewModel.loadPlaylist(trackId)
+        val playlistId = requireArguments().getInt("trackId")
+        _playlistId = playlistId
+        viewModel.loadPlaylist(playlistId)
 
         binding.backButton.setOnClickListener {
             requireActivity().onBackPressedDispatcher.onBackPressed()
         }
 
-        viewModel.uiStateLiveData.observe(this) { uiState ->
-//            setPlaylistData(uiState)
+        viewModel.uiStateLiveData.observe(viewLifecycleOwner) { uiState ->
+            setPlaylistData(uiState)
             setPlaylistDataInBottomSheet(uiState)
             Glide.with(this)
                 .load(uiState.imagePath)
@@ -56,7 +58,7 @@ class PlaylistDetailsFragment : Fragment() {
                 .placeholder(R.drawable.placeholder_album)
                 .into(binding.playlistCover)
         }
-        viewModel.tracksLiveData.observe(this) { tracks ->
+        viewModel.tracksLiveData.observe(viewLifecycleOwner) { tracks ->
             trackAdapter.replaceTracks(tracks)
         }
 
@@ -68,7 +70,7 @@ class PlaylistDetailsFragment : Fragment() {
             BottomSheetBehavior.BottomSheetCallback() {
 
             override fun onStateChanged(bottomSheet: View, newState: Int) {
-                binding.overlayTracks.visibility =
+                binding.overlay.visibility =
                     if (newState == BottomSheetBehavior.STATE_HIDDEN) {
                         View.GONE
                     } else {
@@ -77,7 +79,7 @@ class PlaylistDetailsFragment : Fragment() {
             }
 
             override fun onSlide(bottomSheet: View, slideOffset: Float) {
-                binding.overlayTracks.alpha = slideOffset
+                binding.overlay.alpha = slideOffset
             }
         })
         val onTrackClickListener = OnTrackClickListener { track ->
@@ -100,7 +102,7 @@ class PlaylistDetailsFragment : Fragment() {
             BottomSheetBehavior.BottomSheetCallback() {
 
             override fun onStateChanged(bottomSheet: View, newState: Int) {
-                binding.overlayTracks.visibility =
+                binding.overlay.visibility =
                     if (newState == BottomSheetBehavior.STATE_HIDDEN) {
                         View.GONE
                     } else {
@@ -109,7 +111,7 @@ class PlaylistDetailsFragment : Fragment() {
             }
 
             override fun onSlide(bottomSheet: View, slideOffset: Float) {
-                binding.overlayTracks.alpha = slideOffset
+                binding.overlay.alpha = slideOffset
             }
         })
 
@@ -117,21 +119,35 @@ class PlaylistDetailsFragment : Fragment() {
             sharePlaylist()
         }
 
+        binding.edit.setOnClickListener {
+//            findNavController().navigate(R.id.action_playlistDetailsFragment_to_editPlaylistFragment)
+
+            val action =
+                PlaylistDetailsFragmentDirections.actionPlaylistDetailsFragmentToEditPlaylistFragment(
+                    playlistId = _playlistId
+                )
+            findNavController().navigate(action)
+
+//            childFragmentManager.beginTransaction()
+//                .replace(R.id.fragment_container, EditPlaylistFragment())
+//                .addToBackStack(null)
+//                .commit()
+        }
+
         binding.menuIc.setOnClickListener {
-            if (sheetMenuBehavior.state != BottomSheetBehavior.STATE_EXPANDED) {
-                sheetMenuBehavior.state = BottomSheetBehavior.STATE_EXPANDED
+            if (sheetMenuBehavior.state != BottomSheetBehavior.STATE_COLLAPSED) {
+                sheetMenuBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
             } else {
                 sheetMenuBehavior.state = BottomSheetBehavior.STATE_HIDDEN
             }
         }
 
-        binding.sharePlaylistIc.setOnClickListener {
-          sharePlaylist()
-        }
-
 
         trackAdapter = TrackAdapter(arrayListOf(), onTrackClickListener, onTrackLongClickListener)
         binding.recyclerView.adapter = trackAdapter
+        binding.deletePanel.setOnClickListener {
+            deletePlaylistConfirmationDialog()
+        }
 
 
     }
@@ -194,6 +210,25 @@ class PlaylistDetailsFragment : Fragment() {
                 dialog.dismiss()
             }
             .show()
+    }
+
+    private fun deletePlaylistConfirmationDialog() {
+        MaterialAlertDialogBuilder(requireContext())
+            .setTitle("Удалить плейлист")
+            .setMessage("Хотите удалить плейлист?")
+            .setNegativeButton("Нет") { dialog, _ ->
+                dialog.dismiss()
+            }
+            .setPositiveButton("Да") { dialog, _ ->
+                viewModel.deletePlaylist(_playlistId)
+                // Перейти на экран "Медиатека"
+                navigateToMedia()
+            }
+            .show()
+    }
+
+    private fun navigateToMedia() {
+        findNavController().navigate(R.id.action_playlistDetailsFragment_to_mediaFragment)
     }
 
     private fun setPlaylistDataInBottomSheet(uiState: PlaylistUIState) {

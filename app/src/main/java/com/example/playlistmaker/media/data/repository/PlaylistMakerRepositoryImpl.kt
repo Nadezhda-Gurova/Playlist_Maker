@@ -74,6 +74,7 @@ class PlaylistMakerRepositoryImpl(
 
     override suspend fun deletePlaylistById(playlistId: Int) {
         appDatabase.playlistsDao().deletePlaylistById(playlistId)
+        playlistsTracksDatabase.playlistsTracksDao().deleteOrphanedTracks()
     }
 
 
@@ -103,7 +104,8 @@ class PlaylistMakerRepositoryImpl(
     override suspend fun deleteTrackFromPlaylist(playlist: Playlist, track: Track) {
         // Обновляем список идентификаторов треков, исключив удаляемый трек
         val updatedTrackIds = playlist.trackIds.toMutableList().apply { remove(track.trackId) }
-        val updatedPlaylist = playlist.copy(trackIds = updatedTrackIds, trackCount = updatedTrackIds.size)
+        val updatedPlaylist =
+            playlist.copy(trackIds = updatedTrackIds, trackCount = updatedTrackIds.size)
 
         // Получаем текущие списки плейлистов из состояния
         val currentPlaylists = state.value.toMutableList()
@@ -118,6 +120,10 @@ class PlaylistMakerRepositoryImpl(
 
         // Обновляем плейлист с обновленными данными
         updatePlaylist(updatedPlaylist)
+    }
+
+    override suspend fun editPlaylist(playlistId: Int) {
+        playlistsTracksDatabase.playlistsTracksDao().deleteTrack(playlistId)
     }
 
 

@@ -10,7 +10,7 @@ import androidx.lifecycle.MutableLiveData
 import com.example.playlistmaker.media.ui.playlist.recyclerview.Playlist
 import kotlinx.coroutines.flow.collectLatest
 
-class PlaylistMakerViewModel(private val playlistInteractor: PlaylistMakerInteractor) :
+open class PlaylistMakerViewModel(private val playlistInteractor: PlaylistMakerInteractor) :
     ViewModel() {
 
     private val _playlistCreationCompleted = MutableLiveData<Unit>()

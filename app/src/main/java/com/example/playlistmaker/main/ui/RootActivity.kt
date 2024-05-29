@@ -26,7 +26,8 @@ class RootActivity : AppCompatActivity(), BottomNavigationVisibility {
         navController.addOnDestinationChangedListener { _, destination, _ ->
             binding.bottomNavigationView.visibility =
                 if (destination.id == R.id.playlistMakerFragment ||
-                    destination.id == R.id.playlistDetailsFragment
+                    destination.id == R.id.playlistDetailsFragment ||
+                    destination.id == R.id.editPlaylistFragment
                 ) {
                     View.GONE
                 } else {
