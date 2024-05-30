@@ -1,5 +1,6 @@
 package com.example.playlistmaker.media.ui.playlist_edit
 
+import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
@@ -16,8 +17,9 @@ class EditPlaylistViewModel(private val playlistInteractor: PlaylistMakerInterac
 
     fun editPlaylist(playlistId: Int, name: String, description: String, imagePath: String) {
         viewModelScope.launch {
-            val playlist =  playlistInteractor.editPlaylist(playlistId, name, description, imagePath)
-            _playlistEdit.postValue(playlist)
+            Log.d("РЕДАКТИРОВАНИЕ", "EditPlaylistViewModel")
+             playlistInteractor.editPlaylist(playlistId, name, description, imagePath)
+//            _playlistEdit.postValue(playlist)
         }
     }
 

@@ -1,5 +1,6 @@
 package com.example.playlistmaker.media.domain.impl
 
+import android.util.Log
 import com.example.playlistmaker.media.domain.interactor.PlaylistMakerInteractor
 import com.example.playlistmaker.media.domain.repository.PlaylistMakerRepository
 import com.example.playlistmaker.media.ui.playlist.recyclerview.Playlist
@@ -29,10 +30,6 @@ class PlaylistInteractorImpl(private val playlistRepository: PlaylistMakerReposi
         return playlistRepository.getAllPlaylists()
     }
 
-//    override suspend fun invalidateState() {
-//        playlistRepository.invalidateState()
-//    }
-
     override suspend fun getPlaylistById(playlistId: Int): Playlist {
         return playlistRepository.getPlaylistById(playlistId)
     }
@@ -50,20 +47,14 @@ class PlaylistInteractorImpl(private val playlistRepository: PlaylistMakerReposi
         name: String,
         description: String,
         imagePath: String
-    ): Playlist {
-        // Получаем существующий плейлист по его идентификатору
+    ){
         val existingPlaylist = getPlaylistById(playlistId)
-
-        // Создаем новый плейлист, обновляя поля
         val updatedPlaylist = existingPlaylist.copy(
             name = name,
             description = description,
             imagePath = imagePath
         )
-
-        // Обновляем информацию о плейлисте в базе данных
-        updatePlaylist(updatedPlaylist)
-        return updatedPlaylist
+        playlistRepository.editPlaylist(updatedPlaylist)
     }
 
 
@@ -74,8 +65,4 @@ class PlaylistInteractorImpl(private val playlistRepository: PlaylistMakerReposi
     override suspend fun addTrackToPlaylist(track: Track, playlist: Playlist) {
         playlistRepository.addTrackToPlaylist(track, playlist)
     }
-
-//    override suspend fun removeTrackFromPlaylist(track: Track, playlist: Playlist) {
-//        playlistRepository.removeTrackFromPlaylist(track, playlist)
-//    }
 }

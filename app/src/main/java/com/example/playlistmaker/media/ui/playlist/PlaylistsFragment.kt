@@ -47,9 +47,6 @@ class PlaylistsFragment : Fragment() {
         val onPlaylistClickListener = OnPlaylistClickListener2 { playlistId ->
             val action =
                MediaFragmentDirections.actionMediaFragmentToPlaylistDetailsFragment(playlistId)
-//                PlaylistsFragmentDirections.actionPlaylistsFragmentToPlaylistDetailsFragment(
-//                    playlistId
-//                )
             findNavController().navigate(action)
         }
 

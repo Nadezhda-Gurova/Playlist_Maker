@@ -63,8 +63,6 @@ class PlaylistDetailsViewModel(
     fun deleteTrackFromPlaylist(track: Track) {
         viewModelScope.launch {
             playlistInteractor.deleteTrackFromPlaylist(currentPlaylist, track)
-//            val updatedTracks = playlistInteractor.getTracksByIds(currentPlaylist.trackIds)
-//            _tracksLiveData.postValue(updatedTracks)
         }
     }
 

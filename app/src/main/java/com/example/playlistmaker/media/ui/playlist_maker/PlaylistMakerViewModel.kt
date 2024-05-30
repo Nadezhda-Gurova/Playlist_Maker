@@ -1,6 +1,5 @@
 package com.example.playlistmaker.media.ui.playlist_maker
 
-
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.playlistmaker.media.domain.interactor.PlaylistMakerInteractor
@@ -36,7 +35,6 @@ open class PlaylistMakerViewModel(private val playlistInteractor: PlaylistMakerI
 
     fun onDestroy() {
         viewModelScope.launch {
-//            playlistInteractor.invalidateState()
         }
     }
 

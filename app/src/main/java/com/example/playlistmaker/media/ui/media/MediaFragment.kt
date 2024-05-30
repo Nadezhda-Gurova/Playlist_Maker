@@ -77,7 +77,6 @@ class MediaFragment : Fragment() {
     }
 
     private fun showPlaylists() {
-//        findNavController().navigate(R.id.playlistsFragment)
     }
 }
 

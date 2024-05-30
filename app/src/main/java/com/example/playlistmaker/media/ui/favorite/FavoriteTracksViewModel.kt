@@ -36,7 +36,6 @@ class FavoriteTracksViewModel(
         _favoriteTracksLoadingState.postValue(state)
     }
 
-
      fun addTrack(track: Track) {
         viewModelScope.launch {  favoriteInteractor.addTrack(track) }
 

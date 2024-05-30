@@ -1,5 +1,6 @@
 package com.example.playlistmaker.media.data.repository
 
+import android.util.Log
 import com.example.playlistmaker.media.data.converters.PlaylistsDbConvertor
 import com.example.playlistmaker.media.data.db.PlaylistsAppDatabase
 import com.example.playlistmaker.media.data.db.PlaylistsTracksDatabase
@@ -54,19 +55,11 @@ class PlaylistMakerRepositoryImpl(
         val sortedPlaylists = playlists.sortedByDescending { it.timestamp }
         state.emit(convertFromPlaylistsEntity(sortedPlaylists))
     }
-//
-//    override suspend fun invalidateState() {
-//        state.emit(emptyList())
-//    }
 
     override suspend fun getPlaylistById(playlistId: Int): Playlist {
         return playlistsDbConvertor.map(appDatabase.playlistsDao().getPlaylistById(playlistId))
     }
 
-    //    override suspend fun getAllTracks(): List<Track> {
-//        val allTracksEntities = playlistsTracksDatabase.playlistsTracksDao().getTracksById()
-//        return allTracksEntities.map { playlistsTracksDbConverter.map(it) }
-//    }
     override suspend fun getTracksByIds(trackIds: List<Int>): List<Track> {
         val trackEntities = playlistsTracksDatabase.playlistsTracksDao().getTracksById(trackIds)
         return trackEntities.map { playlistsTracksDbConverter.map(it) }
@@ -82,38 +75,12 @@ class PlaylistMakerRepositoryImpl(
         return playlistsTracksDbConverter.map(track)
     }
 
-
-//    override suspend fun deleteTrackFromPlaylist(playlist: Playlist, track: Track) {
-//        val updatedTrackIds = playlist.trackIds.toMutableList().apply { remove(track.trackId) }
-//        val updatedPlaylist =
-//            playlist.copy(trackIds = updatedTrackIds, trackCount = updatedTrackIds.size)
-//
-//        val currentLists = state.value.toMutableList()
-//        var k = 0
-//        for (i in currentLists) {
-//            if (track.trackId in i.trackIds) {
-//                k++
-//            }
-//        }
-//        if (k == 1) {
-//            playlistsTracksDatabase.playlistsTracksDao().deleteTrack(track.trackId)
-//        }
-//        updatePlaylist(updatedPlaylist)
-//    }
-
     override suspend fun deleteTrackFromPlaylist(playlist: Playlist, track: Track) {
-        // Обновляем список идентификаторов треков, исключив удаляемый трек
         val updatedTrackIds = playlist.trackIds.toMutableList().apply { remove(track.trackId) }
         val updatedPlaylist =
             playlist.copy(trackIds = updatedTrackIds, trackCount = updatedTrackIds.size)
-
-        // Получаем текущие списки плейлистов из состояния
         val currentPlaylists = state.value.toMutableList()
-
-        // Проверяем, сколько раз трек присутствует в плейлистах
         val count = currentPlaylists.count { track.trackId in it.trackIds }
-
-        // Если трек присутствует только в одном плейлисте, удаляем его из базы данных
         if (count == 1) {
             playlistsTracksDatabase.playlistsTracksDao().deleteTrack(track.trackId)
         }
@@ -121,8 +88,9 @@ class PlaylistMakerRepositoryImpl(
         updatePlaylist(updatedPlaylist)
     }
 
-    override suspend fun editPlaylist(playlistId: Int) {
-        playlistsTracksDatabase.playlistsTracksDao().deleteTrack(playlistId)
+    override suspend fun editPlaylist(playlist: Playlist) {
+        Log.d("РЕДАКТИРОВАНИЕ_editPlaylist", "PlaylistMakerRepositoryImpl")
+       updatePlaylist(playlist)
     }
 
 

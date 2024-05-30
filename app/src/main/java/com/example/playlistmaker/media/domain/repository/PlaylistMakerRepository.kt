@@ -11,9 +11,8 @@ interface PlaylistMakerRepository {
     suspend fun getAllPlaylists()
     suspend fun deletePlaylistById(playlistId: Int)
     suspend fun addTrackToPlaylist(track: Track, playlist: Playlist)
-//    suspend fun invalidateState()
     suspend fun getPlaylistById(playlistId: Int): Playlist
     suspend fun getTracksByIds(trackIds: List<Int>): List<Track>
     suspend fun deleteTrackFromPlaylist(playlist: Playlist, track: Track)
-    suspend fun editPlaylist(playlistId: Int)
+   suspend fun editPlaylist(playlist: Playlist)
 }

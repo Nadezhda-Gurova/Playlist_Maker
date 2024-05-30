@@ -120,18 +120,11 @@ class PlaylistDetailsFragment : Fragment() {
         }
 
         binding.edit.setOnClickListener {
-//            findNavController().navigate(R.id.action_playlistDetailsFragment_to_editPlaylistFragment)
-
             val action =
                 PlaylistDetailsFragmentDirections.actionPlaylistDetailsFragmentToEditPlaylistFragment(
                     playlistId = _playlistId
                 )
             findNavController().navigate(action)
-
-//            childFragmentManager.beginTransaction()
-//                .replace(R.id.fragment_container, EditPlaylistFragment())
-//                .addToBackStack(null)
-//                .commit()
         }
 
         binding.menuIc.setOnClickListener {
@@ -173,20 +166,16 @@ class PlaylistDetailsFragment : Fragment() {
         }
 
         val playlistInfo = buildString {
-            appendLine(playlist.name) // Название плейлиста
-            appendLine(playlist.description) // Описание плейлиста
+            appendLine(playlist.name)
+            appendLine(playlist.description)
             appendLine("${playlist.trackCount} треков")
-        }// Количество треков
+        }
 
-        // Строим строку с информацией о треках плейлиста
         val tracksInfo = buildString {
-            // Добавляем пронумерованный список треков
             tracks.forEachIndexed { index, track ->
                 appendLine("${index + 1}. ${track.artistName} - ${track.trackName} (${track.trackTime})")
             }
         }
-
-        // Собираем текст сообщения для отправки
         val message = "$playlistInfo\n$tracksInfo"
 
         val sendIntent = Intent().apply {
@@ -221,7 +210,6 @@ class PlaylistDetailsFragment : Fragment() {
             }
             .setPositiveButton("Да") { dialog, _ ->
                 viewModel.deletePlaylist(_playlistId)
-                // Перейти на экран "Медиатека"
                 navigateToMedia()
             }
             .show()
