@@ -115,11 +115,11 @@ class PlaylistDetailsFragment : Fragment() {
             }
         })
 
-        binding.share.setOnClickListener {
+        binding.sharePanel.setOnClickListener {
             sharePlaylist()
         }
 
-        binding.edit.setOnClickListener {
+        binding.editPanel.setOnClickListener {
             val action =
                 PlaylistDetailsFragmentDirections.actionPlaylistDetailsFragmentToEditPlaylistFragment(
                     playlistId = _playlistId
