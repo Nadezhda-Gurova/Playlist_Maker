@@ -1,6 +1,5 @@
 package com.example.playlistmaker.media.data.repository
 
-import android.util.Log
 import com.example.playlistmaker.media.data.converters.PlaylistsDbConvertor
 import com.example.playlistmaker.media.data.db.PlaylistsAppDatabase
 import com.example.playlistmaker.media.data.db.PlaylistsTracksDatabase
@@ -87,12 +86,6 @@ class PlaylistMakerRepositoryImpl(
         appDatabase.playlistsDao().update(convertFromPlaylist(updatedPlaylist))
         updatePlaylist(updatedPlaylist)
     }
-
-    override suspend fun editPlaylist(playlist: Playlist) {
-        Log.d("РЕДАКТИРОВАНИЕ_editPlaylist", "PlaylistMakerRepositoryImpl")
-       updatePlaylist(playlist)
-    }
-
 
     private fun convertFromPlaylistsEntity(playlistEntities: List<PlaylistEntity>): List<Playlist> {
         return playlistEntities.map { entity -> playlistsDbConvertor.map(entity) }

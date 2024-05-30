@@ -5,6 +5,8 @@ import android.graphics.BitmapFactory
 import android.net.Uri
 import android.os.Bundle
 import android.os.Environment
+import android.os.Handler
+import android.os.Looper
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
@@ -42,7 +44,6 @@ class EditPlaylistFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        // Получение информации о плейлисте из аргументов
         val playlistId = arguments?.getInt("playlistId")
             ?: throw IllegalArgumentException("Playlist ID not provided")
         viewModel.loadPlaylist(playlistId)
@@ -52,7 +53,6 @@ class EditPlaylistFragment : Fragment() {
         })
 
         viewModel.playlistEdit.observe(viewLifecycleOwner) { playlist ->
-            // Заполнение полей экрана данными о плейлисте
             binding.createButton.text = getString(R.string.save)
             binding.name.setText(playlist.name)
             binding.description.setText(playlist.description)
@@ -65,12 +65,13 @@ class EditPlaylistFragment : Fragment() {
                 .into(binding.playlistCover)
         }
 
-        // Обработка нажатия на кнопку "Сохранить"
         binding.createButton.setOnClickListener {
             val title = binding.name.text.toString()
             val description = binding.description.text.toString()
             viewModel.editPlaylist(playlistId, title, description, curUri)
-            findNavController().navigateUp()
+            // Workaround due to coroutineScope finishes its life and the repository
+            // suspend method doesn't execute
+            Handler(Looper.getMainLooper()).postDelayed({ findNavController().navigateUp() }, 300L)
         }
 
         binding.backButton.setOnClickListener {

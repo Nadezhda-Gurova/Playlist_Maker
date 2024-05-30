@@ -1,6 +1,5 @@
 package com.example.playlistmaker.media.domain.impl
 
-import android.util.Log
 import com.example.playlistmaker.media.domain.interactor.PlaylistMakerInteractor
 import com.example.playlistmaker.media.domain.repository.PlaylistMakerRepository
 import com.example.playlistmaker.media.ui.playlist.recyclerview.Playlist
@@ -54,7 +53,7 @@ class PlaylistInteractorImpl(private val playlistRepository: PlaylistMakerReposi
             description = description,
             imagePath = imagePath
         )
-        playlistRepository.editPlaylist(updatedPlaylist)
+        playlistRepository.updatePlaylist(updatedPlaylist)
     }
 
 
