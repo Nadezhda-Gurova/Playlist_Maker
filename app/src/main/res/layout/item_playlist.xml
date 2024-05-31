@@ -62,7 +62,7 @@
                 android:layout_height="wrap_content"
                 android:background="@color/background_in_mediaplayer"
                 android:ellipsize="end"
-                android:text=" треков"
+                android:text="@string/tracks"
                 android:fontFamily="@font/ys_display_regular"
                 android:maxLines="1"
                 android:textColor="@color/text_in_playlists_creation"
