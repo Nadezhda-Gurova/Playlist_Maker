@@ -27,11 +27,18 @@ class PlaylistDetailsViewModel(
             val playlist = playlistInteractor.getPlaylistById(playlistId)
             currentPlaylist = playlist
             val tracks = playlistInteractor.getTracksByIds(playlist.trackIds)
+            val sortedTracks = mutableListOf<Track>()
+            playlist.trackIds.forEach { trackId ->
+                val track = tracks.find { it.trackId == trackId }
+                track?.let {
+                    sortedTracks.add(0, it)
+                }
+            }
             val trackTimes = tracks.map { TrackTime(it.trackTime) }
             val totalDuration = calculateTotalDuration(trackTimes)
             val uiState = setPlaylistData(playlist, totalDuration)
             _uiStateLiveData.postValue(uiState)
-            _tracksLiveData.postValue(tracks)
+            _tracksLiveData.postValue(sortedTracks)
         }
     }
 
@@ -71,7 +78,6 @@ class PlaylistDetailsViewModel(
             playlistInteractor.deletePlaylistById(playlistId)
         }
     }
-
 }
 
 data class PlaylistUIState(

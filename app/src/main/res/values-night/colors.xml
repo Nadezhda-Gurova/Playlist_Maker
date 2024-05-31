@@ -39,4 +39,6 @@
     <color name="text_in_playlists_creation">#FFFFFF</color>
     <color name="custom_color">#FFFFFF</color>
     <color name="dot">#1A1B22</color>
+    <color name="back_in_media_right_value">#E6E8EB</color>
+    <color name="text_in_media">#1A1B22</color>
 </resources>

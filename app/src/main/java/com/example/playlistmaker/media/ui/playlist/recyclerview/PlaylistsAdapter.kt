@@ -7,7 +7,7 @@ import com.example.playlistmaker.databinding.ItemPlaylistBinding
 
 class PlaylistsAdapter(
     private var playlists: List<Playlist>,
-    private val onPlaylistClickListener2: OnPlaylistClickListener2,
+    private val onPlaylistClickListener: OnPlaylistsClickListener,
 ) : RecyclerView.Adapter<PlaylistViewHolder>() {
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): PlaylistViewHolder {
         val binding =
@@ -22,9 +22,9 @@ class PlaylistsAdapter(
     override fun onBindViewHolder(holder: PlaylistViewHolder, position: Int) {
         holder.bind(playlists[position])
         holder.itemView.setOnClickListener {
-            val playlistId = playlists.getOrNull(holder.bindingAdapterPosition)?.id
-            playlistId?.let { id ->
-                onPlaylistClickListener2.onPlaylistClick(id)
+            val playlistId = playlists.getOrNull(holder.bindingAdapterPosition)
+            playlistId?.let { playlist ->
+                onPlaylistClickListener.onPlaylistClick(playlist)
             }
         }
     }

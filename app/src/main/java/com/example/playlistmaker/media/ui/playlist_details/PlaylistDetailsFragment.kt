@@ -1,10 +1,16 @@
 package com.example.playlistmaker.media.ui.playlist_details
 
 import android.content.Intent
+import android.graphics.Insets
+import android.os.Build
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
+import android.util.DisplayMetrics
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.WindowInsets
 import android.widget.Toast
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
@@ -22,7 +28,9 @@ import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
+
 class PlaylistDetailsFragment : Fragment() {
+
     private var _binding: FragmentPlaylistDetailsBinding? = null
     private val binding: FragmentPlaylistDetailsBinding
         get() = _binding!!
@@ -60,11 +68,13 @@ class PlaylistDetailsFragment : Fragment() {
         }
         viewModel.tracksLiveData.observe(viewLifecycleOwner) { tracks ->
             trackAdapter.replaceTracks(tracks)
+            binding.noTracksFound.isVisible = tracks.isEmpty()
         }
 
         val bottomSheetBehavior = BottomSheetBehavior.from(binding.tracksBottomSheet).apply {
             state = BottomSheetBehavior.STATE_COLLAPSED
         }
+        bottomSheetBehavior.peekHeight = calculatePeekHeight()
 
         bottomSheetBehavior.addBottomSheetCallback(object :
             BottomSheetBehavior.BottomSheetCallback() {
@@ -97,6 +107,7 @@ class PlaylistDetailsFragment : Fragment() {
         val sheetMenuBehavior = BottomSheetBehavior.from(binding.menuBottomSheet).apply {
             state = BottomSheetBehavior.STATE_HIDDEN
         }
+        sheetMenuBehavior.peekHeight = calculatePeekHeight()
 
         sheetMenuBehavior.addBottomSheetCallback(object :
             BottomSheetBehavior.BottomSheetCallback() {
@@ -168,7 +179,7 @@ class PlaylistDetailsFragment : Fragment() {
         val playlistInfo = buildString {
             appendLine(playlist.name)
             appendLine(playlist.description)
-            appendLine("${playlist.trackCount} треков")
+            appendLine("${playlist.trackCount} ${getTrackWordForm(playlist.trackCount)}")
         }
 
         val tracksInfo = buildString {
@@ -186,6 +197,18 @@ class PlaylistDetailsFragment : Fragment() {
         startActivity(Intent.createChooser(sendIntent, "Поделиться плейлистом"))
     }
 
+    private fun getTrackWordForm(count: Int): String {
+        val lastDigit = count % 10
+        val lastTwoDigits = count % 100
+
+        return when {
+            lastTwoDigits in 11..19 -> "треков"
+            lastDigit == 1 -> "трек"
+            lastDigit in 2..4 -> "трека"
+            else -> "треков"
+        }
+    }
+
     private fun showDeleteConfirmationDialog(holder: TrackViewHolder, position: Int) {
         val track = trackAdapter.getData()[position]
         MaterialAlertDialogBuilder(holder.itemView.context)
@@ -194,6 +217,9 @@ class PlaylistDetailsFragment : Fragment() {
             .setPositiveButton("Удалить") { dialog, which ->
                 viewModel.deleteTrackFromPlaylist(track)
                 trackAdapter.removeTrack(position)
+                Handler(Looper.getMainLooper()).postDelayed({
+                    viewModel.loadPlaylist(_playlistId)
+                }, 300L)
             }
             .setNegativeButton("Отмена") { dialog, which ->
                 dialog.dismiss()
@@ -229,6 +255,7 @@ class PlaylistDetailsFragment : Fragment() {
 
         binding.curPlaylistName.text = uiState.name
         binding.trackCountBs.text = uiState.trackCount.toString()
+        binding.textTracksBs.text = getTrackWordForm(uiState.trackCount)
     }
 
 
@@ -240,5 +267,40 @@ class PlaylistDetailsFragment : Fragment() {
         if (uiState.description != "") {
             binding.playlistDescription.isVisible = true
         }
+        binding.tracksText.text = getTrackWordForm(uiState.trackCount)
+    }
+
+    private fun calculatePeekHeight(): Int {
+        val displayMetrics = resources.displayMetrics
+        val density = displayMetrics.density
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            val windowMetrics = requireActivity().windowManager.currentWindowMetrics
+            val insets: Insets = windowMetrics.windowInsets
+                .getInsetsIgnoringVisibility(WindowInsets.Type.systemBars())
+            val dpHeight = (windowMetrics.bounds.height() - insets.bottom - insets.top) / density
+            val dpWidth = (windowMetrics.bounds.width()- insets.left - insets.right) / density
+            return calculatePeek(dpHeight, dpWidth, displayMetrics)
+        } else {
+            val dpHeight = displayMetrics.heightPixels / displayMetrics.density
+            val dpWidth = displayMetrics.widthPixels / displayMetrics.density
+            return calculatePeek(dpHeight, dpWidth, displayMetrics)
+        }
+    }
+
+    private fun calculatePeek(
+        dpHeight: Float,
+        dpWidth: Float,
+        displayMetrics: DisplayMetrics
+    ): Int {
+        val peekHeight = dpHeight - dpWidth - DISTANCE_BETWEEN_IMAGE_AND_BOTTOM_SHEET
+        return (peekHeight * displayMetrics.density).toInt()
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
     }
 }
+
+private const val DISTANCE_BETWEEN_IMAGE_AND_BOTTOM_SHEET = 174

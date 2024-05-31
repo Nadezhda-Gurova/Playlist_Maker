@@ -56,4 +56,6 @@
     <string name="edit_playlist">Редактировать информацию</string>
     <string name="delete_playlist">Удалить плейлист</string>
     <string name="save">Сохранить</string>
+    <string name="treck_text_in_bs">треков</string>
+    <string name="no_tracks_edded">В плейлист не добавлено треков</string>
 </resources>
