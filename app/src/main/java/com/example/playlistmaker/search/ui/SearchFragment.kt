@@ -103,7 +103,11 @@ class SearchFragment : Fragment() {
             viewModel.clearHistory()
         }
 
-        viewModel.searchTrack("")
+        if (savedInstanceState == null) {
+            viewModel.searchTrack("")
+        } else {
+            binding.search.setText(savedInstanceState.getString(SEARCH_INPUT, ""))
+        }
 
         binding.search.addTextChangedListener(onTextChanged = { s, _, _, _ ->
             val empty = s.isNullOrEmpty()
@@ -233,13 +237,6 @@ class SearchFragment : Fragment() {
     override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
         outState.putString(SEARCH_INPUT, binding.search.text.toString())
-    }
-
-    override fun onViewStateRestored(savedInstanceState: Bundle?) {
-        super.onViewStateRestored(savedInstanceState)
-        if (savedInstanceState != null) {
-            binding.search.setText(savedInstanceState.getString(SEARCH_INPUT, ""))
-        }
     }
 
     companion object {

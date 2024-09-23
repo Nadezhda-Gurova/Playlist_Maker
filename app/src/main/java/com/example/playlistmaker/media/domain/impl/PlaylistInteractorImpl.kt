@@ -29,9 +29,33 @@ class PlaylistInteractorImpl(private val playlistRepository: PlaylistMakerReposi
         return playlistRepository.getAllPlaylists()
     }
 
-    override suspend fun invalidateState() {
-        playlistRepository.invalidateState()
+    override suspend fun getPlaylistById(playlistId: Int): Playlist {
+        return playlistRepository.getPlaylistById(playlistId)
     }
+
+    override suspend fun getTracksByIds(trackIds: List<Int>): List<Track> {
+        return playlistRepository.getTracksByIds(trackIds)
+    }
+
+    override suspend fun deleteTrackFromPlaylist(playlist: Playlist, track: Track) {
+        playlistRepository.deleteTrackFromPlaylist(playlist, track)
+    }
+
+    override suspend fun editPlaylist(
+        playlistId: Int,
+        name: String,
+        description: String,
+        imagePath: String
+    ){
+        val existingPlaylist = getPlaylistById(playlistId)
+        val updatedPlaylist = existingPlaylist.copy(
+            name = name,
+            description = description,
+            imagePath = imagePath
+        )
+        playlistRepository.updatePlaylist(updatedPlaylist)
+    }
+
 
     override suspend fun deletePlaylistById(playlistId: Int) {
         playlistRepository.deletePlaylistById(playlistId)
@@ -39,9 +63,5 @@ class PlaylistInteractorImpl(private val playlistRepository: PlaylistMakerReposi
 
     override suspend fun addTrackToPlaylist(track: Track, playlist: Playlist) {
         playlistRepository.addTrackToPlaylist(track, playlist)
-    }
-
-    override suspend fun removeTrackFromPlaylist(track: Track, playlist: Playlist) {
-        playlistRepository.removeTrackFromPlaylist(track, playlist)
     }
 }

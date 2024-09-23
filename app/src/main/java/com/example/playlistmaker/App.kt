@@ -7,6 +7,7 @@ import com.example.playlistmaker.di.dataModule
 import com.example.playlistmaker.di.favoriteTracksModule
 import com.example.playlistmaker.di.interactorModule
 import com.example.playlistmaker.di.mediaModule
+import com.example.playlistmaker.di.playlistEditModule
 import com.example.playlistmaker.di.playlistMakerModule
 import com.example.playlistmaker.di.playlistsModule
 import com.example.playlistmaker.di.repositoryModule
@@ -29,7 +30,8 @@ class App : Application() {
                 mediaModule,
                 favoriteTracksModule,
                 playlistsModule,
-                playlistMakerModule
+                playlistMakerModule,
+                playlistEditModule
             )
         }
         val darkModeRepository = DarkModeRepositoryImpl(

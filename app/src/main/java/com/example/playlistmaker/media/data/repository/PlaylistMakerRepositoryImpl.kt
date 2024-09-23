@@ -55,12 +55,18 @@ class PlaylistMakerRepositoryImpl(
         state.emit(convertFromPlaylistsEntity(sortedPlaylists))
     }
 
-    override suspend fun invalidateState() {
-        state.emit(emptyList())
+    override suspend fun getPlaylistById(playlistId: Int): Playlist {
+        return playlistsDbConvertor.map(appDatabase.playlistsDao().getPlaylistById(playlistId))
+    }
+
+    override suspend fun getTracksByIds(trackIds: List<Int>): List<Track> {
+        val trackEntities = playlistsTracksDatabase.playlistsTracksDao().getTracksById(trackIds)
+        return trackEntities.map { playlistsTracksDbConverter.map(it) }
     }
 
     override suspend fun deletePlaylistById(playlistId: Int) {
         appDatabase.playlistsDao().deletePlaylistById(playlistId)
+        playlistsTracksDatabase.playlistsTracksDao().deleteOrphanedTracks()
     }
 
 
@@ -68,12 +74,17 @@ class PlaylistMakerRepositoryImpl(
         return playlistsTracksDbConverter.map(track)
     }
 
-    override suspend fun removeTrackFromPlaylist(track: Track, playlist: Playlist) {
-//        playlist.trackIds.toMutableList().remove(track.trackId)
-//        playlist.trackCount--
-//        appDatabase.playlistsDao().update(convertFromPlaylist(playlist))
-//        playlistsTracksDatabase.playlistsTracksDao()
-//            .deleteTrack(track.trackId)
+    override suspend fun deleteTrackFromPlaylist(playlist: Playlist, track: Track) {
+        val updatedTrackIds = playlist.trackIds.toMutableList().apply { remove(track.trackId) }
+        val updatedPlaylist =
+            playlist.copy(trackIds = updatedTrackIds, trackCount = updatedTrackIds.size)
+        val currentPlaylists = state.value.toMutableList()
+        val count = currentPlaylists.count { track.trackId in it.trackIds }
+        if (count == 1) {
+            playlistsTracksDatabase.playlistsTracksDao().deleteTrack(track.trackId)
+        }
+        appDatabase.playlistsDao().update(convertFromPlaylist(updatedPlaylist))
+        updatePlaylist(updatedPlaylist)
     }
 
     private fun convertFromPlaylistsEntity(playlistEntities: List<PlaylistEntity>): List<Playlist> {

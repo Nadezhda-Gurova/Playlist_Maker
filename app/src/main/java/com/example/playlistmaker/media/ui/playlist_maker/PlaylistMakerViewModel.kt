@@ -1,6 +1,5 @@
 package com.example.playlistmaker.media.ui.playlist_maker
 
-
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.playlistmaker.media.domain.interactor.PlaylistMakerInteractor
@@ -10,7 +9,7 @@ import androidx.lifecycle.MutableLiveData
 import com.example.playlistmaker.media.ui.playlist.recyclerview.Playlist
 import kotlinx.coroutines.flow.collectLatest
 
-class PlaylistMakerViewModel(private val playlistInteractor: PlaylistMakerInteractor) :
+open class PlaylistMakerViewModel(private val playlistInteractor: PlaylistMakerInteractor) :
     ViewModel() {
 
     private val _playlistCreationCompleted = MutableLiveData<Unit>()
@@ -36,7 +35,6 @@ class PlaylistMakerViewModel(private val playlistInteractor: PlaylistMakerIntera
 
     fun onDestroy() {
         viewModelScope.launch {
-            playlistInteractor.invalidateState()
         }
     }
 

@@ -65,7 +65,6 @@ class FavoriteTracksFragment : Fragment() {
 
     }
 
-
     private fun renderTracks(loadingState: FavoriteTracksState?) {
         when (loadingState) {
             is FavoriteTracksState.Content -> {
