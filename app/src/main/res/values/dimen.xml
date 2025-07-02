@@ -14,4 +14,7 @@
     <dimen name="text_icon_indent_settings">8dp</dimen>
     <dimen name="search_field">8dp</dimen>
     <dimen name="round_corner">2dp</dimen>
+    <dimen name="padding">12dp</dimen>
+    <dimen name="playlist_name">24sp</dimen>
+    <dimen name="playlist_info">18sp</dimen>
 </resources>

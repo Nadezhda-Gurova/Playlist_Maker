@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/navigation_graph"
+    app:startDestination="@id/mediaFragment">
+
+    <fragment
+        android:id="@+id/settingsFragment"
+        android:name="com.example.playlistmaker.settings.ui.SettingsFragment"
+        android:label="SettingsFragment" />
+    <fragment
+        android:id="@+id/searchFragment"
+        android:name="com.example.playlistmaker.search.ui.SearchFragment"
+        android:label="SearchFragment">
+        <action
+            android:id="@+id/action_searchFragment_to_mediaPlayerActivity"
+            app:destination="@id/mediaPlayerActivity" />
+    </fragment>
+    <fragment
+        android:id="@+id/mediaFragment"
+        android:name="com.example.playlistmaker.media.ui.media.MediaFragment"
+        android:label="MediaFragment">
+        <action
+            android:id="@+id/action_mediaFragment_to_mediaPlayerActivity"
+            app:destination="@id/mediaPlayerActivity" />
+        <!-- Новое действие для перехода к PlaylistMakerFragment -->
+        <action
+            android:id="@+id/action_mediaFragment_to_playlistMakerFragment"
+            app:destination="@id/playlistMakerFragment" />
+        <action
+            android:id="@+id/action_mediaFragment_to_playlistDetailsFragment"
+            app:destination="@id/playlistDetailsFragment">
+            <argument
+                android:name="trackId"
+                app:argType="integer" />
+        </action>
+
+    </fragment>
+    <activity
+        android:id="@+id/mediaPlayerActivity"
+        android:name="com.example.playlistmaker.player.ui.MediaPlayerActivity"
+        android:label="MediaPlayerActivity" />
+    <fragment
+        android:id="@+id/favoriteTracksFragment"
+        android:name="com.example.playlistmaker.media.ui.favorite.FavoriteTracksFragment"
+        android:label="FavoriteTracksFragment" />
+    <fragment
+        android:id="@+id/playlistsFragment"
+        android:name="com.example.playlistmaker.media.ui.playlist.PlaylistsFragment"
+        android:label="PlaylistsFragment">
+        <action
+            android:id="@+id/action_playlistsFragment_to_playlistMakerFragment"
+            app:destination="@id/playlistMakerFragment" />
+        <!--        <action-->
+        <!--            android:id="@+id/action_playlistsFragment_to_playlistDetailsFragment"-->
+        <!--            app:destination="@id/playlistDetailsFragment">-->
+        <!--            <argument-->
+        <!--                android:name="trackId"-->
+        <!--                app:argType="integer" />-->
+        <!--        </action>-->
+    </fragment>
+    <fragment
+        android:id="@+id/playlistMakerFragment"
+        android:name="com.example.playlistmaker.media.ui.playlist_maker.PlaylistMakerFragment"
+        android:label="PlaylistMakerFragment" />
+    <fragment
+        android:id="@+id/playlistDetailsFragment"
+        android:name="com.example.playlistmaker.media.ui.playlist_details.PlaylistDetailsFragment"
+        android:label="PlaylistDetailsFragment">
+        <action
+            android:id="@+id/action_playlistDetailsFragment_to_mediaFragment"
+            app:destination="@id/mediaFragment" />
+                <action
+            android:id="@+id/action_playlistDetailsFragment_to_editPlaylistFragment"
+            app:destination="@id/editPlaylistFragment">
+            <argument
+                android:name="playlistId"
+                app:argType="integer" />
+        </action>
+    </fragment>
+    <fragment
+        android:id="@+id/editPlaylistFragment"
+        android:name="com.example.playlistmaker.media.ui.playlist_edit.EditPlaylistFragment"
+        android:label="EditPlaylistFragment" />
+</navigation>

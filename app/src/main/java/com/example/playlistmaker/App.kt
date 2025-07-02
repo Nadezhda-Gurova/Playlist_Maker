@@ -1,35 +1,44 @@
 package com.example.playlistmaker
 
 import android.app.Application
-import androidx.appcompat.app.AppCompatDelegate
+import android.app.UiModeManager
+import android.content.Context
+import com.example.playlistmaker.di.dataModule
+import com.example.playlistmaker.di.favoriteTracksModule
+import com.example.playlistmaker.di.interactorModule
+import com.example.playlistmaker.di.mediaModule
+import com.example.playlistmaker.di.playlistEditModule
+import com.example.playlistmaker.di.playlistMakerModule
+import com.example.playlistmaker.di.playlistsModule
+import com.example.playlistmaker.di.repositoryModule
+import com.example.playlistmaker.di.viewModelModule
+import com.example.playlistmaker.settings.data.DarkModeRepositoryImpl
+import com.example.playlistmaker.settings.data.DarkModeRepositoryImpl.Companion.DARK_THEME_MODE
+import org.koin.android.ext.koin.androidContext
+import org.koin.core.context.GlobalContext.startKoin
 
 class App : Application() {
-
-    var darkTheme = false
-
     override fun onCreate() {
         super.onCreate()
-
-        val sharedPrefs = getSharedPreferences(DARK_THEME_MODE, MODE_PRIVATE)
-
-        darkTheme = sharedPrefs.getBoolean(DARK_THEME_TEXT_KEY, darkTheme)
-
-        switchTheme(darkTheme)
-    }
-
-    fun switchTheme(darkThemeEnabled: Boolean) {
-        darkTheme = darkThemeEnabled
-        AppCompatDelegate.setDefaultNightMode(
-            if (darkThemeEnabled) {
-                AppCompatDelegate.MODE_NIGHT_YES
-            } else {
-                AppCompatDelegate.MODE_NIGHT_NO
-            }
+        startKoin {
+            androidContext(this@App)
+            modules(
+                dataModule,
+                repositoryModule,
+                interactorModule,
+                viewModelModule,
+                mediaModule,
+                favoriteTracksModule,
+                playlistsModule,
+                playlistMakerModule,
+                playlistEditModule
+            )
+        }
+        val darkModeRepository = DarkModeRepositoryImpl(
+            sharedPreferences = getSharedPreferences(DARK_THEME_MODE, MODE_PRIVATE),
+            uiModeManager = getSystemService(Context.UI_MODE_SERVICE) as UiModeManager
         )
-    }
-
-    companion object {
-        const val DARK_THEME_MODE = "dark_theme_mode"
-        const val DARK_THEME_TEXT_KEY = "key_for_dark_theme"
+        val themeSettings = darkModeRepository.get()
+        darkModeRepository.save(themeSettings)
     }
 }
